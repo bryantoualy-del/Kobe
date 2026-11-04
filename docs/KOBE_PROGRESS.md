@@ -165,3 +165,11 @@ Validation intermédiaire : 12 tests Lot1 PASS. Parcours UI et tests Lot2 encore
 - Tests locaux : 29/29 PASS, dont 17 scénarios Lot2 ; build et contrôle statique PASS.
 - Commit moteur distant : `8e6ced388526a21fd6505226db8d9354fd9264de`.
 - Recette navigateur Lot2 et revue finale encore à effectuer. Aucun statut terminé revendiqué.
+
+### Lot 2 — revue et validation intermédiaire
+- PR #3 : https://github.com/bryantoualy-del/Kobe/pull/3
+- CI initiale `41913313152` réussie sur `dcb0c895` (tests/build/recette navigateur).
+- Revue supplémentaire : concentration indépendante des Inspirations, seuil mort instantanée après
+  absorption PV temp, journal de raté sans dégâts et formulaires d'actualisation des cibles corrigés.
+- 32 tests locaux PASS ; nouvelle CI de la tête corrigée exigée avant fusion.
+- Règles et limites détaillées dans `docs/LOT2_RULES.md`.
