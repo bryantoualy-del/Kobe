@@ -71,3 +71,5 @@ Aucun effet narratif ou déplacement externe n'est résolu sans confirmation de 
 Moquerie et petits objets de Prestidigitation suivent la fin du prochain tour, sans expirer au début.
 Lenteur propose un d20 de retard de sort (11+), et rappelle l’action requise au prochain tour.
 Cercle peut appliquer ses dégâts calculés aux PV locaux et utilise les sauvegardes CON du Lot2.
+Les critiques d'attaque de sort proviennent soit du20 naturel, soit d'un effet confirmé par le MJ
+(par exemple cible paralysée et attaquant à1,50m). Le contexte n'est pas déduit d'une distance inconnue.

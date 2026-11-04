@@ -586,3 +586,24 @@ test("next-turn effects survive next start and finish at the declared end bounda
   });
   assert.equal(t.effects.length, 0);
 });
+
+test("spell attack can critically hit under a confirmed paralysis effect without natural20", () => {
+  let s = cast(hpTarget(initialState()), "fire-bolt", {
+    targetIds: ["enemy"],
+    attackRolls: [15],
+  });
+  const denied = transition(
+    s,
+    cmd(s, "spell-resolve", {
+      id: s.pendingResolutions[0].id,
+      result: "critical",
+      rolls: [5, 5, 5, 5],
+    }),
+  );
+  assert.equal(denied.ok, false);
+  s = resolve(s, 0, "critical", {
+    criticalEligible: true,
+    rolls: [5, 5, 5, 5],
+  });
+  assert.equal(s.combat.targets[0].hp.current, 80);
+});

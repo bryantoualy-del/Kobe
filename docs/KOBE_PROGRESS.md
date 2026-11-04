@@ -250,3 +250,9 @@ de conteneur vide ; seul l'effet effectivement subi est suivi. Cartes limitées 
 détails complets dans la fiche. Première capture Grimoire inspectée à1180×820 ; palette/portées lisibles.
 Troisième CI : tests/build/Lot2 PASS ; attente du rendu Combat ajoutée à la recette avant de compter
 les favoris (navigation sauvegardée asynchrone). Pas de statut final avant nouvelle CI.
+
+### Lot3 — dernier contrôle des attaques
+78 tests locaux PASS, build/précache et diff PASS. Critique de Trait de feu possible hors20 naturel
+uniquement après confirmation d'un effet applicable (paralysie à1,50m par exemple) ; le1 reste raté.
+Aucun changement des sorts connus ou des ressources du Lot2. Tête distante finale et résultat CI
+seront inscrits à la clôture ; ne pas assimiler ces tests locaux à la recette physique Safari.

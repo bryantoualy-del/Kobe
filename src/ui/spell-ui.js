@@ -261,7 +261,7 @@ export function openSpellResolve(id, s, dispatch) {
         ? [
             ["miss", "Raté"],
             ["hit", "Touché"],
-            ["critical", "Critique (20 naturel)"],
+            ["critical", "Critique (20 naturel ou effet confirmé)"],
             ["refused", "Refus MJ"],
           ]
         : [
@@ -290,6 +290,10 @@ export function openSpellResolve(id, s, dispatch) {
       check("safeMovement", "Trajet sûr et déplacement effectivement exécuté");
   if (spell.attack)
     fields +=
+      check(
+        "criticalEligible",
+        "Effet imposant le critique confirmé par le MJ (ex. paralysie et attaquant à 1,50 m)",
+      ) +
       '<label>Dés critiques physiques (facultatif)<input name="rolls"></label>';
   show("Résoudre · " + spell.name, fields, (p) => {
     p.id = id;

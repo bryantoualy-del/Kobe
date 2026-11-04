@@ -401,8 +401,8 @@ export function spellCommand(s, c) {
           need(p.result === "critical", "20 naturel : critique.");
         else
           need(
-            p.result !== "critical",
-            "Critique hors 20 naturel : corriger le contexte à la table.",
+            p.result !== "critical" || p.criticalEligible === true,
+            "Critique hors 20 naturel : effet imposant le critique à confirmer par le MJ.",
           );
       }
       let amount = r.amount;
