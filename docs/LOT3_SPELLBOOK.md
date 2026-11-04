@@ -73,3 +73,20 @@ Lenteur propose un d20 de retard de sort (11+), et rappelle l’action requise a
 Cercle peut appliquer ses dégâts calculés aux PV locaux et utilise les sauvegardes CON du Lot2.
 Les critiques d'attaque de sort proviennent soit du20 naturel, soit d'un effet confirmé par le MJ
 (par exemple cible paralysée et attaquant à1,50m). Le contexte n'est pas déduit d'une distance inconnue.
+
+
+## Catalogue livré
+
+| Niveau | Sorts connus intégrés |
+|---|---|
+|0|Moquerie cruelle ; Illusion mineure ; Prestidigitation ; Réparation ; Trait de feu (racial)|
+|1|Mot de guérison ; Murmures dissonants|
+|2|Amélioration de caractéristique ; Suggestion ; Image miroir ; Aide|
+|3|Lenteur ; Dissipation de la magie ; Boule de feu (Secret magique) ; Refuge de Leomund (rituel)|
+|4|Terrain hallucinatoire ; Charme-monstre|
+|5|Cercle de pouvoir (Secret magique) ; Immobilisation de monstre|
+
+Livraison fusionnée PR #4, merge7d4f95d ; CI41920259091 **success**,78 tests, Chromium et WebKit,
+rechargement offline Chromium. Captures finales dans l'artefact13366377537 du même workflow.
+Les limites ci-dessus constituent les décisions de table et les validations matérielles restantes ;
+aucun sort connu n'est absent du catalogue ou privé de commande de lancement.

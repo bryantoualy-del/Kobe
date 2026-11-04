@@ -7,7 +7,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
 | 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
-| 3 Grimoire musical (mission actuelle) | En validation — PR #4 | Catalogue19 sorts, moteur, favoris ; recette navigateur en cours |
+| 3 Grimoire musical (mission actuelle) | Terminé et fusionné — PR #4 | Merge7d4f95d ; 78 tests et recettes Chromium/WebKit PASS |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
 
@@ -266,3 +266,34 @@ ressources et en-tête Combat compact, sans retirer les commandes existantes. Re
 renforcée pour vérifier ce bandeau avec les quatre favoris. Nouvelle capture requise avant fusion.
 Recette bandeau : l'ancien sélecteur de PV est devenu ambigu (deux affichages synchronisés).
 Il cible désormais explicitement le panneau PV d'origine ; aucune assertion de valeur retirée.
+
+
+## Clôture Lot 3 — 4 novembre 2026
+
+PR #4 fusionnée : https://github.com/bryantoualy-del/Kobe/pull/4
+Commit de fusion : `7d4f95d4c0e4ada6ef93576d7bac8902ffc1765a`.
+Branche : `feat/kobe-lot3-spellbook` ; tête testée : `d873c0541832313b6ea6bc3a175a415b40f762a0`.
+Base : `e92ea32` ; revue distante :7 commits devant,0 derrière,17 fichiers, aucun fichier supprimé.
+Le commit de clôture suivant est documentaire : aucune modification du code testé.
+
+Validation finale : https://github.com/bryantoualy-del/Kobe/actions/runs/41920259091 — **success**.
+- `npm test` :78/78 PASS (33 existants et45 nouveaux).
+- `npm run build`, `npm run test:e2e` (statique), `git diff --check` :PASS.
+- `node scripts/browser-smoke.mjs` : scénarios Lot2 Chromium/WebKit PASS ; offline Chromium PASS.
+- `node scripts/spellbook-browser.mjs` : filtres/recherche/détails,4favoris persistants,
+  disponibilité, Boule multi-cibles avec sauvegardes distinctes et PV68/84, slots, Cercle/reload,
+  remplacement par Lenteur, modales et bandeau économie/ressources à1180×820 PASS dans les deux moteurs.
+- Hors ligne après premier chargement : grimoire19sorts et reprise Chromium PASS.
+- Captures finales Grimoire, Combat/favoris et modale WebKit inspectées, sans débordement horizontal.
+
+Captures complètes : https://github.com/bryantoualy-del/Kobe/actions/runs/41920259091/artifacts/13366377537
+Catalogue et cas de tests : [LOT3_SPELLBOOK.md](LOT3_SPELLBOOK.md), `src/kobe/spell-catalog.js`.
+
+Aucun sort de la fiche omis. Les effets narratifs restent soumis au MJ (illusions, tâche de Suggestion,
+réparation et refuge/terrain) ; déplacements et fins de tour externes sont déclarés, pas inventés.
+Incantations longues/rituelles : confirmation rétrospective d'une durée achevée sans interruption,
+avec consommation atomique à la fin, sans simulateur intermédiaire. PV externes inconnus : montants
+à annoncer ; PV déclarés : application locale. Sources autorisées et résumés originaux uniquement.
+Safari iPad physique et reload offline WebKit non validés, à conserver dans la recette Lot5.
+Khar-Vek complet et intégration réseau restent hors de cette mission. Reprise depuis main sans refaire
+l'économie, les ressources, la concentration, le store ou le grimoire.
