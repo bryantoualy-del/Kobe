@@ -1,3 +1,4 @@
+import {spellById} from './spell-catalog.js';
 import {freshCombat, validateCombat} from './combat.js';
 export const SCHEMA = 2;
 export const LIMITS = Object.freeze({inspiration: 5, cry: 4, majesty: 1, charges: 6});
@@ -27,7 +28,7 @@ export function validateState(s) {
   integer(s.economy.movementRemaining, 0, 1000); integer(s.turn.startRevision);
   if (s.turn.actorId !== 'kobe' || typeof s.turn.epoch !== 'string' || typeof s.turn.combatId !== 'string') throw new Error('Tour invalide.');
   validateCombat(s);
-  if (!TABS.includes(s.preferences.tab) || !Array.isArray(s.preferences.favorites) || s.preferences.favorites.length > 4 || s.preferences.favorites.some(x => typeof x !== 'string')) throw new Error('Préférences invalides.');
+  if (!TABS.includes(s.preferences.tab) || !Array.isArray(s.preferences.favorites) || s.preferences.favorites.length > 4 || new Set(s.preferences.favorites).size!==s.preferences.favorites.length || s.preferences.favorites.some(x => !spellById(x))) throw new Error('Préférences invalides.');
   if (typeof s.notes !== 'string' || s.notes.length > 20000) throw new Error('Notes invalides.');
   if (!s.receipts || Array.isArray(s.receipts) || typeof s.receipts !== 'object') throw new Error('Reçus invalides.');
   for (const [id, r] of Object.entries(s.receipts)) {

@@ -36,9 +36,9 @@ try{
    await page.getByRole('tab',{name:'Combat'}).click();
    await page.getByLabel('Valeur').fill('10');
    await page.getByRole('button',{name:'Dégâts'}).click();
-   await page.getByText('73/83').waitFor();
+   await page.locator('.stats').getByText('73/83').waitFor();
    await page.reload();
-   await page.getByText('73/83').waitFor();
+   await page.locator('.stats').getByText('73/83').waitFor();
    await page.getByRole('tab',{name:'Social'}).click();
    await page.getByLabel('Notes de Kobe').fill('Roark à retrouver.');
    await page.getByRole('button',{name:'Enregistrer les notes'}).click();
@@ -54,7 +54,7 @@ try{
     await page.reload();
     await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
     await page.getByRole('tab',{name:'Combat'}).click();
-    await page.getByText('73/83').waitFor();
+    await page.locator('.stats').getByText('73/83').waitFor();
     await context.setOffline(false);
    } else {
     // Playwright WebKit on Linux fails internally on offline page.reload().
@@ -62,7 +62,7 @@ try{
     await page.reload();
     await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
     await page.getByRole('tab',{name:'Combat'}).click();
-    await page.getByText('73/83').waitFor();
+    await page.locator('.stats').getByText('73/83').waitFor();
    }
    // Lot2: real form workflow, then persistence/offline. No injected combat state.
    await page.getByText('Bénéficiaires et ennemis · suivi local').click();

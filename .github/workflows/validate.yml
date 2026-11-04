@@ -1,7 +1,7 @@
 name: Validate Kobe
 on:
   push:
-    branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat]
+    branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat, feat/kobe-lot3-spellbook]
   pull_request:
 jobs:
   test-build:
@@ -29,11 +29,13 @@ jobs:
       - name: Install headless browser engines
         run: npx playwright install --with-deps chromium webkit
       - name: Browser smoke (WebKit / Chromium, offline reload)
-        run: node scripts/browser-smoke.mjs
+        run: |
+          node scripts/browser-smoke.mjs
+          node scripts/spellbook-browser.mjs
 
       - name: Preserve browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kobe-lot2-browser-evidence
+          name: kobe-lot3-browser-evidence
           path: screenshots/

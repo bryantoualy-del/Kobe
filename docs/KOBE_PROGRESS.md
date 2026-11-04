@@ -7,7 +7,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
 | 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
-| 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
+| 3 Grimoire musical (mission actuelle) | En validation — PR #4 | Catalogue19 sorts, moteur, favoris ; recette navigateur en cours |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
 
@@ -217,3 +217,52 @@ Limites restantes : Safari physique (Lot5), rechargement offline WebKit/Linux no
 strictement déclaratif ; Majesté par emplacement non autorisée ; Perception de fiche à arbitrer.
 Grimoire complet, vestige et réseau non développés conformément à la mission. Prochaine reprise depuis
 main, consulter LOT2_RULES.md et les tests avant toute extension, ne pas refaire ce moteur.
+
+## Lot 3 — grimoire, checkpoint moteur et interface (4 novembre 2026)
+Base e92ea32 ; branche feat/kobe-lot3-spellbook, aucun travail antérieur écrasé.
+La mission utilisateur actuelle prime sur l'ancien intitulé Khar-Vek du Lot3 : grimoire musical.
+Trois pages PDF lues/rendues, 19 sorts transcrits, sources Tasha p27 et Xanathar recoupées.
+Catalogue, commandes de sorts via transition centrale, coûts via spendAction partagé Lot2,
+concentration/horloge/repos/receipts/undo/store conservés. Favoris et grimoire sur le même lancement.
+71 tests Node PASS (33 préexistants +38 Lot3), build et contrôle statique PASS.
+Interface et recette navigateur en cours : aucun PASS navigateur Lot3 encore revendiqué.
+
+### Lot3 — première CI et consolidation
+PR #4 ouverte, tête8809012. CI41917756820 : 71 tests/build PASS et ancienne recette Lot2
+Chromium+WebKit PASS. La nouvelle recette a révélé qu'elle cliquait les favoris avant la fin
+de leurs sauvegardes asynchrones. Attente explicite des commits ajoutée ; interface rendue
+inerte pendant une transaction pour éviter les commandes UI qui se chevauchent.
+Ajout de deux tests de compatibilité (Manteau/PV temp externe et résolution legacy interdite)
+ainsi que synchronisation du pool de PV temp des cibles. 73 tests locaux PASS.
+Rapport de cas et résultats attendus ajouté à LOT3_SPELLBOOK.md. Nouvelle CI requise.
+
+### Lot3 — accessibilité et reprise des données
+Deuxième CI : tests/build et recette Lot2 PASS ; la recette Lot3 a identifié les libellés des
+sélecteurs imbriqués (nom accessible incluant les options). Noms accessibles explicites ajoutés.
+74 tests locaux PASS, dont rejet des sauvegardes de sorts corrompues. Modules nouveaux formatés
+pour revue ; retour en haut d'onglet et captures de viewport ajoutés. CI finale encore requise.
+
+### Lot3 — validation des frontières de tour
+77 tests locaux PASS. Vérifications supplémentaires : Cercle applique les dégâts calculés aux PV
+locaux via le pipeline Lot2 (y compris CON), Lenteur calcule le retard11+, effets jusqu'à fin du
+prochain tour conservés au début du tour. Les sorts à sauvegarde sans concentration ne créent plus
+de conteneur vide ; seul l'effet effectivement subi est suivi. Cartes limitées à trois lignes de résumé,
+détails complets dans la fiche. Première capture Grimoire inspectée à1180×820 ; palette/portées lisibles.
+Troisième CI : tests/build/Lot2 PASS ; attente du rendu Combat ajoutée à la recette avant de compter
+les favoris (navigation sauvegardée asynchrone). Pas de statut final avant nouvelle CI.
+
+### Lot3 — dernier contrôle des attaques
+78 tests locaux PASS, build/précache et diff PASS. Critique de Trait de feu possible hors20 naturel
+uniquement après confirmation d'un effet applicable (paralysie à1,50m par exemple) ; le1 reste raté.
+Aucun changement des sorts connus ou des ressources du Lot2. Tête distante finale et résultat CI
+seront inscrits à la clôture ; ne pas assimiler ces tests locaux à la recette physique Safari.
+
+### Lot3 — CI complète et revue des captures
+Tête571db88 : workflow41919559180 **success**, 78 tests, build et contrôles statiques PASS,
+recettes Lot2 et Lot3 Chromium/WebKit PASS, hors ligne Chromium PASS.
+Captures Grimoire/Favoris/modale inspectées : aucun chevauchement ; toutefois les favoris repoussaient
+l'économie d'action sous le premier écran. Ajout d'un bandeau synthétique PV/CA/économie/concentration/
+ressources et en-tête Combat compact, sans retirer les commandes existantes. Recette du viewport
+renforcée pour vérifier ce bandeau avec les quatre favoris. Nouvelle capture requise avant fusion.
+Recette bandeau : l'ancien sélecteur de PV est devenu ambigu (deux affichages synchronisés).
+Il cible désormais explicitement le panneau PV d'origine ; aucune assertion de valeur retirée.
