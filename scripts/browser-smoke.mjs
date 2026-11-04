@@ -46,7 +46,7 @@ try{
    await page.reload();
    assert.equal(await page.getByLabel('Notes de Kobe').inputValue(),'Roark à retrouver.');
    await page.getByRole('tab',{name:'Journal'}).click();
-   assert(await page.getByText('10 dégâts reçus').count()>0);
+   await page.getByText(/10 dégâts reçus/).waitFor();
    // Ensure app shell is cached and local state survives loss of network after initial installation.
    await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{timeout:15000});
    await context.setOffline(true);
