@@ -117,3 +117,12 @@ Reste : interface, build/cache et tests avec deux vraies pages navigateur. Aucun
 
 **Point de reprise exact :** conserver la branche `feat/kobe-lot1-ui`, vérifier CI `41902184767`, corriger ses erreurs uniquement, relire changements main…branche, ouvrir PR Lot1, fusionner uniquement avec contrôles satisfaits. Références visuelles fournies par l'utilisateur à intégrer ultérieurement depuis un actif correctement autorisé, sans substituer le monogramme.
 
+
+### Validation CI après livraison
+
+- Exécution GitHub Actions : https://github.com/bryantoualy-del/Kobe/actions/runs/41902184767
+- SHA testé : `2b5640681feb50f849008aea3ef199f8e412e465`, résultat **success**.
+- Commandes CI : `npm test`, `npm run build`, `npm run test:e2e`, `git diff --check`.
+- Commit documentaire postérieur sans modification de code : `4055b8241565ee85dc748a96460d3cd666ae5dc9`.
+- Revue delta `main...feat/kobe-lot1-ui` : 10 commits en avance, 0 en retard, 14 fichiers (ajouts + documentation), aucune suppression.
+- Limite : `test:e2e` statique, pas de navigateur piloté ; cache/interaction à valider sur Safari physique avant statut complet.
