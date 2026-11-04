@@ -2,7 +2,7 @@
 import {mkdir} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 const commits={
-  "Encounter": "3e9299f39a8c2c400ec024187a3165d69d2a0f5e",
+  "Encounter": "908dfc9091c2620bfb6678e8fc656e913d5fe903",
   "RPG-Connect": "f1c441dbe9bc097e94677b6e98abc9cf66d8fb9d",
   "Brackmard": "08e4b2b1d2021b565db597a2c8eece713bee520a",
   "Kentaro": "eeb458de76f7e34104dbe7e072a3f18d045b49af",
