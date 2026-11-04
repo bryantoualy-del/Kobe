@@ -1,11 +1,10 @@
-import {applyHP, roll} from "./health.js";
+import {applyHP, roll, hpOf} from "./health.js";
 import { SPELLS, spellById, maxTargets, diceFor } from "./spell-catalog.js";
 import {
   spendAction,
   assertCanAct,
   endConcentration,
   advance,
-  afterDamage,
 } from "./combat.js";
 import { removeSpellEffects } from "./spell-lifecycle.js";
 const need = (ok, msg) => {
@@ -13,8 +12,6 @@ const need = (ok, msg) => {
 };
 const integer = (v, min, max) =>
   need(Number.isSafeInteger(v) && v >= min && v <= max, "Nombre hors limites.");
-const hpOf = (s, id) =>
-  id === "kobe" ? s.hp : s.combat.targets.find((t) => t.id === id)?.hp;
 const targetExists = (s, id) =>
   id === "kobe" || s.combat.targets.some((t) => t.id === id);
 function effect(s, c, spell, ids, extra = {}) {

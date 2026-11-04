@@ -7,8 +7,8 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
 | 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
-| 3 Grimoire musical (mission actuelle) | Terminé et fusionné — PR #4 | Merge7d4f95d ; 78 tests et recettes Chromium/WebKit PASS |
-| 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
+| 3 Grimoire musical | Terminé et fusionné — PR #4 | Merge7d4f95d ; 78 tests et recettes Chromium/WebKit PASS |
+| 4 Khar-Vek (mission actuelle) | Implémenté, recette navigateur en cours — PR #5 | Pouvoirs, widget, dragon et percussion ; validation avant fusion |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
 
 ## Commits et branches
@@ -316,3 +316,12 @@ option sans animation et préférence OS respectées. Percussion P1 écrite : fe
 Aucune percussion ne reçoit le dispatcher ; aucun coût/soin avant formulaire confirmé.
 Moteurs locaux Playwright absents et téléchargement navigateur indisponible dans ce runtime :
 validation réelle prévue dans GitHub Actions Chromium/WebKit, sans revendiquer encore son succès.
+
+### Lot 4 — première CI et consolidation
+PR #5 : https://github.com/bryantoualy-del/Kobe/pull/5 ; moteur distant `d0277a5`.
+Première tête UI `00f1859` : tests/build PASS ; recettes Lots2–3 Chromium/WebKit PASS.
+La recette Lot4 a exécuté les trois soins, coûts uniques, annulation, reprise et frappes1/2/3
+sous Chromium puis buté sur son bouton Reset dans un panneau replié après une correction.
+Le test ouvre désormais ce panneau avant de cliquer Reset ; aucune assertion fonctionnelle retirée.
+113 tests locaux PASS après ajout échec de sauvegarde/retry/reprise et undo complet du Manteau.
+Guide LOT4_KHARVEK.md ajouté ; nouvelle CI exigée avant fusion, Safari physique toujours non vérifié.

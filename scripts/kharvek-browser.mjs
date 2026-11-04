@@ -42,7 +42,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  await page.locator('[data-drum]').click();await page.locator('[data-drum]').click();await page.getByText('2 frappes : séquence invalide · aucune dépense',{exact:true}).waitFor();assert.equal(await page.locator('dialog').count(),0);
  await correct(6);
  await page.locator('[data-drum]').click();await page.locator('[data-drum]').click();await page.locator('[data-drum]').click();await page.locator('dialog h2').filter({hasText:'Rythme de ralliement'}).waitFor();assert.equal((await state()).resources.charges,6);await page.getByRole('button',{name:'Annuler',exact:true}).click();
- await page.locator('[data-drum]').click();await page.locator('[data-rhythm-reset]').click();await page.waitForTimeout(900);assert.equal(await page.locator('dialog').count(),0);
+ await page.locator('.kharvek-controls summary').click();await page.locator('[data-drum]').click();await page.locator('[data-rhythm-reset]').click();await page.waitForTimeout(900);assert.equal(await page.locator('dialog').count(),0);
  await correct(0);assert.equal(await page.locator('[data-kharvek=rally]').isDisabled(),true);assert.equal(await page.locator('[data-kharvek=survivors]').isDisabled(),true);
  await page.locator('[data-kharvek=dawn]').click();await confirm();assert.equal((await state()).resources.charges,6);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'iPad horizontal overflow');
