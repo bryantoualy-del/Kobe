@@ -157,3 +157,11 @@ Architecture Lot0, référentiel et PDF Kobe relus ; section Glamour Xanathar p.
 Moteur pur ajouté via la transition unique existante ; migration v1→v2 avec sauvegarde originale,
 reçus et undo conservés. Capacités, résolutions MJ, temps narratif, repos et cibles externes locaux.
 Validation intermédiaire : 12 tests Lot1 PASS. Parcours UI et tests Lot2 encore en cours.
+
+### Lot 2 — checkpoint interface et tests
+- Commandes réelles raccordées à Combat, formulaires de cibles et confirmations conditionnelles.
+- Début/fin de tour distincts, concentration/effets/résolutions, réactions externes déclarées.
+- Social : Représentation et transcription des compétences ; anomalie Perception conservée visible.
+- Tests locaux : 29/29 PASS, dont 17 scénarios Lot2 ; build et contrôle statique PASS.
+- Commit moteur distant : `8e6ced388526a21fd6505226db8d9354fd9264de`.
+- Recette navigateur Lot2 et revue finale encore à effectuer. Aucun statut terminé revendiqué.
