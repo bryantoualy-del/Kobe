@@ -33,6 +33,7 @@ export function openSpellCast(id,s,dispatch){const spell=spellById(id),levels=av
 }
 export function openSpellResolve(id,s,dispatch){const r=s.pendingResolutions.find(r=>r.id===id),spell=spellById(r.spellId);let fields=`<p>${esc(s.combat.targets.find(t=>t.id===r.targetIds[0])?.name??r.targetIds[0])} · ${spell.attack?'Attaque '+r.attackTotal+' (d20 '+r.natural+')':spell.save+' DD17'} · ${r.amount??0} dégâts bruts</p>`+select('result','Résultat annoncé par le MJ',spell.attack?[['miss','Raté'],['hit','Touché'],['critical','Critique (20 naturel)'],['refused','Refus MJ']]:[['failure','Sauvegarde échouée'],['success','Sauvegarde réussie'],['refused','Refus MJ']]);
  if(spell.dice)fields+=select('defense','Défenses confirmées',[['normal','Normales'],['resistant','Résistance : moitié'],['immune','Immunité : zéro'],['vulnerable','Vulnérabilité : double'],['manual','Montant effectif fixé par le MJ']])+input('effective','Montant effectif (mode MJ seulement)',0,'number')+input('reason','Motif si montant MJ','Décision de table');
+ if(spell.id==='dissonant-whispers')fields+=check('moveReaction','Réaction de fuite confirmée par le MJ et le propriétaire')+check('safeMovement','Trajet sûr et déplacement effectivement exécuté');
  if(spell.attack)fields+='<label>Dés critiques physiques (facultatif)<input name="rolls"></label>';
  show('Résoudre · '+spell.name,fields,p=>{p.id=id;p.effective=Number(p.effective);if(spell.attack&&p.result==='critical')p.rolls=readRolls(p.rolls,...diceFor(spell,r.level,true));return dispatch('spell-resolve',p);});
 }

@@ -226,3 +226,12 @@ Catalogue, commandes de sorts via transition centrale, coûts via spendAction pa
 concentration/horloge/repos/receipts/undo/store conservés. Favoris et grimoire sur le même lancement.
 71 tests Node PASS (33 préexistants +38 Lot3), build et contrôle statique PASS.
 Interface et recette navigateur en cours : aucun PASS navigateur Lot3 encore revendiqué.
+
+### Lot3 — première CI et consolidation
+PR #4 ouverte, tête8809012. CI41917756820 : 71 tests/build PASS et ancienne recette Lot2
+Chromium+WebKit PASS. La nouvelle recette a révélé qu'elle cliquait les favoris avant la fin
+de leurs sauvegardes asynchrones. Attente explicite des commits ajoutée ; interface rendue
+inerte pendant une transaction pour éviter les commandes UI qui se chevauchent.
+Ajout de deux tests de compatibilité (Manteau/PV temp externe et résolution legacy interdite)
+ainsi que synchronisation du pool de PV temp des cibles. 73 tests locaux PASS.
+Rapport de cas et résultats attendus ajouté à LOT3_SPELLBOOK.md. Nouvelle CI requise.
