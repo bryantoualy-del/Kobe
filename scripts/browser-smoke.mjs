@@ -31,7 +31,7 @@ try{
    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
    for(const tab of ['Combat','Sorts & pouvoirs','Social','Journal']) {
     await page.getByRole('tab',{name:tab}).click();
-    assert.equal(await page.getByRole('tab',{name:tab}).getAttribute('aria-selected'),'true');
+    await page.waitForFunction(label => [...document.querySelectorAll('[role="tab"]')].some(el => el.textContent === label && el.getAttribute('aria-selected') === 'true'), tab);
    }
    await page.getByRole('tab',{name:'Combat'}).click();
    await page.getByLabel('Valeur').fill('10');
