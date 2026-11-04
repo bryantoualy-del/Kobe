@@ -264,3 +264,5 @@ Captures Grimoire/Favoris/modale inspectées : aucun chevauchement ; toutefois l
 l'économie d'action sous le premier écran. Ajout d'un bandeau synthétique PV/CA/économie/concentration/
 ressources et en-tête Combat compact, sans retirer les commandes existantes. Recette du viewport
 renforcée pour vérifier ce bandeau avec les quatre favoris. Nouvelle capture requise avant fusion.
+Recette bandeau : l'ancien sélecteur de PV est devenu ambigu (deux affichages synchronisés).
+Il cible désormais explicitement le panneau PV d'origine ; aucune assertion de valeur retirée.
