@@ -1,3 +1,4 @@
+import {mantleUpgradeFields,healingRolls} from "./kharvek-ui.js";
 import {spellById} from '../kobe/spell-catalog.js';
 export const skills=[['Athlétisme',1],['Acrobaties',6],['Discrétion',4],['Escamotage',4],['Arcanes',1],['Histoire',1],['Investigation',1],['Nature',1],['Religion',1],['Dressage',3],['Intuition',9,'Expertise'],['Médecine',3],['Perception',10,'Expertise · valeur de fiche, calcul standard +9'],['Survie',3],['Intimidation',7],['Persuasion',13,'Expertise'],['Représentation',13,'Expertise'],['Tromperie',7]];
 const names={inspiration:'Inspiration bardique',majesty:'Manteau de majesté',cry:'Cri draconique',charmed:'Charme',command:'Injonction',fire:'Trait de feu',performance:'Représentation captivante',concentration:'Concentration',condition:'État temporaire',silenced:'Silence',incapacitated:'Neutralisé',unconscious:'Inconscient',stunned:'Étourdi',paralyzed:'Paralysé',petrified:'Pétrifié',prone:'À terre',frightened:'Effrayé'};
@@ -24,6 +25,7 @@ export function openCombatForm(action,s,dispatch){
  if(['majesty','majesty-command'].includes(mode)){fields+=input('word','Ordre en un mot','text','Halte')+check('commandEligible','Comprend la langue, non morte-vivante, ordre non directement dangereux')+check('charmedByKobe','Cible déjà charmée par Kobe (confirmé)');if(s.concentration&&mode==='majesty')fields+=check('replaceConcentration','Terminer la concentration actuelle : '+esc(s.concentration.name));}
  if(mode==='performance')fields+=check('minuteComplete','Une minute de représentation terminée')+check('humanoids','Toutes les cibles sont humanoïdes');
  }
+ if(mode==='mantle')fields+=mantleUpgradeFields(s);
  if(mode==='target-save'){const t=extra.target;fields=input('name','Nom','text',t?.name??'')+select('side','Type',[['ally','Allié'],['enemy','Ennemi']])+input('temp','PV temporaires connus (−1 = inconnu)','number',t?.temp??-1)+select('reaction','Réaction déclarée',[['unknown','Inconnue'],['yes','Disponible'],['no','Consommée']]);}
  if(mode==='move')fields=input('meters','Distance parcourue (m)','number',3);
  if(mode==='time'){fields=input('seconds','Secondes écoulées dans la fiction','number',60)+check('confirmed','Temps confirmé à la table');description='Ne dépend pas de l’horloge réelle. Un round = 6 secondes ; le prochain début de tour fait avancer un round.';}
@@ -37,6 +39,7 @@ export function openCombatForm(action,s,dispatch){
  dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),p=Object.fromEntries(f);for(const el of dialog.querySelectorAll('input[type=checkbox]'))if(el.name!=='target')p[el.name]=el.checked;
  if(targeting)p.targetIds=f.getAll('target');
  for(const k of ['roll','meters','seconds','damage','song','value','duration'])if(k in p)p[k]=Number(p[k]);
+ if(mode==='mantle'&&p.survivorTargetId)p.healRolls=healingRolls(p.healRolls,'survivors');
  if(mode==='mantle')p.choices=Object.fromEntries(p.targetIds.map(id=>[id,{temp:p['temp:'+id],move:p['move:'+id]===true,confirmed:p['move:'+id]===true}]));
  if(mode==='target-save'){p.id=extra.target?.id??'target-'+crypto.randomUUID();p.temp=Number(p.temp)===-1?null:Number(p.temp);p.reaction=p.reaction==='unknown'?null:p.reaction==='yes';}
  if(mode==='inspiration-use')p.effectId=extra.effectId;

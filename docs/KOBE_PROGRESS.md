@@ -306,3 +306,13 @@ ni morts-vivants ni artificiels ; inconscients admissibles aux soins directs, Ma
 conditions. Fonctions de dés/PV extraites du Lot3 sans modification pour partage, transition et
 store uniques. Trois pouvoirs, synergie Manteau atomique, aube distincte du repos, reçus et undo.
 Interface, captures et recette navigateur encore en cours ; aucun PASS visuel revendiqué.
+
+### Lot 4 — checkpoint interface / P1
+111 tests Node PASS (78 préexistants +33 nouveaux) ; build et contrôle statique PASS.
+Widget SVG original rouge/or inspiré du tambour officiel, six marques dérivées des charges,
+quatre stades du dragon, contrôles directs et Manteau contextuel raccordés. Animation légère,
+option sans animation et préférence OS respectées. Percussion P1 écrite : fenêtre configurable
+400–1600ms (800 par défaut), 1/3 sélectionnent un brouillon, 2 invalide, reset/annulation.
+Aucune percussion ne reçoit le dispatcher ; aucun coût/soin avant formulaire confirmé.
+Moteurs locaux Playwright absents et téléchargement navigateur indisponible dans ce runtime :
+validation réelle prévue dans GitHub Actions Chromium/WebKit, sans revendiquer encore son succès.
