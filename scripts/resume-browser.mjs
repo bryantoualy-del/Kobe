@@ -32,12 +32,14 @@ try{
    await page.goto(url);await page.locator('.stats').getByText('77/83').waitFor();
    await page.waitForFunction(async()=>!(await navigator.serviceWorker.ready).waiting&&(await caches.keys()).includes('kobe-lot5-v2-recipe'));
    console.log(name+': browser process closed/reopened with same profile; HP 77/83 retained after waiting SW update PASS.');
+   await page.waitForFunction(()=>navigator.serviceWorker.controller!==null);
+   await page.waitForFunction(async()=>!!await (await caches.open('kobe-lot5-v2-recipe')).match('./index.html'));
    unavailable=true;
    try{
     await page.reload({timeout:12000});await page.getByRole('heading',{name:'Kobe Kozzo',exact:true}).waitFor({timeout:5000});
     await page.getByRole('button',{name:'Soin',exact:true}).click();await page.locator('.stats').getByText('78/83').waitFor();
     console.log(name+': origin HTTP 503, cached navigation and offline heal persisted PASS.');
-   }catch(e){console.log(name+': origin unavailable after process restart FAILED: '+e.message);throw e;}
+   }catch(e){console.log(name+': origin unavailable after process restart FAILED: '+e.message+' · document '+(await page.locator('body').innerText()).slice(0,160));throw e;}
   }finally{unavailable=false;await ctx?.close();await rm(dir,{recursive:true,force:true});}
  }
 }finally{http.close();}
