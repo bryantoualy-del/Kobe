@@ -8,7 +8,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
 | 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
 | 3 Grimoire musical | Terminé et fusionné — PR #4 | Merge7d4f95d ; 78 tests et recettes Chromium/WebKit PASS |
-| 4 Khar-Vek (mission actuelle) | Implémenté, recette navigateur en cours — PR #5 | Pouvoirs, widget, dragon et percussion ; validation avant fusion |
+| 4 Khar-Vek | Terminé et fusionné — PR #5,34183ee |113 tests et recettes Chromium/WebKit PASS, P1 percussion livrée |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
 
 ## Commits et branches
@@ -34,7 +34,7 @@ Contrôle documentaire réussi : 21 liens relatifs, 26 ancres et empreintes de s
 1. **Récupération durable des prototypes complets** : les deux commits Pilot20 sont locaux, non retrouvés sur branche distante.
    Publication publique des prototypes refusée par revue automatique pour dépassement du Lot0 documentaire.
    Originaux intacts ; autorisation explicite nécessaire pour cette publication. Ne bloque pas le socle décrit au Lot1.
-2. **Connexion Kobe** : le main serveur/Encounter ne l’inscrit pas ; Lot4 doit coordonner les deux registres.
+2. **Connexion Kobe** : le main serveur/Encounter ne l’inscrit pas ; intégration réseau hors de la mission Lot4 Khar-Vek. Le combat local ne dépend pas de cette connexion.
 3. **Décisions MJ** : Perception, variante Majesté, instruments/langue, armure/options Tasha ; politiques provisoires dans RULES_AND_ASSETS.
 4. **Emblème CC** : fichier Kobe retrouvé, aucune preuve qu’il s’agit de l’emblème collectif officiel.
 5. **Source MotM et texte initial intégral** : vérifier la nuance du Cri au Lot2 ; les priorités P0/P1 sont récupérées,
@@ -332,3 +332,44 @@ lisibles, mais la navigation persistante masquait le haut des captures du pannea
 centrent désormais le widget avant prise de vue. Ancre Khar-Vek depuis le bandeau de ressources
 pour accès rapide, contraste des raisons d'indisponibilité renforcé (texte conservé opaque).
 Aucun effet mécanique changé. Nouvelle tête finale à vérifier dans Chromium ET WebKit.
+
+
+## Clôture Lot 4 — 4 novembre 2026
+
+**Terminé et fusionné dans main**, PR #5 : https://github.com/bryantoualy-del/Kobe/pull/5
+Branche conservée : `feat/kobe-lot4-kharvek` ; base `8447c0b`.
+Fusion : `34183eec35d664de85ddd74401200d3438c68b7b`.
+Tête fonctionnelle testée : `2c45e803627f6a7802a7c68debaf7137d932317b`.
+Quatre commits distants fonctionnels,17 fichiers ajoutés/modifiés, aucun fichier supprimé,
+0commit derrière main avant fusion. Le présent commit de clôture est documentaire uniquement.
+
+CI finale : https://github.com/bryantoualy-del/Kobe/actions/runs/41923371307 — **success**.
+- `npm test` : **113/113 PASS** (78 préexistants +35 nouveaux).
+- Build autonome, précache, contrôle statique `test:e2e` et `git diff --check` : PASS.
+- Recettes réelles Lots2,3,4 : **Chromium ET WebKit Linux PASS**,1180×820.
+- Lot4 : contrôles directs, Pulsation/Ralliement/Manteau+Survivants, jet partagé, coûts uniques,
+  double soumission, annulation sans dépense, reprise locale, aube et affichages0–6 PASS.
+- Dragon0–1/2–3/4–5/6 dérivé des charges, commandes tactiles>=44px, absence de débordement,
+  réduction OS et commande sans animation : PASS. Captures0/3/6 et WebKit6 inspectées.
+- P1 **effectivement implémentée et testée** dans les deux moteurs :1frappe/3frappes ouvrent un
+  brouillon,2invalide, reset/annulation ; aucune dépense/soin avant confirmation. Fenêtre800ms
+  par défaut,400–1600configurables (contrôle unitaire). Son et haptique non livrés.
+- Hors ligne **Chromium PASS** : rechargement puis véritable pouvoir confirmé et sauvegardé.
+- Tests moteur complémentaires : refus atomiques (action/bonus/ressources/Silence/conditions),
+  plafonnement, PV temp conservés, inconscients, replay après reload/undo, restauration intégrale
+  du Manteau, échec d'écriture sans dépense puis retry exact et reprise du store.
+
+Démonstration exécutée : Pulsation4/5/6 →20PV (Kobe43→63) ; Ralliement4/5 →14PV par cible
+(Kobe63→77, alliés10→24 chacun) ; Survivants8 →13PV (Roark24→37) +11PV temp,
+exactement1bonus,1Inspiration et1charge. Les cas de plafonnement sont également testés.
+
+Captures finales et formulaires :
+https://github.com/bryantoualy-del/Kobe/actions/runs/41923371307/artifacts/13368440877
+Règles, usage et scénario reproductible : [LOT4_KHARVEK.md](LOT4_KHARVEK.md).
+
+**Limites maintenues** : Safari iPad physique et reload offline WebKit non validés ; tests à
+1180×820 ne constituent pas une mesure de performance sur matériel iPad. Cibles/portées/Silence
+externes confirmés à la table ; PV déclarés suivis localement, aucune mutation distante. Réglages
+rythme/confort de session non persistés (les règles et ressources le sont). RPG Connect non intégré.
+Kobe est jouable localement avec ses pouvoirs après premier chargement et cache complet, sans
+serveur RPG Connect. Prochaine reprise : Lot5 recette/livraison depuis main, sans refaire Lots1–4.
