@@ -44,6 +44,7 @@ jobs:
           node scripts/spellbook-browser.mjs
           node scripts/kharvek-browser.mjs
           node scripts/table-browser.mjs
+          node scripts/resume-browser.mjs
 
       - name: Prepare visual review
         if: always()
