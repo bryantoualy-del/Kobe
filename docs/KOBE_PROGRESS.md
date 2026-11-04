@@ -4,7 +4,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 
 | Lot | État | Dépendances / prochain geste |
 |---|---|---|
-| 0 Audit / récupération / architecture | Documents et contrôles terminés ; publication GitHub en cours | PR documentaire sur feat/kobe-lot0-audit |
+| 0 Audit / récupération / architecture | Documents et contrôles terminés ; PR #1 ouverte, fusion conditionnée aux vérifications | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Non commencé dans Kobe | Lire contrats ; récupérer sélectivement si commits disponibles |
 | 2 Personnage / sorts / Glamour | Non commencé dans Kobe | Lot1, arbitrages référentiel |
 | 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
@@ -53,3 +53,10 @@ Contrôle documentaire réussi : 21 liens relatifs, 26 ancres et empreintes de s
 
 Ajouter date, base, tête, PR/merge, fichiers modifiés, commande et résultat des tests, limites restantes,
 et décisions MJ. Ne jamais remplacer « non vérifié » par « opérationnel » sans nommer le scénario exécuté.
+
+## Publication du Lot 0
+
+- PR : https://github.com/bryantoualy-del/Kobe/pull/1
+- Commit documentaire distant initial : `68bc4cfa2b2f751cefee2f554d13abfdc47f44f8`.
+- Contrôles applicables : 165 tests PASS et contrôle documentaire PASS ; aucun workflow CI préexistant dans Kobe.
+- La fusion n'est autorisée qu'après vérification du diff distant (documentation seulement, zéro suppression) et état GitHub sans échec. L'état de fusion et son SHA sont accessibles dans la PR ci-dessus ; ne pas confondre un rapport de tests local et un workflow CI.
