@@ -297,3 +297,12 @@ avec consommation atomique à la fin, sans simulateur intermédiaire. PV externe
 Safari iPad physique et reload offline WebKit non validés, à conserver dans la recette Lot5.
 Khar-Vek complet et intégration réseau restent hors de cette mission. Reprise depuis main sans refaire
 l'économie, les ressources, la concentration, le store ou le grimoire.
+
+## Lot 4 — Khar-Vek, checkpoint moteur (4 novembre 2026)
+Base `8447c0b`, branche `feat/kobe-lot4-kharvek` ; Lots1–3 conservés et78 tests initiaux PASS.
+La mission actuelle remplace l'ancien intitulé réseau du Lot4 : vestige, dragon et soins locaux.
+Fiche et illustration officielles relues : tambour à portée/main libre, Silence sur Kobe OU cible,
+ni morts-vivants ni artificiels ; inconscients admissibles aux soins directs, Manteau conserve ses
+conditions. Fonctions de dés/PV extraites du Lot3 sans modification pour partage, transition et
+store uniques. Trois pouvoirs, synergie Manteau atomique, aube distincte du repos, reçus et undo.
+Interface, captures et recette navigateur encore en cours ; aucun PASS visuel revendiqué.
