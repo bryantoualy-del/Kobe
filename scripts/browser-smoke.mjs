@@ -101,6 +101,8 @@ try{
    if(label==='chromium')await context.setOffline(true);
    await page.reload();
    await page.getByRole('heading',{name:'Actions bardiques'}).waitFor();
+   const actionBox=await page.getByRole('button',{name:'Trait de feu · action',exact:true}).boundingBox();
+   assert.ok(actionBox.y+actionBox.height<=820,'primary action visible on iPad viewport');
    await mkdir('screenshots',{recursive:true});
    await page.screenshot({path:'screenshots/'+label+'-combat.png',fullPage:true});
    await page.getByRole('tab',{name:'Social',exact:true}).click();

@@ -173,3 +173,9 @@ Validation intermédiaire : 12 tests Lot1 PASS. Parcours UI et tests Lot2 encore
   absorption PV temp, journal de raté sans dégâts et formulaires d'actualisation des cibles corrigés.
 - 32 tests locaux PASS ; nouvelle CI de la tête corrigée exigée avant fusion.
 - Règles et limites détaillées dans `docs/LOT2_RULES.md`.
+
+### Lot 2 — revue des captures
+Captures Chromium Combat et WebKit Social inspectées à1180×820 : palette et navigation Lot1 préservées.
+Amélioration issue de la recette : actions bardiques remontées dans le rail droit pour accès sans
+faire défiler, fin/début de tour toujours accessible en bouton or ; libellés d'effets traduits.
+La recette navigateur vérifie aussi que Trait de feu est visible dans les820px du viewport.
