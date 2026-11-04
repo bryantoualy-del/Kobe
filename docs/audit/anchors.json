@@ -1,0 +1,184 @@
+[
+  {
+    "repository": "Brackmard",
+    "file": "index.html",
+    "line": 56,
+    "needle": ".resource-dashboard",
+    "sha256": "491915fbdf5667fa8719a9ad5c01f4881bac66cd7dab0c9d9838565c63dfd04a"
+  },
+  {
+    "repository": "Brackmard",
+    "file": "index.html",
+    "line": 480,
+    "needle": "function render()",
+    "sha256": "491915fbdf5667fa8719a9ad5c01f4881bac66cd7dab0c9d9838565c63dfd04a"
+  },
+  {
+    "repository": "Brackmard",
+    "file": "index.html",
+    "line": 412,
+    "needle": "function renderCombatAbilities",
+    "sha256": "491915fbdf5667fa8719a9ad5c01f4881bac66cd7dab0c9d9838565c63dfd04a"
+  },
+  {
+    "repository": "Brackmard",
+    "file": "index.html",
+    "line": 482,
+    "needle": "function applyHealing",
+    "sha256": "491915fbdf5667fa8719a9ad5c01f4881bac66cd7dab0c9d9838565c63dfd04a"
+  },
+  {
+    "repository": "Samoth",
+    "file": "companion.js",
+    "line": 360,
+    "needle": "function renderSpellList",
+    "sha256": "974d42966e6bd0070179b2fbb0e231856901296ff4e2ce03517471b91994fab7"
+  },
+  {
+    "repository": "Samoth",
+    "file": "companion.js",
+    "line": 135,
+    "needle": "function spellDice",
+    "sha256": "974d42966e6bd0070179b2fbb0e231856901296ff4e2ce03517471b91994fab7"
+  },
+  {
+    "repository": "Samoth",
+    "file": "rpg-samoth-automatismes.js",
+    "line": 2,
+    "needle": "(()=>",
+    "sha256": "35fae4cb30565d9e70dabe84bda253ad43c60158ae6e6625e5f8ae166f9b85cf"
+  },
+  {
+    "repository": "Samoth",
+    "file": "companion.js",
+    "line": 268,
+    "needle": "function nextTurn",
+    "sha256": "974d42966e6bd0070179b2fbb0e231856901296ff4e2ce03517471b91994fab7"
+  },
+  {
+    "repository": "Zephyr",
+    "file": "index.html",
+    "line": 264,
+    "needle": "function healSelf",
+    "sha256": "2287e8cfeb5d975aaf08569626640586d0fc480e7782048a79861107ceb96094"
+  },
+  {
+    "repository": "Zephyr",
+    "file": "index.html",
+    "line": 314,
+    "needle": "const supportKinds=",
+    "sha256": "2287e8cfeb5d975aaf08569626640586d0fc480e7782048a79861107ceb96094"
+  },
+  {
+    "repository": "Zephyr",
+    "file": "rpg-health.js",
+    "line": 27,
+    "needle": "async function choose",
+    "sha256": "3c3fc7b0e1c9d3f1e6b3f3057222e7e5848288011717c32c4890f78b2f887fb0"
+  },
+  {
+    "repository": "Encounter",
+    "file": "rpg-zephyr-authority.js",
+    "line": 7,
+    "needle": "function",
+    "sha256": "c4114552262e1f5933994a59336352312d419dde5b135cf92d5c365d418bd6a4"
+  },
+  {
+    "repository": "Kentaro",
+    "file": "kentaro-combat.js",
+    "line": 32,
+    "needle": "function finish",
+    "sha256": "ae9b460b3d2e4a17c18c3837ee4df3402638551b7d3817e8ce390b9dd96db522"
+  },
+  {
+    "repository": "Encounter",
+    "file": "rpg-kentaro-authority.js",
+    "line": 8,
+    "needle": "function",
+    "sha256": "501a0d7bc522c58c26c6e0dcb1be3cf8b828a2e3262f755c7cb77a205390d2a4"
+  },
+  {
+    "repository": "Kentaro",
+    "file": "kentaro-armure-malefice.js",
+    "line": 23,
+    "needle": "function recorded",
+    "sha256": "150f802f2326e4f86b1af8c92dd8adba8c4a60610c8fcc02012ce26476349407"
+  },
+  {
+    "repository": "Rufus",
+    "file": "rpg-rufus-defenses.js",
+    "line": 4,
+    "needle": "engine.register",
+    "sha256": "dd1cae869aba922edcc945cd7b0293ddd374ebdf147abf2981f880af1820497f"
+  },
+  {
+    "repository": "Rufus",
+    "file": "rpg-rufus-combat.js",
+    "line": 11,
+    "needle": "function revise",
+    "sha256": "1f83ff04747e4dd9c55d34bab3f78e69490430045a4052f5b17d8ccd475bac0f"
+  },
+  {
+    "repository": "Encounter",
+    "file": "rpg-rufus-authority.js",
+    "line": 4,
+    "needle": "function",
+    "sha256": "e802dff48fe3abd6357dced0573fd0ad97a367c90c3c8533af4bd76ffa172b41"
+  },
+  {
+    "repository": "Nans",
+    "file": "index.html",
+    "line": 276,
+    "needle": "function toggleRage",
+    "sha256": "37c8e60637e342f476e0c7ee45583e0c5925a56c9531613044e67ad81debe539"
+  },
+  {
+    "repository": "Nans",
+    "file": "index.html",
+    "line": 321,
+    "needle": "defenses:s=>",
+    "sha256": "37c8e60637e342f476e0c7ee45583e0c5925a56c9531613044e67ad81debe539"
+  },
+  {
+    "repository": "Nans",
+    "file": "index.html",
+    "line": 287,
+    "needle": "function damageRoll",
+    "sha256": "37c8e60637e342f476e0c7ee45583e0c5925a56c9531613044e67ad81debe539"
+  },
+  {
+    "repository": "Nans",
+    "file": "index.html",
+    "line": 266,
+    "needle": "function applyDamage",
+    "sha256": "37c8e60637e342f476e0c7ee45583e0c5925a56c9531613044e67ad81debe539"
+  },
+  {
+    "repository": "Brackmard",
+    "file": "rpg-table-session.js",
+    "line": 8,
+    "needle": "function context",
+    "sha256": "c72ac2f0d81717028c3ba1f19aa4a1d356fa3a33b63badc801b5aedc9471b784"
+  },
+  {
+    "repository": "RPG-Connect",
+    "file": "rpg-table-policy.js",
+    "line": 6,
+    "needle": "export function tacticalState",
+    "sha256": "10d0b4ae18bd310e50dac45af21dd26dd8f8a9c0cfb39a587302bc87ff05bd94"
+  },
+  {
+    "repository": "Brackmard",
+    "file": "rpg-turn-start.js",
+    "line": 2,
+    "needle": "(()=>",
+    "sha256": "4237b71da85687c0435ff022b76e733bbf28397ed956ba9c3368e4bd709397df"
+  },
+  {
+    "repository": "RPG-Connect",
+    "file": "rpg-connect-server.js",
+    "line": 9,
+    "needle": "kentaro",
+    "sha256": "50413c9bd78583654a9f971aff8fc3ccbc0a70592e4f1cdeba6d11ebebfa3d63"
+  }
+]

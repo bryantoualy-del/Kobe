@@ -1,0 +1,18 @@
+RPG Connect écoute sur 35725
+✔ salle, invitation, événement, déduplication, commande MJ et ack (145.056611ms)
+✔ contrat MJ étendu : toutes les commandes Encounter autorisées traversent le serveur (41.090681ms)
+✔ protocole et capacités incompatibles : refus explicite (66.539714ms)
+✔ événement joueur retenu tant que le MJ est déconnecté et acquittement final (156.437869ms)
+✔ activité collective : publication MJ, réception joueur et rejeu après reconnexion (28.264938ms)
+RPG Connect écoute sur 39715
+✔ explicit enemy disclosure, private state whitelist (4.220712ms)
+✔ free table default, real sockets: private rolls dropped, state retained, mode CAS and reconnect (674.334428ms)
+✔ lost GM discards unconfirmed Table commands before reconnect, preserves Guided queue (724.240072ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2353.931518
