@@ -4,8 +4,8 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 
 | Lot | État | Dépendances / prochain geste |
 |---|---|---|
-| 0 Audit / récupération / architecture | Documents et contrôles terminés ; PR #1 ouverte, fusion conditionnée aux vérifications | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
-| 1 Socle local | Non commencé dans Kobe | Lire contrats ; récupérer sélectivement si commits disponibles |
+| 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
+| 1 Socle local | Reprise en cours : inventaire terminé | Branche feat/kobe-lot1-ui ; étapes ci-dessous |
 | 2 Personnage / sorts / Glamour | Non commencé dans Kobe | Lot1, arbitrages référentiel |
 | 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
@@ -60,3 +60,22 @@ et décisions MJ. Ne jamais remplacer « non vérifié » par « opérationnel �
 - Commit documentaire distant initial : `68bc4cfa2b2f751cefee2f554d13abfdc47f44f8`.
 - Contrôles applicables : 165 tests PASS et contrôle documentaire PASS ; aucun workflow CI préexistant dans Kobe.
 - La fusion n'est autorisée qu'après vérification du diff distant (documentation seulement, zéro suppression) et état GitHub sans échec. L'état de fusion et son SHA sont accessibles dans la PR ci-dessus ; ne pas confondre un rapport de tests local et un workflow CI.
+
+## Reprise sécurisée Lot 1 — 4 novembre 2026
+
+Inventaire distant et local : main et feat/kobe-lot1-ui pointent sur `73a4351b7f874352d04c986e2427a5978b9fb1b8`.
+Branche Lot0 conservée (`63e0589`) ; seule PR existante #1 fusionnée. Aucun changement local initial.
+- Terminé avant reprise : Lot0 documentaire, création de la branche Lot1.
+- Partiel avant reprise : préparation du Lot1 uniquement (branche sans delta).
+- Non commencé dans le dépôt : moteur, stockage, interface, cache hors ligne, tests et build.
+- Aucun code applicatif interrompu retrouvé dans cette branche ou ce workspace. Les deux anciens prototypes
+  restent des références d'audit, pas du code récupéré. Application du chemin de reprise de LOTS.md.
+
+Étapes vérifiables, avec commit après chacune :
+1. Inventaire et correction du suivi (présent commit).
+2. Modèle/moteur pur, stockage sérialisé, migration/import/export, tests de transactions.
+3. Coque quatre onglets, palette officielle, tableau de bord, corrections et notes persistantes.
+4. Build statique/cache complet, tests navigateur de reprise et concurrence, rapport final et PR.
+
+Périmètre : socle Lot1 de LOTS.md ; sorts/Glamour détaillés Lot2, pouvoirs du vestige Lot3, réseau Lot4.
+Emblème officiel évoqué dans la conversation précédente absent des fichiers présents : ne pas en inventer.
