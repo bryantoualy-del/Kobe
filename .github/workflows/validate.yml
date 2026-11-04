@@ -16,3 +16,17 @@ jobs:
       - run: npm run test:e2e
       - name: Check whitespace
         run: git diff --check
+  browser-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - name: Install pinned browser test dependency
+        run: npm install --no-save --package-lock=false playwright@1.58.2
+      - name: Install headless browser engines
+        run: npx playwright install --with-deps chromium webkit
+      - name: Browser smoke (WebKit / Chromium, offline reload)
+        run: node scripts/browser-smoke.mjs
