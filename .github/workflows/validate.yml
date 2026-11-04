@@ -45,6 +45,13 @@ jobs:
           node scripts/kharvek-browser.mjs
           node scripts/table-browser.mjs
 
+      - name: Prepare visual review
+        if: always()
+        run: REVIEW_FRAME=1 node scripts/review-browser.mjs
+      - name: Probe the currently published Pages build (independent of PR)
+        if: always()
+        continue-on-error: true
+        run: node scripts/check-public.mjs https://bryantoualy-del.github.io/Kobe/
       - name: Preserve browser evidence
         if: always()
         uses: actions/upload-artifact@v4
