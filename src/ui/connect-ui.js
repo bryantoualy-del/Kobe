@@ -16,7 +16,7 @@ export function mountConnect(store){
     ${v.session?'<p>Tour partagé : '+escape(v.session.activeName||'—')+' · round '+escape(v.session.round||'—')+'</p>':''}
     <div>${v.group.map(r=>'<p><strong>'+escape(r.name)+'</strong> '+(r.health?escape(r.health.current)+'/'+escape(r.health.max)+' PV · '+escape(r.health.temp||0)+' temp':'PV non partagés')+' '+r.conditions.map(escape).join(', ')+'</p>').join('')}</div>
     ${(v.pending??[]).map(({event:e})=>'<article class="entry"><strong>'+escape(e.type)+'</strong><p>'+escape(e.payload?.text||'Décision du MJ à confirmer à la table')+'</p>'+
-      (['hp:set','tempHp:set'].includes(e.type)?'<p>Valeur proposée : '+escape(e.payload?.value)+' · valeur attendue : '+escape(e.payload?.expectedValue??'non fournie')+'</p><button data-accept="'+escape(e.id)+'">Appliquer cette correction</button>':'')+
+      (['hp:set','tempHp:set'].includes(e.type)?'<p>Valeur proposée : '+escape(e.payload?.value)+' · valeur attendue : '+escape(e.payload?.expectedValue??'non fournie')+'</p><button data-accept="'+escape(e.id)+'">Appliquer cette correction</button>':e.type==='conditions:set'?'<p>États proposés : '+escape((e.payload?.conditions||[]).map(c=>c?.name??c).join(', ')||'aucun')+'</p><button data-accept="'+escape(e.id)+'">Appliquer ces états</button>':'')+
       (['initiative:request','initiative:retry'].includes(e.type)?'<button data-initiative="'+escape(e.id)+'">Transmettre mon initiative</button>':'')+
       '<button data-decline="'+escape(e.id)+'">Traité à la table · sans application</button></article>').join('')}
     <button data-end-request>Demander au MJ la fin du tour</button>

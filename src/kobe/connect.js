@@ -28,16 +28,8 @@ export async function operationId(scope,event) {
   const digest=await globalThis.crypto.subtle.digest('SHA-256',bytes);
   return 'net-'+Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
 }
-export function correction(event,s) {
-  const p=event.payload??{};
-  if(p.manualTable!==true)throw Error('Correction MJ explicite requise.');
-  const field=event.type==='hp:set'?'hp':event.type==='tempHp:set'?'temp':null;
-  if(!field)throw Error('États distants : correction locale manuelle requise.');
-  const actual=field==='hp'?s.hp.current:s.hp.temp;
-  if(!Number.isSafeInteger(p.value)||p.value<0||p.value>(field==='hp'?s.hp.max:10000))throw Error('Valeur de correction invalide.');
-  if(p.expectedValue!==undefined&&p.expectedValue!==actual)throw Error('Conflit : les PV locaux ont changé. Demandez une nouvelle correction au MJ.');
-  return {field,value:p.value,reason:'Correction MJ validée par le joueur'};
-}
+import {correction} from './table-correction.js';
+export {correction};
 export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout}) {
   let socket=null,invite=null,active=false,timer=null,attempt=0,generation=0,chain=Promise.resolve();
   let epoch=uuid(),lastRevision=-1,lastProjection='',groupEpoch=null,groupRevision=-1;

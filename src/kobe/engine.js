@@ -1,3 +1,4 @@
+import {correction} from './table-correction.js';
 import {kharvekCommand} from "./kharvek.js";
 import {spellCommand} from './spells.js';
 import {combatCommand, afterDamage, advance, endConcentration} from './combat.js';
@@ -23,15 +24,12 @@ export function transition(state, command, context = {}) {
       case 'network-review': {
         if(command.origin!=='gm'||!p.remoteEvent||typeof p.remoteEvent.id!=='string'||!['accepted','declined'].includes(p.decision))fail('INVALID_COMMAND','Décision réseau invalide.');
         if(p.decision==='accepted'){
-          const remote=p.remoteEvent, q=remote.payload??{};
-          const field=remote.type==='hp:set'?'hp':remote.type==='tempHp:set'?'temp':null;
-          if(!field||field!==p.field||q.manualTable!==true||q.value!==p.value)fail('INVALID_COMMAND','Correction réseau invalide.');
-          const actual=field==='hp'?s.hp.current:s.hp.temp;
-          if(q.expectedValue!==undefined&&q.expectedValue!==actual)fail('STALE_REVISION','La valeur locale a changé.');
-          integer(p.value,0,field==='hp'?s.hp.max:10000);
-          if(field==='hp'){s.hp.current=p.value;if(!p.value)endConcentration(s);else s.combat.death={success:0,failure:0,stable:false,dead:false};}
-          else {s.hp.temp=p.value;s.hp.source=p.value?'Correction MJ':null;}
-          label=`Correction MJ validée : ${field} → ${p.value}`;
+          const {field,value}=correction(p.remoteEvent,s);
+          if(field!==p.field||canonical(value)!==canonical(p.value))fail('INVALID_COMMAND','Proposition incohérente.');
+          if(field==='hp'){s.hp.current=value;if(!value)endConcentration(s);else s.combat.death={success:0,failure:0,stable:false,dead:false};}
+          else if(field==='temp'){s.hp.temp=value;s.hp.source=value?'Correction MJ':null;}
+          else {s.combat.conditions=value;s.effects=s.effects.filter(effect=>effect.kind!=='condition'||value.includes(effect.conditionName));if(value.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x)))endConcentration(s);}
+          label=`Correction MJ validée : ${field} → ${value}`;
         }else label=`Demande MJ ${p.remoteEvent.type} traitée à la table, sans application automatique`;
         break;
       }

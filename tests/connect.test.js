@@ -113,3 +113,14 @@ test('write failure emits no acknowledgement or new snapshot; retry remains poss
   assert.equal(t.sockets.at(-1).messages.length,count);assert.equal(t.store.getState().hp.current,83);
   t.storage.set=set;assert.equal((await t.client.review('hp-1',true)).ok,true);
 });
+
+test('known manual conditions replace explicitly; incapacitation ends concentration, replay has no side effect',async()=>{
+ const t=setup();await t.join();
+ await t.store.dispatch({id:'conc',actorId:'kobe',origin:'player',expectedRevision:0,type:'concentration',payload:{name:'Cercle'}});
+ const event={id:'states',type:'conditions:set',payload:{manualTable:true,expectedStatuses:[],conditions:[{name:'Étourdi',durationType:'indefinite'}]}};
+ await t.command(event);
+ assert.deepEqual(t.store.getState().combat.conditions,[]);
+ assert.equal((await t.client.review('states',true)).ok,true);
+ assert.deepEqual(t.store.getState().combat.conditions,['stunned']);assert.equal(t.store.getState().concentration,null);
+ const revision=t.store.getState().revision;await t.command(event);assert.equal(t.store.getState().revision,revision);
+});
