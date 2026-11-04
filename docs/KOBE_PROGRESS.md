@@ -79,3 +79,12 @@ Branche Lot0 conservée (`63e0589`) ; seule PR existante #1 fusionnée. Aucun ch
 
 Périmètre : socle Lot1 de LOTS.md ; sorts/Glamour détaillés Lot2, pouvoirs du vestige Lot3, réseau Lot4.
 Emblème officiel évoqué dans la conversation précédente absent des fichiers présents : ne pas en inventer.
+
+### Étape 2 — transactions locales
+
+Modèle et commandes pures dans src/kobe ; sauvegarde JSON sous Web Locks (sans verrou disponible : lecture seule).
+PV, temporaires sans cumul, dépenses génériques atomiques, début de tour séquencé, corrections et annulation compensatoire.
+Migration v0 documentée uniquement (pas de conversion arbitraire des prototypes), sauvegarde originale avant migration/import.
+Import prévisualisé, reçus conservés, journal borné indépendamment des reçus.
+Validation : `npm test` — 12 tests PASS (rejeu, dernier usage, deux stores concurrents, quota, migration, import, récupération).
+Reste : interface, build/cache et tests avec deux vraies pages navigateur. Aucun test Safari physique à ce stade.
