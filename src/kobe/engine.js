@@ -1,3 +1,4 @@
+import {spellCommand} from './spells.js';
 import {combatCommand, afterDamage, advance, endConcentration} from './combat.js';
 import {canonical, freshEconomy, integer, LIMITS, snapshot, TABS, validateState} from './model.js';
 const fail = (code, message) => { throw Object.assign(new Error(message), {code}); };
@@ -36,7 +37,7 @@ export function transition(state, command, context = {}) {
       }
       case 'turn-start': {
         if (p.turn !== state.turn.startRevision + 1 || p.epoch !== state.turn.epoch || p.combatId !== state.turn.combatId) fail('STALE_REVISION','Tour déjà traité ou hors séquence.');
-        advance(s,6); s.effects=s.effects.filter(e=>!e.untilTurn||e.untilTurn>p.turn); s.combat.round++;s.combat.phase='active';s.combat.bonusSpell=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`; break;
+        advance(s,6); s.effects=s.effects.filter(e=>!e.untilTurn||e.untilTurn>p.turn); s.combat.round++;s.combat.phase='active';s.combat.bonusSpell=false;s.combat.leveledAction=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`; break;
       }
       case 'correct': {
         if (typeof p.reason !== 'string' || p.reason.length > 500) fail('INVALID_COMMAND','Motif invalide.');
@@ -52,7 +53,7 @@ export function transition(state, command, context = {}) {
         if (!s.undo || s.undo.commandId !== p.commandId) fail('INVALID_COMMAND','Aucune dernière action à annuler.');
         Object.assign(s,s.undo.before); s.undo = null; label = `Annulation explicite de ${p.commandId}`; break;
       }
-      default: detail=combatCommand(s,command); if(!detail)fail('INVALID_COMMAND','Commande inconnue.'); ({kind,label}=detail);
+      default: detail=spellCommand(s,command)??combatCommand(s,command); if(!detail)fail('INVALID_COMMAND','Commande inconnue.'); ({kind,label}=detail);
     }
     s.revision++;
     s.receipts[command.id] = {fingerprint, revision: s.revision};

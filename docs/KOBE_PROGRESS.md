@@ -217,3 +217,12 @@ Limites restantes : Safari physique (Lot5), rechargement offline WebKit/Linux no
 strictement déclaratif ; Majesté par emplacement non autorisée ; Perception de fiche à arbitrer.
 Grimoire complet, vestige et réseau non développés conformément à la mission. Prochaine reprise depuis
 main, consulter LOT2_RULES.md et les tests avant toute extension, ne pas refaire ce moteur.
+
+## Lot 3 — grimoire, checkpoint moteur et interface (4 novembre 2026)
+Base e92ea32 ; branche feat/kobe-lot3-spellbook, aucun travail antérieur écrasé.
+La mission utilisateur actuelle prime sur l'ancien intitulé Khar-Vek du Lot3 : grimoire musical.
+Trois pages PDF lues/rendues, 19 sorts transcrits, sources Tasha p27 et Xanathar recoupées.
+Catalogue, commandes de sorts via transition centrale, coûts via spendAction partagé Lot2,
+concentration/horloge/repos/receipts/undo/store conservés. Favoris et grimoire sur le même lancement.
+71 tests Node PASS (33 préexistants +38 Lot3), build et contrôle statique PASS.
+Interface et recette navigateur en cours : aucun PASS navigateur Lot3 encore revendiqué.
