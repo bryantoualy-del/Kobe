@@ -16,11 +16,11 @@ export function transition(state, command, context = {}) {
     switch (command.type) {
       case 'damage': {
         integer(p.amount, 1, 10000); const oldHP=s.hp.current; const absorbed = Math.min(s.hp.temp, p.amount);
-        s.hp.temp -= absorbed; s.hp.current = Math.max(0, s.hp.current - p.amount + absorbed);
+        s.hp.temp -= absorbed;if(!s.hp.temp)s.hp.source=null; s.hp.current = Math.max(0, s.hp.current - p.amount + absorbed);
         afterDamage(s,p.amount,command.id,oldHP,p.critical===true,absorbed); kind = 'damage'; label = `${p.amount} dégâts reçus (${absorbed} absorbés)`; break;
       }
       case 'heal': if(s.combat.death.dead) fail('DEAD','Un soin ne ressuscite pas.'); integer(p.amount, 1, 10000); s.hp.current = Math.min(s.hp.max, s.hp.current + p.amount); if(s.hp.current>0)s.combat.death={success:0,failure:0,stable:false,dead:false}; kind = 'heal'; label = `${s.hp.current - state.hp.current} PV récupérés`; break;
-      case 'set-temp-hp': integer(p.amount, 0, 10000); s.hp.temp = Math.max(s.hp.temp, p.amount); kind = 'temp'; label = `${s.hp.temp} PV temporaires (sans cumul)`; break;
+      case 'set-temp-hp': integer(p.amount, 0, 10000); if(p.amount>s.hp.temp)s.hp.source='Attribution manuelle';s.hp.temp = Math.max(s.hp.temp, p.amount); kind = 'temp'; label = `${s.hp.temp} PV temporaires (sans cumul)`; break;
       case 'spend': {
         if(s.hp.current===0||s.combat.death.dead||s.combat.conditions.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x)))fail('INCAPACITATED','Kobe ne peut pas agir.');
         if(p.economy!=='reactionAvailable'&&s.combat.phase!=='active')fail('OUT_OF_TURN','Hors tour de Kobe.');
@@ -40,7 +40,7 @@ export function transition(state, command, context = {}) {
       }
       case 'correct': {
         if (typeof p.reason !== 'string' || p.reason.length > 500) fail('INVALID_COMMAND','Motif invalide.');
-        if (p.field === 'hp') { integer(p.value, 0, s.hp.max); s.hp.current = p.value; if(p.value===0)endConcentration(s); }
+        if (p.field === 'hp') { integer(p.value, 0, s.hp.max); s.hp.current = p.value; if(p.value===0)endConcentration(s);else s.combat.death={success:0,failure:0,stable:false,dead:false}; }
         else if (p.field === 'temp') { integer(p.value, 0, 10000); s.hp.temp = p.value; }
         else if (Object.hasOwn(LIMITS,p.field)) {integer(p.value,0,LIMITS[p.field]); s.resources[p.field] = p.value;}
         else fail('INVALID_COMMAND','Correction non prise en charge.');

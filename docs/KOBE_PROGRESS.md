@@ -179,3 +179,8 @@ Captures Chromium Combat et WebKit Social inspectées à1180×820 : palette et n
 Amélioration issue de la recette : actions bardiques remontées dans le rail droit pour accès sans
 faire défiler, fin/début de tour toujours accessible en bouton or ; libellés d'effets traduits.
 La recette navigateur vérifie aussi que Trait de feu est visible dans les820px du viewport.
+
+### Lot 2 — dernière consolidation
+33 tests PASS localement, build/précache et diff sans erreur. Ajout du suivi d'états temporaires
+avec durée et expiration, saisie des critiques à0PV, correction vitale explicite.
+Aucun sort du grimoire ni animation du vestige ajouté.

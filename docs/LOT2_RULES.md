@@ -56,12 +56,14 @@ Adaptation pure locale de ces principes ; aucun import des globales DOM ou de le
 
 Schéma2 migré depuis0/1 sous le verrou existant, original sauvegardé avant écriture.
 Instantanés d'annulation migrés, reçus anti-rejeu conservés, ressources et effets dans le même commit.
+Les états temporaires peuvent recevoir une durée explicite ; leur expiration ne rétablit jamais
+une concentration perdue. Les critiques reçus à0PV sont saisissables explicitement.
 Les formulaires ne modifient pas l'état avant confirmation ; double soumission verrouillée.
 Une seule transition et un seul store ; aucun appel réseau nécessaire au combat.
 
 ## Validation
 
-32 tests Node dont20 cas Lot2 : inspiration,5 cibles,PVtemp,réactions,Majesté,concentration,Cri,
+33 tests Node dont21 cas Lot2 : inspiration,5 cibles,PVtemp,réactions,Majesté,concentration,Cri,
 Trait de feu,repos,double activation,correction,reprise JSON,journal,mort,migration et régressions.
 Build statique et contrôle de précache des modules réussis localement.
 La recette navigateur CI ajoute saisie réelle d'une cible, attribution/utilisation du d10, double clic,
