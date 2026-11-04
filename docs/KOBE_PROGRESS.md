@@ -126,3 +126,14 @@ Reste : interface, build/cache et tests avec deux vraies pages navigateur. Aucun
 - Commit documentaire postérieur sans modification de code : `4055b8241565ee85dc748a96460d3cd666ae5dc9`.
 - Revue delta `main...feat/kobe-lot1-ui` : 10 commits en avance, 0 en retard, 14 fichiers (ajouts + documentation), aucune suppression.
 - Limite : `test:e2e` statique, pas de navigateur piloté ; cache/interaction à valider sur Safari physique avant statut complet.
+
+### Reprise Lot 1 — validation navigateur renforcée (4 novembre 2026, suite)
+
+- Conservation stricte des commits moteur/stockage et des 12 tests initiaux.
+- Ajout du guide `docs/LOT1_USAGE.md` et d'une recette Playwright navigateur réelle dans `scripts/browser-smoke.mjs`, testée sous Chromium et WebKit Linux.
+- CI navigateur fixée sur ubuntu-24.04 après échec d'installation Playwright sur Ubuntu 26.04.
+- Tests de navigation, état/sauvegarde, journal et notes confirmés dans Chromium ; **rechargement hors ligne réussi sous Chromium** (job 41903953325).
+- WebKit : navigation et reprise locale réussies jusqu'à la dernière étape, puis erreur interne de Playwright WebKit sur `page.reload()` hors ligne. Cas isolé dans le test depuis `5713c3b`, à retester sur Safari iPad physique ; **aucun PASS offline WebKit revendiqué**.
+- Les scénarios navigateur attendent explicitement les commits asynchrones (onglets, notes, journal) avant les rechargements.
+- Lot 1 contenu et PR #2 : https://github.com/bryantoualy-del/Kobe/pull/2. Valider la CI finale puis merger la PR, sans suppression de fichiers ni anticipation des Lots 2–4.
+
