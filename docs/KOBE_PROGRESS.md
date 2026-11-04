@@ -7,7 +7,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
 | 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
-| 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
+| 3 Grimoire musical (mission actuelle) | En validation — PR #4 | Catalogue19 sorts, moteur, favoris ; recette navigateur en cours |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
 
@@ -235,3 +235,9 @@ inerte pendant une transaction pour éviter les commandes UI qui se chevauchent.
 Ajout de deux tests de compatibilité (Manteau/PV temp externe et résolution legacy interdite)
 ainsi que synchronisation du pool de PV temp des cibles. 73 tests locaux PASS.
 Rapport de cas et résultats attendus ajouté à LOT3_SPELLBOOK.md. Nouvelle CI requise.
+
+### Lot3 — accessibilité et reprise des données
+Deuxième CI : tests/build et recette Lot2 PASS ; la recette Lot3 a identifié les libellés des
+sélecteurs imbriqués (nom accessible incluant les options). Noms accessibles explicites ajoutés.
+74 tests locaux PASS, dont rejet des sauvegardes de sorts corrompues. Modules nouveaux formatés
+pour revue ; retour en haut d'onglet et captures de viewport ajoutés. CI finale encore requise.

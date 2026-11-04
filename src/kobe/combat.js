@@ -1,4 +1,5 @@
-import {removeSpellEffects} from './spell-lifecycle.js';
+import {spellById} from './spell-catalog.js';
+import {removeSpellEffects,validateSpellState} from './spell-lifecycle.js';
 // Pure local rules. External targets are declarations, never remote state mutations.
 export const freshCombat = () => ({round:1, phase:'active', elapsed:0, hitDice:10, death:{success:0,failure:0,stable:false,dead:false}, performance:1, targets:[], bonusSpell:false, conditions:[]});
 const need=(v,m)=>{if(!v)throw new Error(m);};
@@ -15,6 +16,7 @@ export function validateCombat(s){
  need(Array.isArray(s.effects)&&s.effects.length<=200&&Array.isArray(s.pendingResolutions)&&s.pendingResolutions.length<=100,'Effets invalides.');
  for(const e of s.effects){need(txt(e.id)&&txt(e.kind)&&Array.isArray(e.targetIds)&&e.targetIds.every(txt),'Effet invalide.');num(e.expires,0,100000000);}
  if(s.concentration!==null)need(txt(s.concentration.id)&&txt(s.concentration.name),'Concentration invalide.');
+ validateSpellState(s,spellById);
  for(const p of s.pendingResolutions)need(txt(p.id)&&['concentration','fire','command','performance','spell'].includes(p.kind),'Résolution invalide.');
 }
 export function endConcentration(s){const id=s.concentration?.id;s.concentration=null;if(id)removeSpellEffects(s,e=>e.concentrationId===id);s.pendingResolutions=s.pendingResolutions.filter(p=>p.kind!=='concentration'&&(!id||p.concentrationId!==id));}
