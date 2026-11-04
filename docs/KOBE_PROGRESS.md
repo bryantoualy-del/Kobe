@@ -325,3 +325,10 @@ sous Chromium puis buté sur son bouton Reset dans un panneau replié après une
 Le test ouvre désormais ce panneau avant de cliquer Reset ; aucune assertion fonctionnelle retirée.
 113 tests locaux PASS après ajout échec de sauvegarde/retry/reprise et undo complet du Manteau.
 Guide LOT4_KHARVEK.md ajouté ; nouvelle CI exigée avant fusion, Safari physique toujours non vérifié.
+
+### Lot 4 — revue visuelle
+Premières captures Chromium0/6 et formulaire Survivants inspectés : tambour/dragon et coûts
+lisibles, mais la navigation persistante masquait le haut des captures du panneau. Les captures
+centrent désormais le widget avant prise de vue. Ancre Khar-Vek depuis le bandeau de ressources
+pour accès rapide, contraste des raisons d'indisponibilité renforcé (texte conservé opaque).
+Aucun effet mécanique changé. Nouvelle tête finale à vérifier dans Chromium ET WebKit.
