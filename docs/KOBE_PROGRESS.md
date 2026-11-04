@@ -7,8 +7,8 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
 | 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
-| 3 Grimoire musical (mission actuelle) | Terminé et fusionné — PR #4 | Merge7d4f95d ; 78 tests et recettes Chromium/WebKit PASS |
-| 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
+| 3 Grimoire musical | Terminé et fusionné — PR #4 | Merge7d4f95d ; 78 tests et recettes Chromium/WebKit PASS |
+| 4 Khar-Vek (mission actuelle) | Implémenté, recette navigateur en cours — PR #5 | Pouvoirs, widget, dragon et percussion ; validation avant fusion |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
 
 ## Commits et branches
@@ -297,3 +297,38 @@ avec consommation atomique à la fin, sans simulateur intermédiaire. PV externe
 Safari iPad physique et reload offline WebKit non validés, à conserver dans la recette Lot5.
 Khar-Vek complet et intégration réseau restent hors de cette mission. Reprise depuis main sans refaire
 l'économie, les ressources, la concentration, le store ou le grimoire.
+
+## Lot 4 — Khar-Vek, checkpoint moteur (4 novembre 2026)
+Base `8447c0b`, branche `feat/kobe-lot4-kharvek` ; Lots1–3 conservés et78 tests initiaux PASS.
+La mission actuelle remplace l'ancien intitulé réseau du Lot4 : vestige, dragon et soins locaux.
+Fiche et illustration officielles relues : tambour à portée/main libre, Silence sur Kobe OU cible,
+ni morts-vivants ni artificiels ; inconscients admissibles aux soins directs, Manteau conserve ses
+conditions. Fonctions de dés/PV extraites du Lot3 sans modification pour partage, transition et
+store uniques. Trois pouvoirs, synergie Manteau atomique, aube distincte du repos, reçus et undo.
+Interface, captures et recette navigateur encore en cours ; aucun PASS visuel revendiqué.
+
+### Lot 4 — checkpoint interface / P1
+111 tests Node PASS (78 préexistants +33 nouveaux) ; build et contrôle statique PASS.
+Widget SVG original rouge/or inspiré du tambour officiel, six marques dérivées des charges,
+quatre stades du dragon, contrôles directs et Manteau contextuel raccordés. Animation légère,
+option sans animation et préférence OS respectées. Percussion P1 écrite : fenêtre configurable
+400–1600ms (800 par défaut), 1/3 sélectionnent un brouillon, 2 invalide, reset/annulation.
+Aucune percussion ne reçoit le dispatcher ; aucun coût/soin avant formulaire confirmé.
+Moteurs locaux Playwright absents et téléchargement navigateur indisponible dans ce runtime :
+validation réelle prévue dans GitHub Actions Chromium/WebKit, sans revendiquer encore son succès.
+
+### Lot 4 — première CI et consolidation
+PR #5 : https://github.com/bryantoualy-del/Kobe/pull/5 ; moteur distant `d0277a5`.
+Première tête UI `00f1859` : tests/build PASS ; recettes Lots2–3 Chromium/WebKit PASS.
+La recette Lot4 a exécuté les trois soins, coûts uniques, annulation, reprise et frappes1/2/3
+sous Chromium puis buté sur son bouton Reset dans un panneau replié après une correction.
+Le test ouvre désormais ce panneau avant de cliquer Reset ; aucune assertion fonctionnelle retirée.
+113 tests locaux PASS après ajout échec de sauvegarde/retry/reprise et undo complet du Manteau.
+Guide LOT4_KHARVEK.md ajouté ; nouvelle CI exigée avant fusion, Safari physique toujours non vérifié.
+
+### Lot 4 — revue visuelle
+Premières captures Chromium0/6 et formulaire Survivants inspectés : tambour/dragon et coûts
+lisibles, mais la navigation persistante masquait le haut des captures du panneau. Les captures
+centrent désormais le widget avant prise de vue. Ancre Khar-Vek depuis le bandeau de ressources
+pour accès rapide, contraste des raisons d'indisponibilité renforcé (texte conservé opaque).
+Aucun effet mécanique changé. Nouvelle tête finale à vérifier dans Chromium ET WebKit.

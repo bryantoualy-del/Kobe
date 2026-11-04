@@ -1,3 +1,4 @@
+import {kharvekCommand} from "./kharvek.js";
 import {spellCommand} from './spells.js';
 import {combatCommand, afterDamage, advance, endConcentration} from './combat.js';
 import {canonical, freshEconomy, integer, LIMITS, snapshot, TABS, validateState} from './model.js';
@@ -53,7 +54,7 @@ export function transition(state, command, context = {}) {
         if (!s.undo || s.undo.commandId !== p.commandId) fail('INVALID_COMMAND','Aucune dernière action à annuler.');
         Object.assign(s,s.undo.before); s.undo = null; label = `Annulation explicite de ${p.commandId}`; break;
       }
-      default: detail=spellCommand(s,command)??combatCommand(s,command); if(!detail)fail('INVALID_COMMAND','Commande inconnue.'); ({kind,label}=detail);
+      default: detail=kharvekCommand(s,command)??spellCommand(s,command)??combatCommand(s,command); if(!detail)fail('INVALID_COMMAND','Commande inconnue.'); ({kind,label}=detail);
     }
     s.revision++;
     s.receipts[command.id] = {fingerprint, revision: s.revision};
