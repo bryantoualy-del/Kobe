@@ -6,7 +6,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 |---|---|---|
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
-| 2 Personnage / sorts / Glamour | Non commencé dans Kobe | Lot1, arbitrages référentiel |
+| 2 Combat local / économie / Glamour / Social | Implémenté, validation finale PR #3 | Branche feat/kobe-lot2-combat ; voir clôture ci-dessous |
 | 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
@@ -184,3 +184,12 @@ La recette navigateur vérifie aussi que Trait de feu est visible dans les820px 
 33 tests PASS localement, build/précache et diff sans erreur. Ajout du suivi d'états temporaires
 avec durée et expiration, saisie des critiques à0PV, correction vitale explicite.
 Aucun sort du grimoire ni animation du vestige ajouté.
+
+### Lot 2 — validation fonctionnelle finale
+- Tête fonctionnelle `5bae1dba32e82f4f0b7a14746bb9c585800946aa` validée par CI `41914074751`.
+- 33/33 tests, build, contrôle statique et Chromium/WebKit PASS ; hors ligne Chromium PASS.
+- Captures Combat/Social/Journal dans l'artefact `kobe-lot2-browser-evidence` du workflow.
+- Dernière retouche issue des captures : bouton de tour intégré à la barre de navigation persistante
+  pour ne masquer aucune ressource ; emplacements de sorts repliables dans Combat.
+- Limites : Safari physique et WebKit offline restant au Lot5 ; réactions/effets externes déclaratifs ;
+  variante Majesté par emplacement désactivée ; grimoire complet/vestige/réseau hors de ce lot.
