@@ -1,7 +1,7 @@
 name: Validate Kobe
 on:
   push:
-    branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat, feat/kobe-lot3-spellbook, feat/kobe-lot4-kharvek]
+    branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat, feat/kobe-lot3-spellbook, feat/kobe-lot4-kharvek, feat/kobe-lot5-delivery]
   pull_request:
 jobs:
   test-build:
@@ -38,5 +38,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kobe-lot4-browser-evidence
+          name: kobe-lot5-browser-evidence
           path: screenshots/
