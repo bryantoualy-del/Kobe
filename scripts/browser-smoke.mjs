@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
-import {readFile} from 'node:fs/promises';
+import {readFile,mkdir} from 'node:fs/promises';
 import {join,extname,normalize,sep} from 'node:path';
 import {chromium,webkit} from 'playwright';
 
@@ -24,7 +24,7 @@ try{
  for(const [label,browserType] of [['chromium',chromium],['webkit',webkit]]){
   const browser=await browserType.launch({headless:true});
   try {
-   const context=await browser.newContext({serviceWorkers:'allow'});
+   const context=await browser.newContext({serviceWorkers:'allow',viewport:{width:1180,height:820}});
    const page=await context.newPage(), errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(address);
@@ -64,6 +64,54 @@ try{
     await page.getByRole('tab',{name:'Combat'}).click();
     await page.getByText('73/83').waitFor();
    }
+   // Lot2: real form workflow, then persistence/offline. No injected combat state.
+   await page.getByText('Bénéficiaires et ennemis · suivi local').click();
+   await page.getByRole('button',{name:'Ajouter / actualiser une cible'}).click();
+   await page.getByLabel('Nom',{exact:true}).fill('Brack');
+   await page.getByLabel('Réaction déclarée').selectOption('yes');
+   await page.getByRole('button',{name:'Confirmer',exact:true}).click();
+   await page.locator('dialog').waitFor({state:'detached'});
+   await page.getByRole('button',{name:'Inspiration · bonus · d10',exact:true}).click();
+   await page.getByLabel('Brack',{exact:true}).check();
+   await page.getByLabel('Portée et conditions ci-dessus vérifiées à la table').check();
+   await page.getByLabel('La cible ne possède aucun autre dé').check();
+   await page.getByRole('button',{name:'Confirmer',exact:true}).dblclick();
+   await page.locator('dialog').waitFor({state:'detached'});
+   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
+   await page.reload();
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.effects.filter(e=>e.kind==='inspiration').length),1);
+   await page.getByRole('button',{name:'Utiliser le d10',exact:true}).click();
+   await page.getByLabel('Résultat du d10').fill('7');
+   await page.getByRole('button',{name:'Confirmer',exact:true}).click();
+   await page.locator('dialog').waitFor({state:'detached'});
+   await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+   await page.getByRole('button',{name:'Début de mon tour',exact:true}).waitFor();
+   page.once('dialog',d=>d.accept());
+   await page.getByRole('button',{name:'Début de mon tour',exact:true}).click();
+   await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();
+   await page.getByRole('button',{name:'Manteau d’inspiration · bonus',exact:true}).click();
+   await page.getByLabel('Brack',{exact:true}).check();
+   await page.getByLabel('Déplacement immédiat confirmé').check();
+   await page.getByLabel('Portée et conditions ci-dessus vérifiées à la table').check();
+   await page.getByRole('button',{name:'Confirmer',exact:true}).click();
+   await page.locator('dialog').waitFor({state:'detached'});
+   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
+   const target=await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.combat.targets[0]);
+   assert.equal(target.temp,11);assert.equal(target.reaction,false);
+   if(label==='chromium')await context.setOffline(true);
+   await page.reload();
+   await page.getByRole('heading',{name:'Actions bardiques'}).waitFor();
+   const actionBox=await page.getByRole('button',{name:'Trait de feu · action',exact:true}).boundingBox();
+   assert.ok(actionBox.y+actionBox.height<=820,'primary action visible on iPad viewport');
+   await mkdir('screenshots',{recursive:true});
+   await page.screenshot({path:'screenshots/'+label+'-combat.png',fullPage:true});
+   await page.getByRole('tab',{name:'Social',exact:true}).click();
+   await page.getByRole('heading',{name:'Représentation captivante',exact:true}).waitFor();
+   await page.screenshot({path:'screenshots/'+label+'-social.png',fullPage:true});
+   await page.getByRole('tab',{name:'Journal',exact:true}).click();
+   await page.getByText(/Manteau : 11 PV temporaires proposés/).waitFor();
+   await page.screenshot({path:'screenshots/'+label+'-journal.png',fullPage:true});
+   console.log(label+': Lot2 forms, double click, Inspiration, Manteau, reactions, reload and screenshots PASS');
    assert.deepEqual(errors,[],label+' errors');
    await context.close();
    console.log(label+': four tabs, persistence, journal PASS'+(label==='chromium'?', offline reload PASS':', offline reload unverified (Playwright WebKit limitation)'));
@@ -72,3 +120,4 @@ try{
 }catch(e){failures++;console.error(e);process.exitCode=1;}
 finally{await new Promise(resolve=>server.close(resolve));}
 if(!failures)console.log('Real browser smoke PASS');
+

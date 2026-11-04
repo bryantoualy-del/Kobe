@@ -6,7 +6,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 |---|---|---|
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
-| 2 Personnage / sorts / Glamour | Non commencé dans Kobe | Lot1, arbitrages référentiel |
+| 2 Combat local / économie / Glamour / Social | Implémenté, validation finale PR #3 | Branche feat/kobe-lot2-combat ; voir clôture ci-dessous |
 | 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
@@ -148,3 +148,48 @@ Pipeline final de la tête de PR : `41904408834` et `41904420285`, les deux en `
 Résultat navigateur : navigation 4 onglets, PV, notes, journal, reload ; hors ligne + reload Chromium OK.
 **Limite maintenue** : rechargement offline WebKit/Linux non déclaré valide à cause d'une erreur interne Playwright ; la recette physique iPad Safari reste au Lot 5. Cette limite n'efface pas la validation du socle local testé.
 **Point de reprise suivant** : Lot 2 depuis `main`, selon docs/LOTS.md ; ne pas réimplémenter modèle/engine/storage, UI ou cache du Lot 1. Les lots 2–4 restent non commencés et n'ont pas été inclus dans cette fusion.
+
+
+## Lot 2 — checkpoint moteur (4 novembre 2026)
+Base vérifiée : main `777c5ca`, PR #1/#2 fusionnées, aucune branche Lot2 préexistante.
+Mission actuelle prioritaire : combat/Glamour/Social, grimoire complet exclu de ce lot.
+Architecture Lot0, référentiel et PDF Kobe relus ; section Glamour Xanathar p.14 recoupée.
+Moteur pur ajouté via la transition unique existante ; migration v1→v2 avec sauvegarde originale,
+reçus et undo conservés. Capacités, résolutions MJ, temps narratif, repos et cibles externes locaux.
+Validation intermédiaire : 12 tests Lot1 PASS. Parcours UI et tests Lot2 encore en cours.
+
+### Lot 2 — checkpoint interface et tests
+- Commandes réelles raccordées à Combat, formulaires de cibles et confirmations conditionnelles.
+- Début/fin de tour distincts, concentration/effets/résolutions, réactions externes déclarées.
+- Social : Représentation et transcription des compétences ; anomalie Perception conservée visible.
+- Tests locaux : 29/29 PASS, dont 17 scénarios Lot2 ; build et contrôle statique PASS.
+- Commit moteur distant : `8e6ced388526a21fd6505226db8d9354fd9264de`.
+- Recette navigateur Lot2 et revue finale encore à effectuer. Aucun statut terminé revendiqué.
+
+### Lot 2 — revue et validation intermédiaire
+- PR #3 : https://github.com/bryantoualy-del/Kobe/pull/3
+- CI initiale `41913313152` réussie sur `dcb0c895` (tests/build/recette navigateur).
+- Revue supplémentaire : concentration indépendante des Inspirations, seuil mort instantanée après
+  absorption PV temp, journal de raté sans dégâts et formulaires d'actualisation des cibles corrigés.
+- 32 tests locaux PASS ; nouvelle CI de la tête corrigée exigée avant fusion.
+- Règles et limites détaillées dans `docs/LOT2_RULES.md`.
+
+### Lot 2 — revue des captures
+Captures Chromium Combat et WebKit Social inspectées à1180×820 : palette et navigation Lot1 préservées.
+Amélioration issue de la recette : actions bardiques remontées dans le rail droit pour accès sans
+faire défiler, fin/début de tour toujours accessible en bouton or ; libellés d'effets traduits.
+La recette navigateur vérifie aussi que Trait de feu est visible dans les820px du viewport.
+
+### Lot 2 — dernière consolidation
+33 tests PASS localement, build/précache et diff sans erreur. Ajout du suivi d'états temporaires
+avec durée et expiration, saisie des critiques à0PV, correction vitale explicite.
+Aucun sort du grimoire ni animation du vestige ajouté.
+
+### Lot 2 — validation fonctionnelle finale
+- Tête fonctionnelle `5bae1dba32e82f4f0b7a14746bb9c585800946aa` validée par CI `41914074751`.
+- 33/33 tests, build, contrôle statique et Chromium/WebKit PASS ; hors ligne Chromium PASS.
+- Captures Combat/Social/Journal dans l'artefact `kobe-lot2-browser-evidence` du workflow.
+- Dernière retouche issue des captures : bouton de tour intégré à la barre de navigation persistante
+  pour ne masquer aucune ressource ; emplacements de sorts repliables dans Combat.
+- Limites : Safari physique et WebKit offline restant au Lot5 ; réactions/effets externes déclaratifs ;
+  variante Majesté par emplacement désactivée ; grimoire complet/vestige/réseau hors de ce lot.

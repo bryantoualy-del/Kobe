@@ -68,7 +68,7 @@ test('no Web Locks is explicitly read only',async()=>{
 test('migration saves original before conversion; unknown schema stays intact',async()=>{
  const f=fixture(),s=initialState();s.schemaVersion=0;delete s.notes;delete s.undo;
  const raw=JSON.stringify({format:'kobe-companion',schemaVersion:0,state:s});f.storage.setItem(KEY,raw);
- const a=f.store();assert.equal((await a.load()).ok,true);assert.equal(f.storage.getItem(BACKUP),raw);assert.equal(a.getState().schemaVersion,1);
+ const a=f.store();assert.equal((await a.load()).ok,true);assert.equal(f.storage.getItem(BACKUP),raw);assert.equal(a.getState().schemaVersion,2);
  const unknown='{"format":"kobe-companion","schemaVersion":99}';f.storage.setItem(KEY,unknown);
  assert.equal((await a.load()).ok,false);assert.equal(f.storage.getItem(KEY),unknown);
 });
@@ -89,3 +89,4 @@ test('corrupt original is retained and can be backed up during explicit recovery
  assert.equal((await a.dispatch(cmd(a.getState(),'damage',{amount:1}))).ok,false);
  assert.equal((await a.import(a.preview(JSON.stringify(envelope(initialState()))))).ok,true);assert.equal(f.storage.getItem(BACKUP),'broken');
 });
+
