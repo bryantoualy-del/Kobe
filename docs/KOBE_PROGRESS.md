@@ -4,8 +4,8 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 
 | Lot | État | Dépendances / prochain geste |
 |---|---|---|
-| 0 Audit / récupération / architecture | Documents et contrôles terminés ; PR #1 ouverte, fusion conditionnée aux vérifications | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
-| 1 Socle local | Non commencé dans Kobe | Lire contrats ; récupérer sélectivement si commits disponibles |
+| 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
+| 1 Socle local | Reprise en cours : inventaire terminé | Branche feat/kobe-lot1-ui ; étapes ci-dessous |
 | 2 Personnage / sorts / Glamour | Non commencé dans Kobe | Lot1, arbitrages référentiel |
 | 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
@@ -60,3 +60,80 @@ et décisions MJ. Ne jamais remplacer « non vérifié » par « opérationnel �
 - Commit documentaire distant initial : `68bc4cfa2b2f751cefee2f554d13abfdc47f44f8`.
 - Contrôles applicables : 165 tests PASS et contrôle documentaire PASS ; aucun workflow CI préexistant dans Kobe.
 - La fusion n'est autorisée qu'après vérification du diff distant (documentation seulement, zéro suppression) et état GitHub sans échec. L'état de fusion et son SHA sont accessibles dans la PR ci-dessus ; ne pas confondre un rapport de tests local et un workflow CI.
+
+## Reprise sécurisée Lot 1 — 4 novembre 2026
+
+Inventaire distant et local : main et feat/kobe-lot1-ui pointent sur `73a4351b7f874352d04c986e2427a5978b9fb1b8`.
+Branche Lot0 conservée (`63e0589`) ; seule PR existante #1 fusionnée. Aucun changement local initial.
+- Terminé avant reprise : Lot0 documentaire, création de la branche Lot1.
+- Partiel avant reprise : préparation du Lot1 uniquement (branche sans delta).
+- Non commencé dans le dépôt : moteur, stockage, interface, cache hors ligne, tests et build.
+- Aucun code applicatif interrompu retrouvé dans cette branche ou ce workspace. Les deux anciens prototypes
+  restent des références d'audit, pas du code récupéré. Application du chemin de reprise de LOTS.md.
+
+Étapes vérifiables, avec commit après chacune :
+1. Inventaire et correction du suivi (présent commit).
+2. Modèle/moteur pur, stockage sérialisé, migration/import/export, tests de transactions.
+3. Coque quatre onglets, palette officielle, tableau de bord, corrections et notes persistantes.
+4. Build statique/cache complet, tests navigateur de reprise et concurrence, rapport final et PR.
+
+Périmètre : socle Lot1 de LOTS.md ; sorts/Glamour détaillés Lot2, pouvoirs du vestige Lot3, réseau Lot4.
+Emblème officiel évoqué dans la conversation précédente absent des fichiers présents : ne pas en inventer.
+
+### Étape 2 — transactions locales
+
+Modèle et commandes pures dans src/kobe ; sauvegarde JSON sous Web Locks (sans verrou disponible : lecture seule).
+PV, temporaires sans cumul, dépenses génériques atomiques, début de tour séquencé, corrections et annulation compensatoire.
+Migration v0 documentée uniquement (pas de conversion arbitraire des prototypes), sauvegarde originale avant migration/import.
+Import prévisualisé, reçus conservés, journal borné indépendamment des reçus.
+Validation : `npm test` — 12 tests PASS (rejeu, dernier usage, deux stores concurrents, quota, migration, import, récupération).
+Reste : interface, build/cache et tests avec deux vraies pages navigateur. Aucun test Safari physique à ce stade.
+
+
+### Reprise après interruption — état vérifié et continuation (4 novembre 2026)
+
+**Inventaire GitHub :** main = `73a4351` (Lot0 fusionné, PR #1), branche `feat/kobe-lot1-ui` conservée. Seule PR identifiée : #1 fusionnée. La branche Lot1 contenait déjà `0aab795` : modèle, moteur, stockage, tests transactionnels (12 cas rapportés). Ces fichiers n'ont pas été écrasés.
+
+**Terminé et conservé avant cette reprise :**
+- Documentation normative Lot0 et validation documentaire.
+- Commandes pures `src/kobe/engine.js`, état versionné `model.js`, stockage `storage.js` avec reçus anti-doublons, prévisualisation import/export, migration sauvegardée et 12 tests Node.
+
+**Réalisé pendant la reprise, par commits fonctionnels bornés :**
+- `6d93651`, `74e99df`, `f88a287` : index et coque HTML/CSS/JS, quatre onglets, palette officielle, dashboard local, PV/PV temp, économie générique, fin de tour, correctif/annulation, notes et journal, export/import. Monogramme « K » uniquement temporaire, pas d'emblème inventé.
+- `f596133`, `f64cf39`, `0e61abb` : build statique sans dépendances npm externes, service worker à liste de précache, contrôles statiques d'artefacts.
+- `2b5640` : workflow GitHub Actions `npm test && npm run build && npm run test:e2e`.
+
+**Partiellement réalisé / non vérifié :**
+- Navigation et gestion d'état câblées ; recette navigateur réel et vraie persistance après fermeture **non exécutées**.
+- Hors ligne : mécanisme de cache écrit ; premier install, passage avion, reprise Safari **non testés**.
+- Économie générique opérationnelle au niveau moteur ; intégration des sorts/règles détaillés à venir au Lot2.
+- `test:e2e` est un contrôle *statique* et ne constitue PAS un test navigateur ou iPad.
+- Web Locks absents : mode lecture seule explicite. Vérifier Safari iPad ciblé, ne pas ignorer cette limite.
+- Pas de pipeline de screenshots ni de test de cibles tactiles automatisé ; recette iPad en Lot5.
+
+**Non commencé dans ce lot (hors périmètre conformément à LOTS.md) :** catalogue 19 sorts, classes et Social complets (Lot2), Khar-Vek et tambour interactif/portrait (Lot3), V5 (Lot4).
+
+**Suivi validation :** à la rédaction de cette note, workflow CI GitHub `41902184767` en cours, sans verdict. Ne PAS considérer le Lot1 terminé avant conclusion `success` et revue de diff. Test local impossible dans ce runtime : Git HTTPS ne résout pas github.com ; les commandes ne doivent pas être prétendues exécutées ici. Le contrôle visuel Safari Air 5 reste obligatoire lors de la recette.
+
+**Point de reprise exact :** conserver la branche `feat/kobe-lot1-ui`, vérifier CI `41902184767`, corriger ses erreurs uniquement, relire changements main…branche, ouvrir PR Lot1, fusionner uniquement avec contrôles satisfaits. Références visuelles fournies par l'utilisateur à intégrer ultérieurement depuis un actif correctement autorisé, sans substituer le monogramme.
+
+
+### Validation CI après livraison
+
+- Exécution GitHub Actions : https://github.com/bryantoualy-del/Kobe/actions/runs/41902184767
+- SHA testé : `2b5640681feb50f849008aea3ef199f8e412e465`, résultat **success**.
+- Commandes CI : `npm test`, `npm run build`, `npm run test:e2e`, `git diff --check`.
+- Commit documentaire postérieur sans modification de code : `4055b8241565ee85dc748a96460d3cd666ae5dc9`.
+- Revue delta `main...feat/kobe-lot1-ui` : 10 commits en avance, 0 en retard, 14 fichiers (ajouts + documentation), aucune suppression.
+- Limite : `test:e2e` statique, pas de navigateur piloté ; cache/interaction à valider sur Safari physique avant statut complet.
+
+### Reprise Lot 1 — validation navigateur renforcée (4 novembre 2026, suite)
+
+- Conservation stricte des commits moteur/stockage et des 12 tests initiaux.
+- Ajout du guide `docs/LOT1_USAGE.md` et d'une recette Playwright navigateur réelle dans `scripts/browser-smoke.mjs`, testée sous Chromium et WebKit Linux.
+- CI navigateur fixée sur ubuntu-24.04 après échec d'installation Playwright sur Ubuntu 26.04.
+- Tests de navigation, état/sauvegarde, journal et notes confirmés dans Chromium ; **rechargement hors ligne réussi sous Chromium** (job 41903953325).
+- WebKit : navigation et reprise locale réussies jusqu'à la dernière étape, puis erreur interne de Playwright WebKit sur `page.reload()` hors ligne. Cas isolé dans le test depuis `5713c3b`, à retester sur Safari iPad physique ; **aucun PASS offline WebKit revendiqué**.
+- Les scénarios navigateur attendent explicitement les commits asynchrones (onglets, notes, journal) avant les rechargements.
+- Lot 1 contenu et PR #2 : https://github.com/bryantoualy-del/Kobe/pull/2. Valider la CI finale puis merger la PR, sans suppression de fichiers ni anticipation des Lots 2–4.
+

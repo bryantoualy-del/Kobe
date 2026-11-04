@@ -1,0 +1,12 @@
+import {readFile,stat} from 'node:fs/promises';
+import {join} from 'node:path';
+import assert from 'node:assert/strict';
+const dir=join(process.cwd(),'dist');
+const files=['index.html','sw.js','src/ui/app.js','src/ui/styles.css','src/kobe/model.js','src/kobe/engine.js','src/kobe/storage.js'];
+for(const file of files)assert((await stat(join(dir,file))).size>0,file+' manquant');
+const [html,app,css,sw]=await Promise.all(['index.html','src/ui/app.js','src/ui/styles.css','sw.js'].map(p=>readFile(join(dir,p),'utf8')));
+for(const tab of ['Combat','Sorts & pouvoirs','Social','Journal'])assert(app.includes(tab),'onglet absent : '+tab);
+for(const hex of ['#151419','#B86637','#872F35','#E5B963','#F0E5CE'])assert(css.includes(hex),'palette absente '+hex);
+assert(html.includes('type="module"'));assert(!html.includes('https://'),'dépendance CDN');
+for(const path of files.filter(p=>p!=='sw.js'))assert(sw.includes('./'+path)||path==='index.html'&&sw.includes('./index.html'),'non précaché '+path);
+console.log('Contrôles build/cache/onglets/palette : PASS (vérification statique ; pas de navigateur réel).');
