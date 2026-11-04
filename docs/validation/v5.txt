@@ -1,0 +1,18 @@
+[csstree-match] BREAK after 15000 iterations
+✔ Kentaro real HTML: group tab, initiative, scoped glow, reaction correction and journal (9353.132167ms)
+✔ Brackmard real HTML: group tab, initiative, scoped glow, reaction correction and journal (2695.60173ms)
+✔ Samoth real HTML: group tab, initiative, scoped glow, reaction correction and journal (10041.66579ms)
+✔ Rufus real HTML: group tab, initiative, scoped glow, reaction correction and journal (4027.037483ms)
+✔ Nans real HTML: group tab, initiative, scoped glow, reaction correction and journal (10102.074119ms)
+RPG Connect écoute sur 40547
+✔ Zephyr real HTML: group tab, initiative, scoped glow, reaction correction and journal (4346.630687ms)
+[csstree-match] BREAK after 15000 iterations
+✔ V5 real seven applications + canonical WebSocket: player authority, enemy privacy, no attack delivery, reconnect (122731.537239ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 169131.21742

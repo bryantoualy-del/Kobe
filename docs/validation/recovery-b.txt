@@ -1,0 +1,30 @@
+✔ Kobe: spells spend slot and action once; duplicate transaction is inert (8.391577ms)
+✔ Kobe: mantle five allies, temp HP max and contextual survivor (4.045621ms)
+✔ Kobe: invalid survivor is atomic (0.764715ms)
+✔ Kobe: fireball uses one roll, mixed saves, resistance and idempotent resolution (2.859312ms)
+✔ Kobe: concentration replacement requires confirmation and removes old effects (2.839635ms)
+✔ Kobe: cry expires on next turn, not on arbitrary screen rendering (1.162973ms)
+✔ Kobe: rally heals three with one roll and caps HP (0.985928ms)
+✔ Kobe: short/long rest and dawn remain separate (1.069249ms)
+✔ Kobe: charges stages 0 / 3 / 6 and one/three charge spending (0.573141ms)
+✔ Kobe: taps select only; two taps invalid; expired sequence restarts (0.601797ms)
+✔ Kobe: insufficient charge, Silence, construct, undead block atomically (1.362062ms)
+✔ Kobe: unconscious living ally can be healed (0.836182ms)
+✔ Kobe: bonus spell 2014 restriction in both orders (2.236234ms)
+✔ Kobe: damage absorbs temp HP and requests concentration save; zero HP ends it (1.699816ms)
+✔ Kobe: save/reload preserves resources, favorites, effects and receipts; foreign keys untouched (8.52797ms)
+✔ Kobe: undo restores resources but duplicate action remains consumed as receipt (4.747146ms)
+✔ Kobe: Aid increases max HP, expires safely and cannot stack (4.480047ms)
+✔ Kobe: firebolt scales at 11 and 17 (0.109839ms)
+✔ Kobe: long casting spends its slot only on completion; interrupted casting preserves it (1.219096ms)
+✔ Kobe: mirror duplicates decrement only on redirected hits (4.104309ms)
+✔ Kobe: captivating performance only charms failed saves (1.186486ms)
+✔ Kobe: Khar-Vek fails when the target is in magical Silence (5.463592ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 539.385102

@@ -1,0 +1,25 @@
+✔ all 19 sheet spells have complete local reference metadata (3.167427ms)
+✔ spell slot, action and explicit mixed fireball saves; resolve once (14.93789ms)
+✔ five Mantle targets, temp HP do not stack and survivors one shared transaction (1.903064ms)
+✔ invalid combined heal is atomic (1.345641ms)
+✔ rally single roll for three targets and max HP clamp (1.384195ms)
+✔ concentration replacement requires explicit consent and removes effects (6.847607ms)
+✔ cry expires on next own turn, not end of own turn (3.620365ms)
+✔ bonus spell restriction both orders; mantle is not a bonus spell (4.926817ms)
+✔ short and long rest do not recharge dawn charges (7.736431ms)
+✔ persistent transaction, double click idempotency and reload keep pending roll (4.472698ms)
+✔ undo restores combined charge, inspiration, temp HP, healing and economy (1.292448ms)
+✔ damage temp absorption and concentration check use full damage (6.334276ms)
+✔ Silence stops vestige but not visual Mantle (1.927397ms)
+✔ Aid expires and restores max/current correctly (1.388917ms)
+✔ invitation identity and tactical privacy boundary (9.423098ms)
+✔ connection reconnect publishes only latest state, no effect replay (5.056244ms)
+✔ network health command duplicate survives reload (0.766768ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 391.355134
