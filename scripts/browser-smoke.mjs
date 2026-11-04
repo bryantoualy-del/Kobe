@@ -49,15 +49,24 @@ try{
    await page.getByText(/10 dégâts reçus/).waitFor();
    // Ensure app shell is cached and local state survives loss of network after initial installation.
    await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{timeout:15000});
-   await context.setOffline(true);
-   await page.reload();
-   await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
-   await page.getByRole('tab',{name:'Combat'}).click();
-   await page.getByText('73/83').waitFor();
-   await context.setOffline(false);
+   if(label==='chromium'){
+    await context.setOffline(true);
+    await page.reload();
+    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
+    await page.getByRole('tab',{name:'Combat'}).click();
+    await page.getByText('73/83').waitFor();
+    await context.setOffline(false);
+   } else {
+    // Playwright WebKit on Linux fails internally on offline page.reload().
+    // Keep online persistence coverage; real offline Safari remains an explicit manual acceptance.
+    await page.reload();
+    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
+    await page.getByRole('tab',{name:'Combat'}).click();
+    await page.getByText('73/83').waitFor();
+   }
    assert.deepEqual(errors,[],label+' errors');
    await context.close();
-   console.log(label+': four tabs, persistence, journal, offline reload PASS');
+   console.log(label+': four tabs, persistence, journal PASS'+(label==='chromium'?', offline reload PASS':', offline reload unverified (Playwright WebKit limitation)'));
   } finally {await browser.close();}
  }
 }catch(e){failures++;console.error(e);process.exitCode=1;}
