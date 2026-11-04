@@ -16,6 +16,10 @@ export function transition(state, command, context = {}) {
     const s = structuredClone(state), p = command.payload ?? {}, before = snapshot(state);
     let kind = 'info', label, detail;
     switch (command.type) {
+      case 'initiative-roll': {
+        integer(p.die,1,20);detail={rolls:[p.die]};
+        label=`Initiative : ${p.die} + 4 = ${p.die+4} · validation MJ`;break;
+      }
       case 'network-review': {
         if(command.origin!=='gm'||!p.remoteEvent||typeof p.remoteEvent.id!=='string'||!['accepted','declined'].includes(p.decision))fail('INVALID_COMMAND','Décision réseau invalide.');
         if(p.decision==='accepted'){

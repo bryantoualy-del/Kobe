@@ -36,19 +36,19 @@ export function mountConnect(store){
       }
       if(b.dataset.initiative){
         const event=current.pending.find(x=>x.event.id===b.dataset.initiative)?.event;
-        const value=prompt('Total d’initiative annoncé à la table (bonus déjà inclus)');
-        if(value===null)return;const total=Number(value);
-        if(!Number.isSafeInteger(total)||total<1||total>60)throw Error('Total entier de 1 à 60 requis.');
-        if(!client.sendEvent('initiative:rolled',{requestId:event.payload?.requestId||'',total,mode:'manual',dice:[],bonus:0}))throw Error('MJ ou connexion indisponible : annoncez le total oralement.');
-        notice='Initiative envoyée. Attendez la validation du MJ ; ne retransmettez pas en cas de doute.';render(client.status());
+        const value=prompt('Résultat du d20 d’initiative (bonus +4 ajouté)',String(1+Math.floor(Math.random()*20)));
+        if(value===null)return;const die=Number(value);
+        const result=await client.initiative(event.id,die);
+        notice=result.message||'Initiative consignée. Validation finale par le MJ.';render(client.status());
       }
       if(b.hasAttribute('data-end-request')){
         const s=store.getState();
         if(s.combat.phase!=='ended')throw Error('Terminez d’abord votre tour avec le bouton Combat.');
-        if(!client.sendEvent('turn:end-request',{}))throw Error('MJ ou connexion indisponible : annoncez la fin du tour oralement.');
+        const actionId=s.journal.findLast(x=>x.sourceId==='turn-end')?.id;
+        if(!actionId||!client.sendEvent('turn:end-request',{turn:s.turn.startRevision,actionId}))throw Error('MJ ou connexion indisponible : annoncez la fin du tour oralement.');
       }
     }catch(error){notice=error.message;render(client.status());}
   });
-  const link=document.createElement('a');link.href='#rpg-connect';link.textContent='RPG Connect · groupe et connexion';link.className='network-shortcut';document.body.prepend(link);
+  document.addEventListener('click',e=>{if(e.target.closest('[data-network-link]'))root.querySelector('details').open=true;});
   return client;
 }

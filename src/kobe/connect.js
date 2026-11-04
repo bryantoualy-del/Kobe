@@ -128,6 +128,21 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     connect(text){const next=parseInvite(text);disconnect();invite=next;epoch=uuid();groupEpoch=null;groupRevision=-1;retired.clear();view.group=[];sent.clear();active=true;open();note('Connexion…');},
     disconnect,sync,
     status:()=>structuredClone({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]}),
+    async initiative(eventId,die){
+      const item=pending.get(eventId),g=generation;
+      if(!item||!['initiative:request','initiative:retry'].includes(item.event.type)||!view.connected||!view.gmOnline)return {ok:false,message:'Demande ou MJ indisponible.'};
+      if(!Number.isInteger(die)||die<1||die>20)return {ok:false,message:'Un d20 de 1 à 20 est requis.'};
+      const requestId=item.event.payload?.requestId;
+      if(!requestId)return {ok:false,message:'Demande sans identifiant : annoncez le total oralement.'};
+      const s=store.getState();
+      const result=await store.dispatch({id:item.id,actorId:'kobe',origin:'player',expectedRevision:s.revision,type:'initiative-roll',payload:{die,remoteEvent:item.event}});
+      if(!result.ok)return result;
+      pending.delete(eventId);
+      if(result.replay||g!==generation||!view.connected||!view.gmOnline)return {ok:true,message:'Total enregistré : '+(die+4)+'. Confirmez oralement avec le MJ ; aucun renvoi.'};
+      const delivered=this.sendEvent('initiative:rolled',{requestId,dice:[die],chosen:die,bonus:4,total:die+4,mode:'manual'});
+      ack(eventId,delivered?'initiative-submitted':'manual-resolution');publish();
+      return {ok:true,message:'Initiative '+(die+4)+(delivered?' envoyée · validation MJ attendue.':' enregistrée · annonce orale nécessaire.')};
+    },
     async review(eventId,apply=false){
       const item=pending.get(eventId);if(!item||!view.connected)return {ok:false,message:'Demande absente ou connexion perdue.'};
       const g=generation,s=store.getState();
