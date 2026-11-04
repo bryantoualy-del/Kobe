@@ -1,8 +1,11 @@
 name: Validate Kobe
 on:
   push:
-    branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat, feat/kobe-lot3-spellbook, feat/kobe-lot4-kharvek, feat/kobe-lot5-delivery]
+    branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat, feat/kobe-lot3-spellbook, feat/kobe-lot4-kharvek]
   pull_request:
+concurrency:
+  group: validate-kobe-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   test-build:
     runs-on: ubuntu-latest

@@ -41,6 +41,8 @@ try{
      await page.getByText(/MJ : en ligne/).waitFor();
    };
    await joinRoom();
+   const touchCounts={};await page.evaluate(()=>{window.__taps=0;document.addEventListener('click',()=>window.__taps++,true);});
+   const count=()=>page.evaluate(()=>window.__taps);let start=await count();
    const first=await until(()=>rx.find(m=>m.type==='state'),'HP state');
    assert.equal(first.state.hp.current,83);assert.equal(first.state.characterId,'kobe');assert.ok(!('resources' in first.state));
    const command=(id,type,payload)=>send({type:'command',room,characterId:'kobe',event:{id,type,payload,characterId:'kobe'}});
@@ -49,6 +51,7 @@ try{
    const correct=()=>command('correction-1','hp:set',{manualTable:true,expectedValue:83,value:60});
    correct();await page.getByRole('button',{name:'Appliquer cette correction'}).click();
    await until(()=>rx.some(m=>m.type==='command-ack'&&m.id==='correction-1'),'accepted correction');
+   touchCounts.reviewHp=(await count())-start;start=await count();
    const hp=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.hp.current);
    assert.equal(await hp(),60);
    correct();await until(()=>rx.some(m=>m.id==='correction-1'&&m.result==='already-reviewed'),'duplicate acknowledgment');
@@ -56,12 +59,14 @@ try{
    page.once('dialog',d=>d.accept('12'));await page.getByRole('button',{name:'Transmettre mon initiative'}).click();
    const ev=await until(()=>rx.find(m=>m.type==='event'&&m.event.type==='initiative:rolled'),'initiative');
    assert.equal(ev.event.payload.total,16);send({type:'event-ack',id:ev.event.id});
+   touchCounts.initiative=(await count())-start;
    const old=rooms.get(room).players.get('kobe');
    old.terminate();await until(()=>rooms.get(room).players.get('kobe')!==old&&rooms.get(room).players.get('kobe'),'reconnected');
    assert.equal(await hp(),60);
    await page.getByRole('button',{name:'Déconnecter',exact:true}).click();
-   await page.getByLabel('Valeur').fill('5');await page.getByRole('button',{name:'Soin',exact:true}).click();
+   start=await count();await page.getByLabel('Valeur').fill('5');await page.getByRole('button',{name:'Soin',exact:true}).click();
    await page.locator('.stats').getByText('65/83').waitFor();
+   touchCounts.heal=(await count())-start;console.log(name+' FRICTION measured DOM clicks (text entry and native prompt excluded): '+JSON.stringify(touchCounts));
    await page.close();page=await context.newPage();await page.goto(address);
    await page.locator('.stats').getByText('65/83').waitFor();
    await page.getByRole('link',{name:'Groupe / connexion'}).click();await joinRoom();

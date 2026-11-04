@@ -32,7 +32,7 @@ import {correction} from './table-correction.js';
 export {correction};
 export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout}) {
   let socket=null,invite=null,active=false,timer=null,attempt=0,generation=0,chain=Promise.resolve();
-  let epoch=uuid(),lastRevision=-1,lastProjection='',groupEpoch=null,groupRevision=-1;
+  let epoch=uuid(),lastRevision=-1,lastProjection='',groupEpoch=null,groupRevision=-1,sessionRevision=-1;
   const retired=new Set(),pending=new Map(),sent=new Map();
   let view={connected:false,status:'Local · RPG Connect déconnecté',group:[],stale:true,gmOnline:false,messages:[]};
   const publish=()=>onChange({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]});
@@ -73,13 +73,19 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     const p=e.payload??{};
     if(['state:sync','targets:set','message:gm'].includes(e.type)){
       const nextEpoch=p.syncEpoch??p.session?.syncEpoch;
-      const revision=p.groupRevision??p.syncRevision??p.session?.sessionRevision;
-      if(nextEpoch!==undefined&&Number.isSafeInteger(revision)){
-        if(retired.has(nextEpoch)||(nextEpoch===groupEpoch&&revision<=groupRevision)){ack(e.id,'stale');return;}
-        if(groupEpoch!==null&&nextEpoch!==groupEpoch)retired.add(groupEpoch);
-        groupEpoch=nextEpoch;groupRevision=revision;
-        if(p.conditionActors){view.group=publicGroup(p.conditionActors);view.stale=false;}
-        if(p.session)view.session={activeName:p.session.activeName,activeCharacterId:p.session.activeCharacterId,round:p.session.round};
+      if(nextEpoch!==undefined){
+        if(retired.has(nextEpoch)){ack(e.id,'stale');return;}
+        if(nextEpoch!==groupEpoch){
+          if(groupEpoch!==null)retired.add(groupEpoch);
+          groupEpoch=nextEpoch;groupRevision=-1;sessionRevision=-1;view.group=[];view.session=null;view.stale=true;
+        }
+        const gr=p.groupRevision??p.syncRevision,sr=p.session?.sessionRevision??p.syncRevision;
+        if(Array.isArray(p.conditionActors)&&Number.isSafeInteger(gr)&&(gr>groupRevision||(gr===groupRevision&&view.stale))){
+          groupRevision=gr;view.group=publicGroup(p.conditionActors);view.stale=false;
+        }
+        if(p.session&&Number.isSafeInteger(sr)&&sr>sessionRevision){
+          sessionRevision=sr;view.session={activeName:p.session.activeName,activeCharacterId:p.session.activeCharacterId,round:p.session.round};
+        }
       }
       if(p.text)view.status=String(p.text).slice(0,300);
       ack(e.id,'received-no-local-mutation');publish();return;
@@ -117,7 +123,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     };
   }
   return {
-    connect(text){const next=parseInvite(text);disconnect();invite=next;epoch=uuid();groupEpoch=null;groupRevision=-1;retired.clear();view.group=[];sent.clear();active=true;open();note('Connexion…');},
+    connect(text){const next=parseInvite(text);disconnect();invite=next;epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
     disconnect,sync,
     status:()=>structuredClone({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]}),
     async initiative(eventId,die){
@@ -131,7 +137,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
       if(!result.ok)return result;
       pending.delete(eventId);
       if(result.replay||g!==generation||!view.connected||!view.gmOnline)return {ok:true,message:'Total enregistré : '+(die+4)+'. Confirmez oralement avec le MJ ; aucun renvoi.'};
-      const delivered=this.sendEvent('initiative:rolled',{requestId,dice:[die],chosen:die,bonus:4,total:die+4,mode:'manual'});
+      const delivered=this.sendEvent('initiative:rolled',{requestId,dice:[die],chosen:die,bonus:4,total:die+4,mode:'manual'},'init-'+item.id);
       ack(eventId,delivered?'initiative-submitted':'manual-resolution');publish();
       return {ok:true,message:'Initiative '+(die+4)+(delivered?' envoyée · validation MJ attendue.':' enregistrée · annonce orale nécessaire.')};
     },
@@ -145,11 +151,14 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
       if(result.ok){pending.delete(eventId);if(g===generation)ack(eventId,apply?'applied-by-player':'declined-manual-resolution');publish();}
       return result;
     },
-    sendEvent(type,payload){
+    sendEvent(type,payload,operation){
       if(!['initiative:rolled','turn:end-request'].includes(type)||!view.connected||!view.gmOnline)return false;
+      const allowed=type==='initiative:rolled'?['requestId','dice','chosen','bonus','total','mode']:['turn','actionId'];
+      payload=Object.fromEntries(allowed.filter(k=>Object.hasOwn(payload,k)).map(k=>[k,payload[k]]));
       const signature=canonical({type,payload});
       if([...sent.values()].some(e=>e.signature===signature))return false;
-      const event={id:uuid(),characterId:'kobe',type,payload,timestamp:new Date().toISOString()};
+      const id=operation||(type==='turn:end-request'&&payload.actionId?'end-'+payload.actionId:uuid());
+      const event={id,characterId:'kobe',type,payload,timestamp:new Date().toISOString()};
       // No outbox, no replay after reconnect. Uncertain deliveries remain visible.
       if(!send({type:'event',event}))return false;
       sent.set(event.id,{id:event.id,type,signature,status:'Envoyé · réception non confirmée'});
