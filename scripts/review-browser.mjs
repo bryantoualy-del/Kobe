@@ -17,5 +17,4 @@ const browser=await chromium.launch();try{
   return canvas.toDataURL('image/jpeg',.72).split(',')[1];
  },captures);
  await writeFile('screenshots/lot5-review.jpg',Buffer.from(jpg,'base64'));
- if(process.env.REVIEW_FRAME==='1')console.log('KOBE_FRAME:'+jpg+':END_FRAME');
 }finally{await browser.close();}
