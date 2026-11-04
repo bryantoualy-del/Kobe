@@ -256,3 +256,11 @@ les favoris (navigation sauvegardée asynchrone). Pas de statut final avant nouv
 uniquement après confirmation d'un effet applicable (paralysie à1,50m par exemple) ; le1 reste raté.
 Aucun changement des sorts connus ou des ressources du Lot2. Tête distante finale et résultat CI
 seront inscrits à la clôture ; ne pas assimiler ces tests locaux à la recette physique Safari.
+
+### Lot3 — CI complète et revue des captures
+Tête571db88 : workflow41919559180 **success**, 78 tests, build et contrôles statiques PASS,
+recettes Lot2 et Lot3 Chromium/WebKit PASS, hors ligne Chromium PASS.
+Captures Grimoire/Favoris/modale inspectées : aucun chevauchement ; toutefois les favoris repoussaient
+l'économie d'action sous le premier écran. Ajout d'un bandeau synthétique PV/CA/économie/concentration/
+ressources et en-tête Combat compact, sans retirer les commandes existantes. Recette du viewport
+renforcée pour vérifier ce bandeau avec les quatre favoris. Nouvelle capture requise avant fusion.

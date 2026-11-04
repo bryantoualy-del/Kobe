@@ -123,6 +123,8 @@ try {
         4,
       );
       const favoriteBox = await page.locator(".favorites-panel").boundingBox();
+      const overview=await page.locator(".combat-overview").boundingBox();
+      assert(overview.y>=0 && overview.y+overview.height<820,"all combat resources and economy visible with favorites");
       assert(
         favoriteBox.y >= 0 && favoriteBox.y + favoriteBox.height < 820,
         "4 favorites visible without scroll",
