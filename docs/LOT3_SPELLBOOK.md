@@ -54,7 +54,7 @@ Illusion mineure, Prestidigitation, Réparation, Suggestion, Refuge et Terrain h
 Le moteur ne décide pas si un mensonge est cru, si une tâche est raisonnable ou si le refuge est quitté.
 « Interaction » permet de terminer un effet selon sa condition ; la durée reste automatisée.
 Lenteur/Immobilisation : fins de tour des cibles déclarées, car l'application autonome ne connaît pas leurs tours.
-Cercle : couverture et nature magique réévaluées à chaque interaction, calcul annoncé avant défenses supplémentaires.
+Cercle : couverture et nature magique réévaluées à chaque interaction, calcul annoncé avant défenses supplémentaires, ou appliqué aux PV locaux après confirmation.
 Image miroir : redirection et disparition des doubles calculées ; pas de dégâts automatiquement reçus par Kobe
 quand l'attaque n'est pas redirigée (résultat final annoncé au propriétaire).
 Incantations longues/rituelles : confirmation rétrospective de la durée achevée sans interruption ;
@@ -67,3 +67,7 @@ Les ressources d'aube de Khar-Vek restent hors du grimoire et du repos long.
 Pas de recette Safari sur un iPad physique. Chromium/WebKit Linux vérifient les parcours nommés,
 le viewport et la persistance ; ils ne certifient pas le matériel. Hors ligne WebKit non revendiqué.
 Aucun effet narratif ou déplacement externe n'est résolu sans confirmation de table.
+
+Moquerie et petits objets de Prestidigitation suivent la fin du prochain tour, sans expirer au début.
+Lenteur propose un d20 de retard de sort (11+), et rappelle l’action requise au prochain tour.
+Cercle peut appliquer ses dégâts calculés aux PV locaux et utilise les sauvegardes CON du Lot2.

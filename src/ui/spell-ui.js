@@ -370,6 +370,14 @@ export function openSpellControl(mode, s, dispatch) {
         12,
         "number",
       );
+  else if (e.condition === "slow")
+    fields =
+      select("operation", "Interaction", [
+        ["casting", "Vérifier le retard d’un sort en action"],
+        ["end", "Terminer cet effet"],
+      ]) +
+      input("roll", "D20 du retard", dice(1, 20)[0], "number") +
+      check("confirmed", "Fin de l’effet confirmée si choisie");
   else if (e.spellId === "circle-of-power")
     fields =
       check("inAura", "Créature dans les 9 m de Kobe") +
@@ -380,7 +388,26 @@ export function openSpellControl(mode, s, dispatch) {
         "L’effet prévoit moitié des dégâts en cas de sauvegarde réussie",
       ) +
       check("success", "Sauvegarde réussie (avec avantage)") +
-      input("amount", "Dégâts bruts avant sauvegarde et défenses", 0, "number");
+      input(
+        "amount",
+        "Dégâts bruts avant sauvegarde et défenses",
+        0,
+        "number",
+      ) +
+      select("targetId", "Cible", [
+        ["kobe", "Kobe"],
+        ...s.combat.targets.map((t) => [t.id, t.name]),
+      ]) +
+      check("apply", "Appliquer aux PV suivis localement") +
+      check(
+        "useEffective",
+        "Remplacer le calcul par un montant fixé après autres défenses",
+      ) +
+      input("effective", "Montant effectif fixé par le MJ", 0, "number") +
+      check(
+        "defensesConfirmed",
+        "Autres défenses confirmées par le MJ si le montant effectif diffère",
+      );
   else
     fields = check(
       "confirmed",
@@ -393,6 +420,7 @@ export function openSpellControl(mode, s, dispatch) {
       roll: Number(p.roll),
       attackTotal: Number(p.attackTotal),
       amount: Number(p.amount),
+      effective: Number(p.effective),
     }),
   );
 }

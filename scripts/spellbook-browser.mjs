@@ -117,6 +117,7 @@ try {
         fullPage: true,
       });
       await page.getByRole("tab", { name: "Combat", exact: true }).click();
+      await page.locator(".favorites-panel").waitFor();
       assert.equal(
         await page.locator(".favorites-panel [data-spell-card]").count(),
         4,
@@ -232,6 +233,9 @@ try {
         await page
           .getByRole("tab", { name: "Sorts & pouvoirs", exact: true })
           .click();
+        await page
+          .getByRole("heading", { name: "Grimoire en partition" })
+          .waitFor();
         assert.equal(await page.locator("[data-spell-card]").count(), 19);
       }
       assert.deepEqual(errors, []);

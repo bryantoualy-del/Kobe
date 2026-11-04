@@ -241,3 +241,12 @@ Deuxième CI : tests/build et recette Lot2 PASS ; la recette Lot3 a identifié l
 sélecteurs imbriqués (nom accessible incluant les options). Noms accessibles explicites ajoutés.
 74 tests locaux PASS, dont rejet des sauvegardes de sorts corrompues. Modules nouveaux formatés
 pour revue ; retour en haut d'onglet et captures de viewport ajoutés. CI finale encore requise.
+
+### Lot3 — validation des frontières de tour
+77 tests locaux PASS. Vérifications supplémentaires : Cercle applique les dégâts calculés aux PV
+locaux via le pipeline Lot2 (y compris CON), Lenteur calcule le retard11+, effets jusqu'à fin du
+prochain tour conservés au début du tour. Les sorts à sauvegarde sans concentration ne créent plus
+de conteneur vide ; seul l'effet effectivement subi est suivi. Cartes limitées à trois lignes de résumé,
+détails complets dans la fiche. Première capture Grimoire inspectée à1180×820 ; palette/portées lisibles.
+Troisième CI : tests/build/Lot2 PASS ; attente du rendu Combat ajoutée à la recette avant de compter
+les favoris (navigation sauvegardée asynchrone). Pas de statut final avant nouvelle CI.

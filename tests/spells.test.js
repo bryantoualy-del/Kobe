@@ -295,7 +295,7 @@ test("turn end repeated saves: failure retains one effect, success removes targe
   for (let i = 0; i < 10; i++) s = next(s);
   assert.equal(s.concentration, null);
 });
-test("four favorites, persistence, undo/replay and unknown fifth rejected", () => {
+test("four favorites persist, unknown fifth rejected and shared availability", () => {
   let s = initialState();
   const ids = ["fireball", "healing-word", "circle-of-power", "slow"];
   s = run(s, "favorites", { ids });
@@ -532,4 +532,57 @@ test("import rejects corrupt spell payloads before timers can damage persisted s
   const t = cast(initialState(), "fireball");
   t.pendingResolutions[0].spellId = "unknown";
   assert.throws(() => decode(JSON.stringify(envelope(t))), /sort invalides/);
+});
+
+test("Cercle applies computed half on failure to local HP and requests existing CON save", () => {
+  let s = cast(initialState(), "circle-of-power");
+  s = run(s, "spell-trigger", {
+    effectId: s.effects[0].id,
+    inAura: true,
+    friendly: true,
+    magical: true,
+    halfOnSave: true,
+    success: false,
+    amount: 31,
+    apply: true,
+    targetId: "kobe",
+  });
+  assert.equal(s.hp.current, 68);
+  assert.equal(s.pendingResolutions[0].kind, "concentration");
+  assert.equal(s.pendingResolutions[0].dc, 10);
+});
+test("Lenteur computes delayed spell at11, preserving condition and next end-turn save", () => {
+  let s = cast(enemy(initialState()), "slow", { targetIds: ["enemy"] });
+  s = resolve(s, 0, "failure");
+  const id = s.effects.find((e) => e.condition === "slow").id;
+  s = run(s, "spell-trigger", { effectId: id, operation: "casting", roll: 11 });
+  assert.equal(s.effects.find((e) => e.id === id).delayedCasting, true);
+  assert.match(s.journal.at(-1).label, /sort retardé/);
+  s = run(s, "spell-target-turn", {
+    targetId: "enemy",
+    phase: "end",
+    sequence: 1,
+  });
+  assert.equal(s.pendingResolutions.length, 1);
+});
+test("next-turn effects survive next start and finish at the declared end boundary", () => {
+  let s = cast(initialState(), "prestidigitation", { effectSeconds: 6 });
+  s = run(s, "turn-end");
+  assert.equal(s.effects.length, 1);
+  s = next(s);
+  assert.equal(s.effects.length, 1);
+  s = run(s, "turn-end");
+  assert.equal(s.effects.length, 0);
+  let t = cast(enemy(initialState()), "vicious-mockery", {
+    targetIds: ["enemy"],
+  });
+  t = resolve(t, 0, "failure");
+  t = next(t);
+  assert.equal(t.effects.length, 1);
+  t = run(t, "spell-target-turn", {
+    targetId: "enemy",
+    phase: "end",
+    sequence: 1,
+  });
+  assert.equal(t.effects.length, 0);
 });

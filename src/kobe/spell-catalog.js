@@ -377,14 +377,16 @@ export const SPELLS = Object.freeze([
 ]);
 export const spellById = (id) => SPELLS.find((s) => s.id === id);
 export const durationLabel = (s) =>
-  s.duration === 0
-    ? "Instantanée"
-    : (s.concentration ? "Concentration · " : "") +
-      (s.duration >= 3600
-        ? s.duration / 3600 + " h"
-        : s.duration >= 60
-          ? s.duration / 60 + " min"
-          : s.duration + " s");
+  s.id === "vicious-mockery"
+    ? "Jusqu’à la fin du prochain tour de la cible"
+    : s.duration === 0
+      ? "Instantanée"
+      : (s.concentration ? "Concentration · " : "") +
+        (s.duration >= 3600
+          ? s.duration / 3600 + " h"
+          : s.duration >= 60
+            ? s.duration / 60 + " min"
+            : s.duration + " s");
 export const maxTargets = (s, level) =>
   s.id === "enhance-ability"
     ? level - 1

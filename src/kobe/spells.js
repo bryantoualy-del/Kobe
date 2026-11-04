@@ -97,7 +97,10 @@ function saveEffect(s, c, r, id) {
   if (!spell.condition || r.effectId) return;
   const base = s.effects.find((e) => e.id === r.sourceId);
   if (spell.concentration && !base) return;
-  const expires = base?.expires ?? s.combat.elapsed + spell.duration;
+  const expires =
+    base?.expires ??
+    r.expires ??
+    s.combat.elapsed + (spell.condition === "mockery" ? 12 : spell.duration);
   s.effects.push({
     id: c.id + ":effect",
     kind: "spell",
@@ -261,6 +264,7 @@ export function spellCommand(s, c) {
       }
       if (
         spell.duration > 0 &&
+        (spell.concentration || !spell.save) &&
         !(spell.id === "prestidigitation" && p.effectSeconds === 0)
       ) {
         const e = effect(s, c, spell, spell.save ? [] : targetIds, {
@@ -269,11 +273,10 @@ export function spellCommand(s, c) {
           detail: p.detail ?? null,
           ...(spell.id === "prestidigitation"
             ? {
-                expires:
-                  b.elapsed +
-                  ([6, 3600].includes(p.effectSeconds)
-                    ? p.effectSeconds
-                    : 3600),
+                expires: b.elapsed + (p.effectSeconds === 6 ? 12 : 3600),
+                ...(p.effectSeconds === 6
+                  ? { untilEndTurn: s.turn.startRevision + 1 }
+                  : {}),
               }
             : {}),
           ...(spell.id === "mirror-image" ? { duplicates: 3 } : {}),
@@ -336,7 +339,10 @@ export function spellCommand(s, c) {
             attackTotal: natural === null ? null : natural + 9,
             natural,
             ...(spell.concentration ? { concentrationId: c.id } : {}),
-            expires: spell.duration ? s.combat.elapsed + spell.duration : null,
+            expires: spell.duration
+              ? s.combat.elapsed +
+                (spell.condition === "mockery" ? 12 : spell.duration)
+              : null,
           });
         rolls = [...rolls, ...(p.attackRolls ?? [])];
         label = `${spell.name} N${level} · ${spell.attack ? `attaque ${natural}+9 = ${natural + 9}` : spell.save + " DD17"} · ${amount ? amount + " " + spell.damageType + " bruts · " : ""}${targetIds.length} résultat(s) MJ attendu(s)`;
@@ -516,6 +522,11 @@ export function spellCommand(s, c) {
         rolls = [p.roll];
         label = `Image miroir · ${redirected ? "attaque redirigée vers double CA12" : "attaque contre Kobe"} · ${destroyed ? "double détruit · " : ""}${e.duplicates} double(s) restant(s)`;
         if (!e.duplicates) removeSpellEffects(s, (x) => x.id === e.id);
+      } else if (e.condition === "slow" && p.operation === "casting") {
+        integer(p.roll, 1, 20);
+        rolls = [p.roll];
+        e.delayedCasting = p.roll >= 11;
+        label = `Lenteur · d20 ${p.roll} · ${e.delayedCasting ? "sort retardé : action du prochain tour requise pour achever, sinon sort perdu" : "sort lancé normalement"}`;
       } else if (e.spellId === "circle-of-power") {
         need(
           p.inAura === true && p.friendly === true && p.magical === true,
@@ -532,6 +543,26 @@ export function spellCommand(s, c) {
               ? 0
               : p.amount;
         label = `Cercle de pouvoir · avantage à la sauvegarde ; ${p.halfOnSave ? "effet moitié à la réussite : " + amount + " dégâts avant autres défenses" : "aucune réduction spéciale sans clause moitié"} · à annoncer`;
+        if (p.apply === true) {
+          need(
+            p.halfOnSave === true,
+            "Application automatique uniquement pour un effet moitié sur sauvegarde.",
+          );
+          need(targetExists(s, p.targetId), "Cible inconnue.");
+          let effective = amount;
+          if (p.useEffective === true) {
+            integer(p.effective, 0, 10000);
+            need(
+              p.defensesConfirmed === true,
+              "Autres défenses à confirmer pour modifier le montant calculé.",
+            );
+            effective = p.effective;
+          }
+          targetIds = [p.targetId];
+          if (effective > 0) applyHP(s, p.targetId, effective, false, c);
+          kind = "damage";
+          label += ` · ${effective} dégâts effectifs : ${hpOf(s, p.targetId) ? "PV locaux actualisés" : "à annoncer (PV inconnus)"}`;
+        }
       } else {
         need(p.confirmed === true, "Déclencheur confirmé par le MJ requis.");
         removeSpellEffects(s, (x) => x.id === e.id);
