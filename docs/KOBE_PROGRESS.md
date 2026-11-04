@@ -148,3 +148,12 @@ Pipeline final de la tête de PR : `41904408834` et `41904420285`, les deux en `
 Résultat navigateur : navigation 4 onglets, PV, notes, journal, reload ; hors ligne + reload Chromium OK.
 **Limite maintenue** : rechargement offline WebKit/Linux non déclaré valide à cause d'une erreur interne Playwright ; la recette physique iPad Safari reste au Lot 5. Cette limite n'efface pas la validation du socle local testé.
 **Point de reprise suivant** : Lot 2 depuis `main`, selon docs/LOTS.md ; ne pas réimplémenter modèle/engine/storage, UI ou cache du Lot 1. Les lots 2–4 restent non commencés et n'ont pas été inclus dans cette fusion.
+
+
+## Lot 2 — checkpoint moteur (4 novembre 2026)
+Base vérifiée : main `777c5ca`, PR #1/#2 fusionnées, aucune branche Lot2 préexistante.
+Mission actuelle prioritaire : combat/Glamour/Social, grimoire complet exclu de ce lot.
+Architecture Lot0, référentiel et PDF Kobe relus ; section Glamour Xanathar p.14 recoupée.
+Moteur pur ajouté via la transition unique existante ; migration v1→v2 avec sauvegarde originale,
+reçus et undo conservés. Capacités, résolutions MJ, temps narratif, repos et cibles externes locaux.
+Validation intermédiaire : 12 tests Lot1 PASS. Parcours UI et tests Lot2 encore en cours.
