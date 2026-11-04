@@ -5,7 +5,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | Lot | État | Dépendances / prochain geste |
 |---|---|---|
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
-| 1 Socle local | Reprise en cours : inventaire terminé | Branche feat/kobe-lot1-ui ; étapes ci-dessous |
+| 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
 | 2 Personnage / sorts / Glamour | Non commencé dans Kobe | Lot1, arbitrages référentiel |
 | 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
@@ -137,3 +137,14 @@ Reste : interface, build/cache et tests avec deux vraies pages navigateur. Aucun
 - Les scénarios navigateur attendent explicitement les commits asynchrones (onglets, notes, journal) avant les rechargements.
 - Lot 1 contenu et PR #2 : https://github.com/bryantoualy-del/Kobe/pull/2. Valider la CI finale puis merger la PR, sans suppression de fichiers ni anticipation des Lots 2–4.
 
+
+## Clôture Lot 1 — 4 novembre 2026
+
+**Livraison : terminée, PR #2 fusionnée dans main.** Merge commit : `b3136582c864a0d3521ce4023724844ae4a9219c`.
+Branche source : `feat/kobe-lot1-ui`, tête contrôlée `2946a51baabe6e247f3d491a3e092ba1bbfe9e47`.
+Revue : 20 commits devant main, zéro derrière avant fusion ; 16 fichiers modifiés/ajoutés, **aucune suppression**.
+Pipeline final de la tête de PR : `41904408834` et `41904420285`, les deux en `success` ;
+`npm test`, `npm run build`, `npm run test:e2e`, recette Playwright Chromium+WebKit.
+Résultat navigateur : navigation 4 onglets, PV, notes, journal, reload ; hors ligne + reload Chromium OK.
+**Limite maintenue** : rechargement offline WebKit/Linux non déclaré valide à cause d'une erreur interne Playwright ; la recette physique iPad Safari reste au Lot 5. Cette limite n'efface pas la validation du socle local testé.
+**Point de reprise suivant** : Lot 2 depuis `main`, selon docs/LOTS.md ; ne pas réimplémenter modèle/engine/storage, UI ou cache du Lot 1. Les lots 2–4 restent non commencés et n'ont pas été inclus dans cette fusion.
