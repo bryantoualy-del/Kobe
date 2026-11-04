@@ -6,7 +6,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 |---|---|---|
 | 0 Audit / récupération / architecture | Terminé et fusionné (73a4351, PR #1) | [PR #1](https://github.com/bryantoualy-del/Kobe/pull/1), branche feat/kobe-lot0-audit |
 | 1 Socle local | Terminé et fusionné — PR #2, b313658 | Socle et CI navigateur validés ; recette Safari physique au Lot5 |
-| 2 Combat local / économie / Glamour / Social | Implémenté, validation finale PR #3 | Branche feat/kobe-lot2-combat ; voir clôture ci-dessous |
+| 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
 | 3 Khar-Vek / identité / UX | Non commencé dans Kobe | Lots1–2 |
 | 4 RPG Connect V5 | Non commencé dans Kobe | Lots1–3 et coordination registres serveur/Encounter |
 | 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
@@ -193,3 +193,27 @@ Aucun sort du grimoire ni animation du vestige ajouté.
   pour ne masquer aucune ressource ; emplacements de sorts repliables dans Combat.
 - Limites : Safari physique et WebKit offline restant au Lot5 ; réactions/effets externes déclaratifs ;
   variante Majesté par emplacement désactivée ; grimoire complet/vestige/réseau hors de ce lot.
+
+
+## Clôture Lot 2 — 4 novembre 2026
+
+PR #3 fusionnée : https://github.com/bryantoualy-del/Kobe/pull/3
+Commit de fusion : `0f8ea5ed42fe7ba906fda11c57b88bf9f5e63808`.
+Tête testée : `c5682366ec552708cd4549f24fd6d00d51a29675`.
+Six commits distants fonctionnels, 13 fichiers ajoutés/modifiés, aucune suppression, base main conservée.
+CI finale push `41914513297` et PR `41914522422` : toutes deux **success**.
+33 tests Node PASS ; build et contrôles statiques PASS ; formulaires réels Chromium/WebKit PASS.
+Navigation, double clic, Inspiration, Manteau/réaction externe, fin/début de tour, reload, Social et journal
+exécutés ; reprise hors ligne Chromium PASS. Capture finale Combat inspectée, sans superposition du bouton
+de tour sur les ressources ; captures Social et Journal également disponibles.
+Captures : https://github.com/bryantoualy-del/Kobe/actions/runs/41914513297/artifacts/13363942843
+
+Moteur : transition pure unique et store Lot1 conservés, migration2 sauvegardée, coûts/effets/journal
+atomiques, refus et corrections motivées, aucune dépendance réseau. Capacités de la mission raccordées.
+Les12 scénarios exigés sont couverts au niveau moteur/stockage ; la recette UI couvre les chemins
+nommés ci-dessus et ne prétend pas avoir cliqué toutes les combinaisons de chaque pouvoir.
+
+Limites restantes : Safari physique (Lot5), rechargement offline WebKit/Linux non validé ; suivi externe
+strictement déclaratif ; Majesté par emplacement non autorisée ; Perception de fiche à arbitrer.
+Grimoire complet, vestige et réseau non développés conformément à la mission. Prochaine reprise depuis
+main, consulter LOT2_RULES.md et les tests avant toute extension, ne pas refaire ce moteur.
