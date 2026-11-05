@@ -123,7 +123,7 @@ try {
         4,
       );
       const favoriteBox = await page.locator(".favorites-panel").boundingBox();
-      const overview=await page.locator(".combat-overview").boundingBox();
+      const overview=await page.locator(".vitals").boundingBox();
       assert(overview.y>=0 && overview.y+overview.height<820,"all combat resources and economy visible with favorites");
       assert(
         favoriteBox.y >= 0 && favoriteBox.y + favoriteBox.height < 820,
@@ -136,6 +136,7 @@ try {
         path: `screenshots/${name}-favorites.png`,
         fullPage: true,
       });
+      await page.locator('[data-combat-view=control]').click();
       // Set locally declared HP through real forms.
       for (const target of ["Ennemi A", "Ennemi B"]) {
         await page
@@ -149,6 +150,7 @@ try {
         await page.getByLabel("Informations confirmées à la table").check();
         await confirm();
       }
+      await page.locator('[data-combat-view=offense]').click();
       await page.locator('[data-cast="fireball"]').click();
       await page.getByLabel("Ennemi A", { exact: true }).check();
       await page.getByLabel("Ennemi B", { exact: true }).check();
@@ -168,6 +170,7 @@ try {
       await page.screenshot({ path: `screenshots/${name}-casting-modal.png` });
       await confirm();
       assert.equal((await state()).slots[3], 2);
+      await page.locator('[data-combat-view=control]').click();
       for (const result of ["failure", "success"]) {
         await page.locator("[data-spell-resolve]").first().click();
         await page
@@ -180,6 +183,7 @@ try {
         [68, 84],
       );
       await next();
+      await page.locator('[data-combat-view=offense]').click();
       await page.locator('[data-cast="circle-of-power"]').click();
       await page
         .getByLabel(

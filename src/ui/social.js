@@ -1,7 +1,7 @@
 import {groups,resolveRoll} from '../kobe/social.js';
 
 const modes={normal:'Normal',adv:'Avantage',dis:'Désavantage'};
-const panes={skills:'Compétences',abilities:'Caractéristiques et sauvegardes'};
+const panes={skills:'Compétences',abilities:'Carac. & JdS',info:'Infos utiles'};
 let pane='skills',mode='normal',physical=false;
 const buttons=(choices,selected,attribute)=>Object.entries(choices).map(([id,label])=>
  `<button type="button" ${attribute}="${id}" aria-pressed="${id===selected}">${label}</button>`).join('');
@@ -12,14 +12,14 @@ export function rollPanel(state){
   const group=title==='Compétences'?'skills':'abilities';
   const rolls=rows.map(([name,bonus,rank])=>
    `<button data-roll="${name}"><span>${name}</span> <b>${bonus>=0?'+':''}${bonus}</b><small>${rank}</small></button>`).join('');
-  return `<section data-roll-group="${group}" ${group===pane?'':'hidden'}><h3>${title}</h3><div class="roll-grid">${rolls}</div></section>`;
+  return `<section class="v3-card" data-roll-group="${group}" ${group===pane?'':'hidden'}><h3>${title}</h3><div class="roll-grid v3-roll-grid">${rolls}</div></section>`;
  }).join('');
- return `<section class="panel social-desk"><h2>Social · Kobe</h2>
- <div class="social-switch" role="group" aria-label="Type de jet">${buttons(panes,pane,'data-roll-pane')}</div>
- <div class="social-modebar" role="group" aria-label="Mode du jet">${buttons(modes,mode,'data-roll-mode')}
+ return `<section id="v3-root" class="social-desk"><h2>Social · Kobe</h2>
+ <div class="social-switch v3-sheet-tabs" role="group" aria-label="Type de jet">${buttons(panes,pane,'data-roll-pane')}</div>
+ <div class="social-modebar v3-switch v3-social-mode" role="group" aria-label="Mode du jet">${buttons(modes,mode,'data-roll-mode')}
  <label><input type="checkbox" id="physical" ${physical?'checked':''}> Dé physique</label></div>
  ${last?'<output class="ribbon"></output>':''}${tables}
- <p>Passifs · Perception 20 · Intuition 19 · Investigation 11</p></section>`;
+ <p class="v3-card" data-roll-group="info" ${pane==='info'?'':'hidden'}>Passifs · Perception 20 · Intuition 19 · Investigation 11</p></section>`;
 }
 
 export function selectRollControl(target){

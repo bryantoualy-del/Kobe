@@ -28,7 +28,7 @@ try{
    const capture=name=>page.screenshot({path:'screenshots/'+engine.name()+'-v11-'+name+'.png'});
    await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
    await capture('combat');
-   await page.locator('#inventoryDesk summary').first().click();
+   await tab('Social');await page.locator('[data-social-view=inventory]').click();
    await page.locator('#inventoryAdd').click();
    await page.locator('#inventoryEditName').fill('Flûte');
    await page.locator('#inventoryEditCategory').selectOption('social');
@@ -43,7 +43,7 @@ try{
    await page.locator('#inventoryImportFile').setInputFiles(invFile);
    await page.locator('#inventoryObjectList').getByText('Flûte').waitFor();
    await tab('Social');
-   await page.locator('[data-roll=Persuasion]').waitFor();
+   await page.locator('[data-social-view=profile]').click();await page.locator('[data-roll=Persuasion]').waitFor();
    assert.equal(await page.locator('[data-roll]').count(),31);
    await page.locator('#physical').check();
    for(const [name,mode,dice,total] of [['Persuasion','adv','4 17',30],['Représentation','normal','11',24],['Sauvegarde Dextérité','normal','12',18]]){

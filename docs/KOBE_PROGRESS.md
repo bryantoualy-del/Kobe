@@ -390,3 +390,6 @@ G — Parcours réels Chromium et WebKit à 1180 × 820. Correction des portrait
 128 tests moteur et 2 parcours de navigateur (Chromium et WebKit). Les scènes sociales, les ZIP et les captures sont décrits dans [la recette V1.1](KOBE_V11_VALIDATION.md). Correctif de reprise à froid vérifié sur WebKit 26.0 et 26.5. Les fichiers de secours du worker contiennent uniquement le code et les illustrations publiques du Companion. Les données du joueur restent dans leurs stockages locaux.
 
 Revue ouverte dans Kobe #7 et Kentaro #13. Prochain jalon : Safari et Obsidian sur iPad physique avant fusion. Garder la dépendance avec Kobe #6.
+
+## Révision après essai joueur
+Brack est la référence de présentation. En-tête identité/vitalité, barre standard, commandes et sous-vues de combat, Profil et Inventaire dans Social. Les quatre favoris restent accessibles depuis Attaques. Khar-Vek dispose de son onglet, accessible aussi pendant un combat. Le dragon officiel est révélé de gauche à droite par sixième sur un contour gris. Un nouveau personnage débute à zéro charge, les sauvegardes reprennent leur valeur effective. La nouvelle aube remplit les six charges.

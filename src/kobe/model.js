@@ -3,12 +3,12 @@ import {freshCombat, validateCombat} from './combat.js';
 export const SCHEMA = 2;
 export const LIMITS = Object.freeze({inspiration: 5, cry: 4, majesty: 1, charges: 6});
 export const SLOT_MAX = [0, 4, 3, 3, 3, 2];
-export const TABS = ['combat', 'spells', 'social', 'journal'];
+export const TABS = ['combat', 'spells', 'social', 'journal', 'kharvek'];
 export const freshEconomy = () => ({actionAvailable: true, bonusAvailable: true, reactionAvailable: true, movementRemaining: 9});
 export function initialState() {
   return {combat: freshCombat(), schemaVersion: SCHEMA, characterId: 'kobe', revision: 0,
     profile: {name: 'Kobe Kozzo', ac: 15}, hp: {current: 83, max: 83, temp: 0, source: null},
-    resources: {...LIMITS}, slots: [...SLOT_MAX], economy: freshEconomy(),
+    resources: {...LIMITS, charges: 0}, slots: [...SLOT_MAX], economy: freshEconomy(),
     turn: {epoch: 'local', combatId: 'local', startRevision: 0, actorId: 'kobe'},
     concentration: null, effects: [], pendingResolutions: [], receipts: {}, journal: [],
     preferences: {tab: 'combat', favorites: []}, notes: '', undo: null};

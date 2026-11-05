@@ -2,21 +2,25 @@ import {POWERS,kharvekAvailability,dragonStage} from '../kobe/kharvek.js';
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function drumSVG(charges){
  const stage=dragonStage(charges);
- const orbs=[[454,212],[551,369],[771,396],[863,290],[1112,210],[1306,351]];
- const lit=orbs.slice(0,charges).map(([x,y])=>`<circle cx="${x}" cy="${y}" r="29" fill="url(#orb-light)"/>`).join('');
+ // The blue channel separates the warm artwork from its white background.
+ // Use the same silhouette for the uncharged outline and the coloured layer.
  return `<svg class="dragon-art" viewBox="0 0 1536 512" role="img" aria-label="Dragon de Khar-Vek, ${charges} charges" data-dragon="${stage}">
- <defs><radialGradient id="orb-light"><stop stop-color="white"/><stop offset=".32" stop-color="#fff4a3" stop-opacity=".93"/><stop offset="1" stop-color="#ff9700" stop-opacity="0"/></radialGradient></defs>
- <image class="dragon-illustration" width="1536" height="512" href="./src/ui/dragon.webp" style="filter:brightness(${.32+charges*.108}) saturate(${.45+charges*.11})"/>
- ${lit}</svg>
- <svg class="drum-instrument" viewBox="150 75 360 265" aria-hidden="true"> <defs><linearGradient id="barrel" x2="0" y2="1"><stop stop-color="#872F35"/><stop offset=".5" stop-color="#5d2029"/><stop offset="1" stop-color="#27151d"/></linearGradient><radialGradient id="skin"><stop stop-color="#f0e5ce"/><stop offset=".7" stop-color="#d5b989"/><stop offset="1" stop-color="#b86637"/></radialGradient></defs> <g class="drum-body"><path d="M198 110 C245 89 366 88 414 119 L414 261 C356 294 239 282 198 252Z" fill="url(#barrel)" stroke="#b86637" stroke-width="5"/><ellipse cx="198" cy="181" rx="30" ry="73" fill="#34171f" stroke="#b86637" stroke-width="9"/>
- <path d="M219 111 Q264 184 220 261 M260 102 Q302 188 260 277 M303 101 Q346 192 303 281" fill="none" stroke="#a44c3c" stroke-width="2"/>
- <path d="M243 102 Q290 176 249 276 M323 102 Q366 187 325 279" fill="none" stroke="#21181b" stroke-width="15"/><path d="M243 102 Q290 176 249 276 M323 102 Q366 187 325 279" fill="none" stroke="#b86637" stroke-width="2"/>
- <path d="M276 158 C303 130 332 156 309 174 C282 194 277 211 300 228 C327 248 293 266 279 244" fill="none" stroke="#e5b963" stroke-width="4"/><path d="M297 145 l16 -8 12 11 -15 8 -10 -4" fill="#e5b963"/>
- <ellipse cx="414" cy="191" rx="65" ry="90" fill="#8f512f" stroke="#E5B963" stroke-width="7"/><ellipse cx="416" cy="191" rx="53" ry="79" fill="url(#skin)" stroke="#b86637" stroke-width="3"/><ellipse cx="416" cy="191" rx="42" ry="66" fill="none" stroke="#b86637" stroke-width="1.5"/>
- <path d="M416 144 Q431 169 425 182 Q448 195 423 204 Q430 223 416 240 Q401 218 408 204 Q383 191 409 182 Q401 164 416 144Z" fill="#b86637"/><path d="M416 171 Q432 192 416 214 Q404 192 416 171" fill="#e5b963"/>
- ${Array.from({length:14},(_,i)=>{const a=i/14*Math.PI*2;return `<circle cx="${414+61*Math.cos(a)}" cy="${191+87*Math.sin(a)}" r="4" fill="#e5b963" stroke="#6a3c25"/>`;}).join('')}
- <path d="M180 293 L340 320 M207 295 L377 308" stroke="#b86637" stroke-width="9" stroke-linecap="round"/><path d="M180 293 L240 303 M207 295 L264 299" stroke="#872f35" stroke-width="7" stroke-linecap="round"/></g>
-</svg>`;
+ <defs>
+   <filter id="dragon-shape" color-interpolation-filters="sRGB">
+     <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 -5 4.95 0"/>
+   </filter>
+   <mask id="dragon-mask" style="mask-type:alpha"><image width="1536" height="512" href="./src/ui/dragon.webp" filter="url(#dragon-shape)"/></mask>
+   <filter id="dragon-outline" x="-2%" y="-3%" width="104%" height="106%">
+     <feMorphology in="SourceAlpha" operator="dilate" radius="2.5" result="outer"/>
+     <feFlood flood-color="#b5adb0"/><feComposite in2="outer" operator="in"/>
+     <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+   </filter>
+   <clipPath id="dragon-fill"><rect width="${charges*256}" height="512"/></clipPath>
+ </defs>
+ <g filter="url(#dragon-outline)"><g mask="url(#dragon-mask)">
+   <rect width="1536" height="512" fill="#39373b"/>
+   <image class="dragon-illustration" width="1536" height="512" href="./src/ui/dragon.webp" clip-path="url(#dragon-fill)"/>
+ </g></g></svg>`;
 }
 export function kharvekPanel(s){
  const charges=s.resources.charges;
