@@ -1,5 +1,5 @@
 const CACHE='kobe-lot5-v1';
-const FILES=['./src/kobe/table-correction.js','./src/kobe/connect.js','./src/ui/connect-ui.js','./','./index.html','./src/ui/styles.css','./src/ui/app.js','./src/ui/kharvek-ui.js','./src/ui/rhythm.js','./src/kobe/kharvek.js','./src/kobe/health.js','./src/ui/combat-ui.js','./src/kobe/combat.js','./src/kobe/spell-catalog.js','./src/kobe/spells.js','./src/kobe/spell-lifecycle.js','./src/ui/spell-ui.js','./src/kobe/model.js','./src/kobe/engine.js','./src/kobe/storage.js'];
+const FILES=['./src/ui/portrait.jpg','./src/ui/emblem.jpg','./src/kobe/table-correction.js','./src/kobe/connect.js','./src/ui/connect-ui.js','./','./index.html','./src/ui/styles.css','./src/ui/app.js','./src/ui/kharvek-ui.js','./src/ui/rhythm.js','./src/kobe/kharvek.js','./src/kobe/health.js','./src/ui/combat-ui.js','./src/kobe/combat.js','./src/kobe/spell-catalog.js','./src/kobe/spells.js','./src/kobe/spell-lifecycle.js','./src/ui/spell-ui.js','./src/kobe/model.js','./src/kobe/engine.js','./src/kobe/storage.js'];
 const root=new URL('./',self.registration.scope);
 const known=new Set(FILES.map(path=>new URL(path,root).pathname));
 self.addEventListener('install',event=>event.waitUntil((async()=>{

@@ -36,6 +36,7 @@ try{
    await page.waitForFunction(async()=>!!await (await caches.open('kobe-lot5-v2-recipe')).match('./index.html'));
    unavailable=true;
    try{
+    const reopened=await ctx.newPage();await reopened.goto(url);await reopened.locator('.stats').getByText('77/83').waitFor({timeout:10000});await reopened.close();console.log(name+': nouvelle navigation origine 503, PV conservés PASS');
     await page.reload({timeout:12000});await page.getByRole('heading',{name:'Kobe Kozzo',exact:true}).waitFor({timeout:5000});
     await page.getByRole('button',{name:'Soin',exact:true}).click();await page.locator('.stats').getByText('78/83').waitFor();
     console.log(name+': origin HTTP 503, cached navigation and offline heal persisted PASS.');
