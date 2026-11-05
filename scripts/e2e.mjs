@@ -1,3 +1,4 @@
+import {runInNewContext} from 'node:vm';
 import {readFile,stat} from 'node:fs/promises';
 import {join} from 'node:path';
 import assert from 'node:assert/strict';
@@ -8,5 +9,9 @@ const [html,app,css,sw]=await Promise.all(['index.html','src/ui/app.js','src/ui/
 for(const tab of ['Combat','Sorts & pouvoirs','Social','Journal'])assert(app.includes(tab),'onglet absent : '+tab);
 for(const hex of ['#151419','#B86637','#872F35','#E5B963','#F0E5CE'])assert(css.includes(hex),'palette absente '+hex);
 assert(html.includes('type="module"'));assert(!html.includes('https://'),'dépendance CDN');
-for(const path of files.filter(p=>p!=='sw.js'))assert(sw.includes('./'+path)||path==='index.html'&&sw.includes('./index.html'),'non précaché '+path);
+const self={};
+runInNewContext(await readFile(join(dir,'offline-shell.js'),'utf8'),{self});
+for(const path of files.filter(p=>p!=='sw.js'))assert(Object.hasOwn(self.KobeShellAssets,path),'non précaché '+path);
+assert(sw.includes('Object.keys(self.KobeShellAssets)'));
+
 console.log('Contrôles build/cache/onglets/palette : PASS (vérification statique ; pas de navigateur réel).');

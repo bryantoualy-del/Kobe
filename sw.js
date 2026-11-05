@@ -1,5 +1,6 @@
-const CACHE='kobe-lot5-v1';
-const FILES=['./src/ui/portrait.jpg','./src/ui/emblem.jpg','./src/kobe/table-correction.js','./src/kobe/connect.js','./src/ui/connect-ui.js','./','./index.html','./src/ui/styles.css','./src/ui/app.js','./src/ui/kharvek-ui.js','./src/ui/rhythm.js','./src/kobe/kharvek.js','./src/kobe/health.js','./src/ui/combat-ui.js','./src/kobe/combat.js','./src/kobe/spell-catalog.js','./src/kobe/spells.js','./src/kobe/spell-lifecycle.js','./src/ui/spell-ui.js','./src/kobe/model.js','./src/kobe/engine.js','./src/kobe/storage.js'];
+importScripts('./offline-shell.js');
+const CACHE='kobe-v11-'+self.KobeShellRevision;
+const FILES=['./',...Object.keys(self.KobeShellAssets).map(path=>'./'+path)];
 const root=new URL('./',self.registration.scope);
 const known=new Set(FILES.map(path=>new URL(path,root).pathname));
 self.addEventListener('install',event=>event.waitUntil((async()=>{
@@ -19,6 +20,14 @@ self.addEventListener('fetch',event=>{
    const file=req.mode==='navigate'&&(url.pathname===root.pathname||url.pathname===root.pathname+'index.html')
      ? new URL('./index.html',root).href : new URL(url.pathname,root).href;
    const hit=await cache.match(file,{ignoreVary:true});
-   return hit||fetch(req);
+   if(hit)return hit;
+   // Installed worker scripts survive the WebKit 26.0 worker cache partition issue.
+   const relative=new URL(file).pathname.slice(root.pathname.length);
+   const packed=self.KobeShellAssets[relative];
+   if(!packed)return fetch(req);
+   const [type,compressed,encoded]=packed;
+   const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0));
+   const body=compressed?new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')):bytes;
+   return new Response(body,{headers:{'Content-Type':type}});
  })());
 });

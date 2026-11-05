@@ -11,6 +11,8 @@ test('one continuous five-turn session: mixed saves, concentration, Glamour, all
   const r=await store.dispatch(c);assert.equal(r.ok,true,type+': '+r.message);commands.push(c);
  }
  async function next(){await play('turn-end');await play('turn-start',{epoch:'local',combatId:'local',turn:state().turn.startRevision+1});}
+ assert.equal(state().resources.charges,0);
+ await play('kharvek-dawn',{confirmed:true});
  await play('initiative-roll',{die:14});
  for(const [id,side] of [['brack','ally'],['a','enemy'],['b','enemy']]){
   await play('target-save',{id,name:id,side,temp:0,reaction:true});

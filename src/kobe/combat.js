@@ -8,7 +8,7 @@ const num=(v,min,max)=>need(Number.isSafeInteger(v)&&v>=min&&v<=max,'Nombre hors
 const txt=v=>typeof v==='string'&&v.trim().length>0&&v.length<=120;
 export function validateCombat(s){
  const b=s.combat;need(b&&Array.isArray(b.targets)&&Array.isArray(b.conditions),'Combat invalide.');
- num(b.round,1,1000000);num(b.elapsed,0,100000000);num(b.hitDice,0,10);num(b.performance,0,1);
+ num(b.turnDamage??0,0,Number.MAX_SAFE_INTEGER);num(b.round,1,1000000);num(b.elapsed,0,100000000);num(b.hitDice,0,10);num(b.performance,0,1);
  need(['active','ended'].includes(b.phase)&&typeof b.bonusSpell==='boolean','Tour invalide.');
  num(b.death.success,0,3);num(b.death.failure,0,3);need(typeof b.death.stable==='boolean'&&typeof b.death.dead==='boolean','Mort invalide.');
  need(b.targets.length<=100&&new Set(b.targets.map(t=>t.id)).size===b.targets.length,'Cibles invalides.');
@@ -26,6 +26,20 @@ export function afterDamage(s,amount,id,oldHP,critical=false,absorbed=0){
  if(s.hp.current===0){endConcentration(s);if(oldHP===0){s.combat.death.stable=false;s.combat.death.failure=Math.min(3,s.combat.death.failure+(critical?2:1));}if(amount-absorbed-oldHP>=s.hp.max||s.combat.death.failure===3)s.combat.death.dead=true;}
  else if(s.concentration)s.pendingResolutions.push({id,kind:'concentration',dc:Math.max(10,Math.floor(amount/2)),concentrationId:s.concentration.id});
 }
+const bardicCosts={inspiration:'inspiration',mantle:'inspiration',cry:'cry',majesty:'majesty','majesty-command':null};
+export function bardicAvailability(s,type){
+ try{
+  assertCanAct(s);
+  need(s.combat.phase==='active','Hors tour');
+  need(s.economy.bonusAvailable,'Action bonus utilisée');
+  const resource=bardicCosts[type];
+  if(resource)need(s.resources[resource]>0,'Ressource épuisée');
+  if(type!=='mantle')need(!s.combat.conditions.includes('silenced'),'Silence');
+  if(type.startsWith('majesty'))need(!s.combat.leveledAction,'Sort de niveau déjà lancé');
+  if(type==='majesty-command')need(s.effects.some(e=>e.kind==='majesty'&&e.concentrationId===s.concentration?.id),'Majesté inactive');
+  return {ok:true,label:'Disponible'};
+ }catch(error){return {ok:false,label:error.message};}
+}
 export function combatCommand(s,c){
  const p=c.payload??{},b=s.combat;let label,kind='info',targetIds=['kobe'],costs={},rolls=[];
  const active=()=>assertCanAct(s);
@@ -34,6 +48,7 @@ export function combatCommand(s,c){
  const targets=(max,side)=>{need(Array.isArray(p.targetIds)&&p.targetIds.length>=1&&p.targetIds.length<=max&&new Set(p.targetIds).size===p.targetIds.length,'Sélection de cibles invalide.');const ts=p.targetIds.map(id=>b.targets.find(t=>t.id===id));need(ts.every(t=>t&&(!side||t.side===side)),'Cible inconnue ou inéligible.');targetIds=p.targetIds;need(p.eligible===true,'Confirmez portée et conditions des cibles.');return ts;};
  const effect=(kind,duration,extra={})=>{const e={id:c.id,kind,targetIds:[...targetIds],expires:b.elapsed+duration,...extra};s.effects.push(e);return e;};
  const commandSpell=()=>{audible();targets(1,'enemy');need(p.commandEligible===true&&txt(p.word)&&!p.word.trim().includes(' '),'Injonction : un mot, cible visible à 18 m, non morte-vivante, comprend la langue, ordre non directement dangereux.');s.pendingResolutions.push({id:c.id,kind:'command',targetIds,word:p.word,automaticFailure:p.charmedByKobe===true,dc:17});b.bonusSpell=true;};
+ if(Object.hasOwn(bardicCosts,c.type)){const available=bardicAvailability(s,c.type);need(available.ok,available.label);}
  switch(c.type){
  case 'target-save': {need(txt(p.id)&&p.id!=='kobe'&&txt(p.name)&&['ally','enemy'].includes(p.side),'Nom/cible invalide.');const old=b.targets.find(t=>t.id===p.id);const t={...old,id:p.id,name:p.name,side:p.side,temp:p.temp??null,reaction:p.reaction??null};if(t.hp&&p.temp!==null&&p.temp!==undefined)t.hp.temp=p.temp;if(old)Object.assign(old,t);else b.targets.push(t);label=`Suivi local : ${t.name} (aucune connexion)`;break;}
  case 'inspiration':{const ts=targets(1,'ally');audible();need(!s.effects.some(e=>e.kind==='inspiration'&&e.targetIds.includes(ts[0].id)),'Cette cible possède déjà une Inspiration suivie.');need(p.noExistingDie===true,'Confirmez que la cible ne détient aucun dé bardique.');spend('bonusAvailable','inspiration');effect('inspiration',600,{die:10});label='Inspiration d10 attribuée · disponible 10 minutes';break;}

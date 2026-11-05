@@ -376,3 +376,20 @@ serveur RPG Connect. Prochaine reprise : Lot5 recette/livraison depuis main, san
 
 ## Reprise du Lot 5
 PR Kobe #6, Encounter #21 et RPG-Connect #7. 127 tests Kobe, 10 tests serveur, 7 scénarios historiques et 111 contrôles d’autorité réussis sur les candidats. La recette réunit les sept clients et Encounter. L’initiative, les PV et la reprise sont exercés en salle isolée. Les soins alliés restent annoncés oralement. La production vérifiée sert le Lot 4. Le rechargement forcé après HTTP 503 avec WebKit Linux bloque la fusion. Voir scripts/resume-browser.mjs. Safari physique reste à tester. Portrait extrait de la page 2 et emblème officiel de Kobe intégrés à la coque et au cache.
+
+## V1.1 — A
+Audit des quatre dépôts effectué. Base PR #6 retenue. Voir KOBE_PARITY_MATRIX.md.
+B — Barre de tour connectée au store et repères de fiche visibles sur les quatre onglets.
+C — Jets privés interactifs et registre d’inventaire de Kentaro adaptés à Kobe.
+D — Carnet, PNJ, portraits IndexedDB, archives et ZIP portés depuis Kentaro. Panneau conservé entre les transactions.
+E — Plugin étendu dans Kentaro avec son identifiant historique. Parcours décrit dans KOBE_OBSIDIAN_INTEGRATION.md.
+F — Original du dragon conservé, six orbes placées sur le dessin et rendu des sept valeurs de charge intégré au cache.
+G — Parcours réels Chromium et WebKit à 1180 × 820. Correction des portraits WebKit (octets IndexedDB) et du placement des actions dans la première vue. Importeur testé avec deux ZIP produits par les applications.
+
+### Point de reprise V1.1
+128 tests moteur et 2 parcours de navigateur (Chromium et WebKit). Les scènes sociales, les ZIP et les captures sont décrits dans [la recette V1.1](KOBE_V11_VALIDATION.md). Correctif de reprise à froid vérifié sur WebKit 26.0 et 26.5. Les fichiers de secours du worker contiennent uniquement le code et les illustrations publiques du Companion. Les données du joueur restent dans leurs stockages locaux.
+
+Revue ouverte dans Kobe #7 et Kentaro #13. Prochain jalon : Safari et Obsidian sur iPad physique avant fusion. Garder la dépendance avec Kobe #6.
+
+## Révision après essai joueur
+Brack est la référence de présentation. En-tête identité/vitalité, barre standard, commandes et sous-vues de combat, Profil et Inventaire dans Social. Les quatre favoris restent accessibles depuis Attaques. Khar-Vek dispose de son onglet, accessible aussi pendant un combat. Le dragon officiel est révélé de gauche à droite par sixième sur un contour gris. Un nouveau personnage débute à zéro charge, les sauvegardes reprennent leur valeur effective. La nouvelle aube remplit les six charges.

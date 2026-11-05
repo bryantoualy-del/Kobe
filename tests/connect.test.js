@@ -124,3 +124,12 @@ test('known manual conditions replace explicitly; incapacitation ends concentrat
  assert.deepEqual(t.store.getState().combat.conditions,['stunned']);assert.equal(t.store.getState().concentration,null);
  const revision=t.store.getState().revision;await t.command(event);assert.equal(t.store.getState().revision,revision);
 });
+test('a private physical roll writes the local result without sending a frame',async()=>{
+ const t=setup();await t.join();
+ const sent=t.sockets[0].messages.length;
+ const r=await t.store.dispatch({id:'private-persuasion',actorId:'kobe',origin:'player',expectedRevision:0,
+  type:'private-roll',payload:{name:'Persuasion',mode:'adv',dice:[4,17]}});
+ assert.equal(r.ok,true);
+ assert.match(r.events[0].label,/30$/);
+ assert.equal(t.sockets[0].messages.length,sent);
+});

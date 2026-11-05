@@ -408,6 +408,7 @@ export function spellCommand(s, c) {
           amount = p.effective;
         }
         if (amount > 0) applyHP(s, id, amount, false, c);
+        s.combat.turnDamage=(s.combat.turnDamage??0)+amount;
         kind = "damage";
         label = `${spell.name} · ${id} · ${p.result} · ${amount} dégâts ${spell.damageType} effectifs${hpOf(s, id) ? " appliqués localement" : " à annoncer (PV inconnus)"}`;
       } else
@@ -533,6 +534,7 @@ export function spellCommand(s, c) {
           }
           targetIds = [p.targetId];
           if (effective > 0) applyHP(s, p.targetId, effective, false, c);
+          s.combat.turnDamage=(s.combat.turnDamage??0)+effective;
           kind = "damage";
           label += ` · ${effective} dégâts effectifs : ${hpOf(s, p.targetId) ? "PV locaux actualisés" : "à annoncer (PV inconnus)"}`;
         }

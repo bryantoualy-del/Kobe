@@ -29,11 +29,12 @@ try{
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(address);
    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
-   for(const tab of ['Combat','Sorts & pouvoirs','Social','Journal']) {
+   for(const tab of ['Combat','Sorts & pouvoirs','Social','Khar-Vek','Journal']) {
     await page.getByRole('tab',{name:tab}).click();
     await page.waitForFunction(label => [...document.querySelectorAll('[role="tab"]')].some(el => el.textContent === label && el.getAttribute('aria-selected') === 'true'), tab);
    }
    await page.getByRole('tab',{name:'Combat'}).click();
+   await page.locator('[data-view=combat]').waitFor();
    await page.getByLabel('Valeur').fill('10');
    await page.getByRole('button',{name:'Dégâts'}).click();
    await page.locator('.stats').getByText('73/83').waitFor();
@@ -46,6 +47,7 @@ try{
    await page.reload();
    assert.equal(await page.getByLabel('Notes de Kobe').inputValue(),'Roark à retrouver.');
    await page.getByRole('tab',{name:'Journal'}).click();
+   await page.getByRole('tab',{name:'Journal mécanique',exact:true}).click();
    await page.getByText(/10 dégâts reçus/).waitFor();
    // Ensure app shell is cached and local state survives loss of network after initial installation.
    await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{timeout:15000});
@@ -65,36 +67,36 @@ try{
     await page.locator('.stats').getByText('73/83').waitFor();
    }
    // Lot2: real form workflow, then persistence/offline. No injected combat state.
-   await page.getByText('Bénéficiaires et ennemis · suivi local').click();
+   await page.locator('[data-combat-view=control]').click();await page.getByText('Bénéficiaires et ennemis · suivi local').click();
    await page.getByRole('button',{name:'Ajouter / actualiser une cible'}).click();
    await page.getByLabel('Nom',{exact:true}).fill('Brack');
    await page.getByLabel('Réaction déclarée').selectOption('yes');
    await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog').waitFor({state:'detached'});
-   await page.getByRole('button',{name:'Inspiration · bonus · d10',exact:true}).click();
+   await page.locator('dialog[open]').waitFor({state:'detached'});
+   await page.locator('[data-combat-view=offense]').click();await page.getByRole('button',{name:'Inspiration · bonus · d10',exact:true}).click();
    await page.getByLabel('Brack',{exact:true}).check();
    await page.getByLabel('Portée et conditions ci-dessus vérifiées à la table').check();
    await page.getByLabel('La cible ne possède aucun autre dé').check();
    await page.getByRole('button',{name:'Confirmer',exact:true}).dblclick();
-   await page.locator('dialog').waitFor({state:'detached'});
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
    await page.reload();
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.effects.filter(e=>e.kind==='inspiration').length),1);
-   await page.getByRole('button',{name:'Utiliser le d10',exact:true}).click();
+   await page.locator('[data-combat-view=control]').click();await page.getByRole('button',{name:'Utiliser le d10',exact:true}).click();
    await page.getByLabel('Résultat du d10').fill('7');
    await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog').waitFor({state:'detached'});
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
    await page.getByRole('button',{name:'Début de mon tour',exact:true}).waitFor();
    page.once('dialog',d=>d.accept());
    await page.getByRole('button',{name:'Début de mon tour',exact:true}).click();
    await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();
-   await page.getByRole('button',{name:'Manteau d’inspiration · bonus',exact:true}).click();
+   await page.locator('[data-combat-view=offense]').click();await page.getByRole('button',{name:'Manteau d’inspiration · bonus',exact:true}).click();
    await page.getByLabel('Brack',{exact:true}).check();
    await page.getByLabel('Déplacement immédiat confirmé').check();
    await page.getByLabel('Portée et conditions ci-dessus vérifiées à la table').check();
    await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog').waitFor({state:'detached'});
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
    const target=await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.combat.targets[0]);
    assert.equal(target.temp,11);assert.equal(target.reaction,false);
@@ -114,7 +116,7 @@ try{
    console.log(label+': Lot2 forms, double click, Inspiration, Manteau, reactions, reload and screenshots PASS');
    assert.deepEqual(errors,[],label+' errors');
    await context.close();
-   console.log(label+': four tabs, persistence, journal PASS'+(label==='chromium'?', offline reload PASS':', offline reload unverified (Playwright WebKit limitation)'));
+   console.log(label+': five tabs, persistence, journal PASS'+(label==='chromium'?', offline reload PASS':', offline reload unverified (Playwright WebKit limitation)'));
   } finally {await browser.close();}
  }
 }catch(e){failures++;console.error(e);process.exitCode=1;}

@@ -1,3 +1,25 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#151419"><meta name="description" content="Kobe Kozzo — Companion autonome"><title>Kobe Kozzo · Companion</title><link rel="stylesheet" href="./src/ui/styles.css"></head>
-<body><div id="app"><p class="loading">Ouverture du grimoire de Kobe…</p></div><script type="module" src="./src/ui/app.js"></script></body></html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#151419"><meta name="description" content="Kobe Kozzo — Companion autonome"><title>Kobe Kozzo · Companion</title><link rel="stylesheet" href="./src/ui/styles.css"><link rel="stylesheet" href="./src/companion/social-dice.css"><link rel="stylesheet" href="./src/companion/brack-v3.css"><link rel="stylesheet" href="./src/companion/turnbar.css"><link rel="stylesheet" href="./src/ui/brack.css"></head>
+<body><div id="ribbon" role="status" aria-live="polite" hidden><div class="rt">Kobe Kozzo</div><div class="rb"></div></div><div id="app"><p class="loading">Ouverture du grimoire de Kobe…</p></div><section id="sessionDesk" data-panel="journal" class="panel" hidden><article class="card"><h2 class="journal-head">Journal mécanique</h2><div id="log"></div></article></section><details id="inventoryDesk" class="panel" hidden><summary>Inventaire et instruments</summary><output id="inventoryStatus"></output><div class="inventory-view" data-inventory-pane="objects" hidden>
+  <div class="inventory-toolbar">
+    <label class="inventory-search"><span>⌕</span><input id="inventorySearch" type="search" placeholder="Rechercher un objet…" autocomplete="off"></label>
+    <select id="inventoryCategory" aria-label="Filtrer les objets"><option value="all">Toutes les catégories</option><option value="heritage">Objet magique</option><option value="social">Instruments</option><option value="travel">Équipement</option><option value="memory">Mémoire</option><option value="consumable">Consommables</option><option value="misc">Divers</option></select>
+    <button id="inventoryAdd" class="btn-gold" type="button">＋ Ajouter</button>
+    <div class="inventory-transfer"><button id="inventoryExport" type="button">↓ Exporter</button><button id="inventoryImport" type="button">↑ Importer</button><input id="inventoryImportFile" type="file" accept="application/json,.json" hidden></div>
+  </div>
+  <div class="inventory-summary"><b id="inventoryObjectCount">0 objet</b><span>Les détails et quantités sont enregistrés sur cet appareil.</span></div>
+  <div id="inventoryObjectList" class="inventory-object-list"></div>
+</div>
+
+<dialog id="inventoryEditor" class="inventory-editor">
+  <form method="dialog" id="inventoryForm">
+    <div class="inventory-editor-head"><div><div class="inventory-card-kicker">Registre du voyageur</div><h3 id="inventoryEditorTitle">Ajouter un objet</h3></div><button type="button" value="cancel" class="inventory-close" aria-label="Fermer">×</button></div>
+    <input id="inventoryEditId" type="hidden">
+    <input id="inventoryEditIcon" type="hidden" value="generic">
+    <label>Nom de l’objet<input id="inventoryEditName" required maxlength="80" placeholder="Nom de l’objet"></label>
+    <div class="inventory-editor-grid"><label>Catégorie<select id="inventoryEditCategory"><option value="heritage">Objet magique</option><option value="social">Instrument</option><option value="travel">Équipement</option><option value="memory">Mémoire</option><option value="consumable">Consommable</option><option value="misc">Divers</option></select></label><label>Quantité<input id="inventoryEditQty" type="number" min="0" max="99" value="1"></label></div>
+    <fieldset class="inventory-icon-field"><legend>Icône</legend><div id="inventoryIconPicker" class="inventory-icon-picker" role="radiogroup" aria-label="Choisir une icône"></div><div class="inventory-icon-tools"><button id="inventoryIconUpload" type="button">＋ Importer une icône</button><button id="inventoryIconRemove" class="utility-danger" type="button" hidden>Supprimer l’icône</button><input id="inventoryIconFile" type="file" accept="image/png,image/jpeg,image/webp" hidden><small>PNG, JPEG ou WebP • converti en WebP 256 × 256 • image entière conservée</small></div></fieldset>
+    <label>Propriétés et notes<textarea id="inventoryEditNotes" maxlength="500" placeholder="Usage, provenance, promesse ou détail à retenir…"></textarea></label>
+    <div class="inventory-editor-actions"><button type="button" id="inventoryCancel">Annuler</button><button id="inventorySave" value="default" class="btn-gold">Enregistrer</button></div>
+  </form>
+</dialog></details><script src="./src/companion/social-dice.js"></script><script type="module" src="./src/companion/dice-engine.js"></script><script type="module" src="./src/ui/app.js"></script></body></html>
