@@ -43,16 +43,17 @@ try{
    await page.locator('#inventoryImportFile').setInputFiles(invFile);
    await page.locator('#inventoryObjectList').getByText('Flûte').waitFor();
    await tab('Social');
-   await page.locator('[data-roll]').first().waitFor();
+   await page.locator('[data-roll=Persuasion]').waitFor();
    assert.equal(await page.locator('[data-roll]').count(),31);
    await page.locator('#physical').check();
    for(const [name,mode,dice,total] of [['Persuasion','adv','4 17',30],['Représentation','normal','11',24],['Sauvegarde Dextérité','normal','12',18]]){
-    await page.locator('#roll-mode').selectOption(mode);
+    if(name.startsWith('Sauvegarde'))await page.locator('[data-roll-pane=abilities]').click();
+    await page.locator('[data-roll-mode='+mode+']').click();
     page.once('dialog',d=>d.accept(dice));
     await page.locator('[data-roll="'+name+'"]').click();
     await page.waitForFunction(total=>document.querySelector('output.ribbon')?.textContent.endsWith('= '+total),total);
    }
-   await capture('social');
+   await page.locator('[data-roll-pane=skills]').click();await page.evaluate(()=>scrollTo(0,0));await capture('social');
    await tab('Journal');
    await page.locator('#sessionTitle').fill('Le retour à Qorrashi');
    await page.locator('#sessionNotes').fill('Retrouver la piste de Jorakai.');
