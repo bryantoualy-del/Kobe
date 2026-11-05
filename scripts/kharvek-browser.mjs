@@ -12,7 +12,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state);
  const confirm=async()=>{await page.locator('dialog[open] [type=submit]').click();await page.locator('dialog[open]').waitFor({state:'detached'});};
  const checkHealing=async()=>{await page.locator('[name=healingEligible]').check();await page.locator('[name=drumReady]').check();};
- const next=async()=>{await page.getByRole('button',{name:'Fin de tour',exact:true}).click();page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Début de mon tour',exact:true}).click();await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();};
+ const next=async()=>{await page.getByRole('button',{name:'Fin de tour',exact:true}).click();await page.getByRole('button',{name:'Début de mon tour',exact:true}).click();await page.locator('[data-dialog-accept]').click();await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();};
  const correct=async value=>{await page.locator('[data-kharvek=correct]').click();await page.locator('[name=value]').fill(String(value));await page.locator('[name=reason]').fill('Recette visuelle');await confirm();};
  await page.goto('http://127.0.0.1:'+server.address().port);await page.getByText(/Sauvegarde locale · révision/).waitFor();
  await page.getByRole('tab',{name:'Khar-Vek',exact:true}).click();assert.equal((await state()).resources.charges,0);await mkdir('screenshots',{recursive:true});
@@ -22,7 +22,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.locator('.kharvek-controls summary').click();await page.locator('[data-still]').check();assert.equal(await page.locator('.dragon-illustration').evaluate(e=>getComputedStyle(e).animationName),'none');
  // Damage Kobe to demonstrate actual healing through a direct button; cancel first.
- await page.locator('#amount').fill('40');await page.getByRole('button',{name:'Dégâts',exact:true}).click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.hp.current===43);
+ await page.getByRole('button',{name:'Dégâts',exact:true}).click();await page.locator('[name=answer]').fill('40');await page.locator('[data-dialog-accept]').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.hp.current===43);
  await page.locator('[data-kharvek=pulse]').click();await page.getByRole('button',{name:'Annuler',exact:true}).click();assert.equal((await state()).resources.charges,6);
  await page.locator('[data-kharvek=pulse]').click();await page.getByLabel('Kobe',{exact:true}).check();await checkHealing();await page.locator('[name=healRolls]').fill('4 5 6');await page.locator('dialog[open]').screenshot({path:`screenshots/${name}-pulse-confirmation.png`});
  await page.locator('dialog[open] [type=submit]').evaluate(b=>{b.click();b.click();});await page.locator('dialog[open]').waitFor({state:'detached'});
@@ -32,7 +32,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  await page.getByRole('tab',{name:'Khar-Vek',exact:true}).click();await next();await page.locator('[data-kharvek=rally]').click();for(const t of ['Kobe','Roark','Jorakai'])await page.getByLabel(t,{exact:true}).check();await checkHealing();await page.locator('[name=healRolls]').fill('4 5');await confirm();
  assert.equal((await state()).hp.current,77);assert.deepEqual((await state()).combat.targets.map(t=>t.hp.current),[24,24]);assert.equal((await state()).resources.charges,2);assert.deepEqual((await state()).journal.at(-1).rolls,[4,5]);
  // Bonus is still available: combine Manteau with the survivor upgrade in one confirmation.
- await page.locator('[data-kharvek=survivors]').click();await page.getByLabel('Roark',{exact:true}).check();await page.locator('[name=eligible]').check();const roark=(await state()).combat.targets[0].id;await page.locator('[name=survivorTargetId]').selectOption(roark);await checkHealing();await page.locator('[name=healRolls]').fill('8');await page.locator('dialog[open]').screenshot({path:`screenshots/${name}-survivors-confirmation.png`});await confirm();
+ await page.locator('[data-kharvek=survivors]').click();await page.getByLabel('Roark',{exact:true}).check();const roark=(await state()).combat.targets[0].id;await page.locator('[name=survivorTargetId]').selectOption(roark);await checkHealing();await page.locator('[name=healRolls]').fill('8');await page.locator('dialog[open]').screenshot({path:`screenshots/${name}-survivors-confirmation.png`});await confirm();
  let s=await state();assert.equal(s.combat.targets[0].hp.current,37);assert.equal(s.combat.targets[0].hp.temp,11);assert.equal(s.resources.charges,1);assert.equal(s.resources.inspiration,4);assert.equal(s.economy.bonusAvailable,false);assert.equal(s.journal.at(-1).costs.charges,1);assert.equal(s.journal.at(-1).costs.inspiration,1);
  await page.reload();await page.getByText(/Sauvegarde locale · révision/).waitFor();assert.equal((await state()).resources.charges,1);assert.equal((await state()).combat.targets[0].hp.current,37);
  await next();

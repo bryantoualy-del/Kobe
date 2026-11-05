@@ -135,6 +135,25 @@ function readRolls(text, n, faces) {
     );
   return values;
 }
+export async function quickAttack(dispatch,target,mode,physical){
+ let attackRolls;
+ try{attackRolls=readRolls(physical,mode==='normal'?1:2,20);}
+ catch(e){await RPGDialogs.alert(e.message);return;}
+ const result=await dispatch('spell-cast',{spellId:'fire-bolt',level:0,targetIds:[target],eligible:true,components:true,attackMode:mode,attackRolls,rolls:dice(2,10)});
+ if(!result?.ok)return;
+ const pending=result.state.pendingResolutions.find(r=>r.sourceId===result.events[0].id&&r.kind==='spell');
+ if(pending)hitDialog(pending,result.state,dispatch);
+}
+function hitDialog(r,state,dispatch){
+ const dialog=document.createElement('dialog');
+ dialog.className='combat-dialog hit-box';
+ dialog.innerHTML=`<div class="eyebrow">Jet d’attaque · Trait de feu</div><div class="hit-roll">${r.attackTotal}</div><p>D20 ${r.natural} + 9</p><h2>Est-ce que l’attaque touche ?</h2><div class="hit-actions"><button class="hit-no" ${r.natural===20?'disabled':''}>Raté</button><button class="hit-yes" ${r.natural===1?'disabled':''}>${r.natural===20?'Critique':'Touché'}</button></div><button class="hit-options">Défenses et autres résultats</button>`;
+ document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();
+ const apply=async outcome=>{const result=await dispatch('spell-resolve',{id:r.id,result:outcome,defense:'normal',rolls:outcome==='critical'?dice(4,10):[]});if(result?.ok)dialog.close();};
+ dialog.querySelector('.hit-no').onclick=()=>apply('miss');
+ dialog.querySelector('.hit-yes').onclick=()=>apply(r.natural===20?'critical':'hit');
+ dialog.querySelector('.hit-options').onclick=()=>{dialog.close();openSpellResolve(r.id,state,dispatch);};
+}
 export function openSpellCast(id, s, dispatch) {
   const spell = spellById(id),
     levels = availableLevels(s, spell);
@@ -157,15 +176,7 @@ export function openSpellCast(id, s, dispatch) {
     );
   if (spell.maxTargets !== 0)
     fields += `<fieldset><legend>Cibles (limite selon niveau ; zone et admissibilité à confirmer)</legend>${[{ id: "kobe", name: "Kobe" }, ...s.combat.targets].map((t) => check("target", t.name).replace('name="target"', 'name="target" value="' + esc(t.id) + '"')).join("")}</fieldset><p class="muted">Ajouter les autres créatures via « Ajouter une cible » dans le grimoire.</p>`;
-  fields +=
-    check(
-      "eligible",
-      "Portée, zone, cibles et toutes les conditions du sort vérifiées",
-    ) +
-    check(
-      "components",
-      "Parole, gestes, main et matériaux ou focaliseur disponibles",
-    );
+  fields += '<p class="muted">Confirmer le lancer valide la portée, les cibles et les composantes.</p>';
   if ((spell.concentration || spell.seconds || spell.ritual) && s.concentration)
     fields += check(
       "replaceConcentration",
@@ -230,6 +241,7 @@ export function openSpellCast(id, s, dispatch) {
     ]);
   return show("Lancer · " + spell.name, fields, (p) => {
     p.spellId = id;
+    p.eligible=true; p.components=true;
     p.level = spell.level ? Number(p.level) : 0;
     p.effectSeconds = Number(p.effectSeconds);
     if (spell.dice) p.rolls = readRolls(p.rolls, ...diceFor(spell, p.level));

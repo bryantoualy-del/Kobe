@@ -32,9 +32,12 @@ try{
    await page.locator('#signature-mode').selectOption('advantage');
    await page.locator('#signature-dice').fill('4 17');
    await page.locator('[data-signature]').click();
-   assert.equal(await page.locator('[name=attackMode]').inputValue(),'advantage');
-   assert.equal(await page.locator('[name=attackRolls]').inputValue(),'4 17');
-   await page.locator('[data-cancel]').click();
+   assert.equal(await page.locator('.hit-roll').innerText(),'26');
+   await page.getByRole('button',{name:'Touché',exact:true}).click();
+   await page.getByRole('button',{name:'Repos long',exact:true}).first().click();
+   await page.getByRole('button',{name:'Annuler',exact:true}).click();
+   await page.getByRole('button',{name:'Repos long',exact:true}).first().click();
+   await page.getByRole('button',{name:'Confirmer le repos long'}).click();
    await tab('Social');await page.locator('[data-social-view=inventory]').click();
    await page.locator('#inventoryAdd').click();
    await page.locator('#inventoryEditName').fill('Flûte');
@@ -46,8 +49,8 @@ try{
    await page.locator('#inventoryExport').click();
    const invFile=await (await invDownload).path();
    await page.locator('[data-inventory-delete]').last().click();
-   page.once('dialog',d=>d.accept());
-   await page.locator('#inventoryImportFile').setInputFiles(invFile);
+
+   await page.locator('#inventoryImportFile').setInputFiles(invFile);await page.locator('[data-dialog-accept]').click();
    await page.locator('#inventoryObjectList').getByText('Flûte').waitFor();
    await tab('Social');
    await page.locator('[data-social-view=profile]').click();await page.locator('[data-roll=Persuasion]').waitFor();
@@ -56,8 +59,8 @@ try{
    for(const [name,mode,dice,total] of [['Persuasion','adv','4 17',30],['Représentation','normal','11',24],['Sauvegarde Dextérité','normal','12',18]]){
     if(name.startsWith('Sauvegarde'))await page.locator('[data-roll-pane=abilities]').click();
     await page.locator('[data-roll-mode='+mode+']').click();
-    page.once('dialog',d=>d.accept(dice));
-    await page.locator('[data-roll="'+name+'"]').click();
+
+    await page.locator('[data-roll="'+name+'"]').click();await page.locator('[name=answer]').fill(dice);await page.locator('[data-dialog-accept]').click();
     await page.waitForFunction(total=>document.querySelector('output.ribbon')?.textContent.endsWith('= '+total),total);
    }
    await page.locator('[data-roll-pane=skills]').click();await page.evaluate(()=>scrollTo(0,0));await capture('social');
@@ -69,8 +72,8 @@ try{
    await page.locator('[data-edit-entry]').click();
    await page.locator('#entryText').fill('Indice corrigé');
    await page.locator('#addEntry').click();
-   page.once('dialog',d=>d.accept());
-   await page.locator('[data-delete-entry]').click();
+
+   await page.locator('[data-delete-entry]').click();await page.locator('[data-dialog-accept]').click();
    await page.locator('[data-touch-person="Roark"]').click();
    await page.locator('#entryType').selectOption('PNJ');
    await page.locator('#entryPerson').selectOption('Roark');
@@ -86,8 +89,8 @@ try{
    await page.locator('#peopleList img').waitFor();
    assert.equal(await page.locator('#sessionNotes').inputValue(),'Retrouver la piste de Jorakai.');
    await capture('journal');
-   page.once('dialog',d=>d.accept());
-   await page.locator('#closeSession').click();
+
+   await page.locator('#closeSession').click();await page.locator('[data-dialog-accept]').click();
    await page.locator('.session-archives summary').click();
    const archive=page.waitForEvent('download');
    await page.locator('[data-export-archive]').click();

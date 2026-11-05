@@ -5,7 +5,7 @@ import {initialState} from '../src/kobe/model.js';
 import {transition} from '../src/kobe/engine.js';
 import {createConnect,parseInvite,tacticalState,publicGroup,operationId,correction} from '../src/kobe/connect.js';
 
-function setup(storage=new Map()){
+function setup(storage=new Map(),onActivity=()=>{}){
   const local={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
   const store=createStore({storage:local,locks:{request:async(k,o,fn)=>fn()}});
   const sockets=[],scheduled=[];let id=0;
@@ -15,7 +15,7 @@ function setup(storage=new Map()){
     send(raw){this.messages.push(JSON.parse(raw));}
     close(){this.readyState=3;}
   }
-  const client=createConnect({store,WebSocketImpl:WS,uuid:()=> 'id-'+(++id),schedule:fn=>{scheduled.push(fn);return 1;},cancel:()=>{}});
+  const client=createConnect({store,onActivity,WebSocketImpl:WS,uuid:()=> 'id-'+(++id),schedule:fn=>{scheduled.push(fn);return 1;},cancel:()=>{}});
   const receive=async(m)=>{sockets.at(-1).onmessage({data:JSON.stringify({v:1,...m})});await client.settled();};
   const join=async()=>{client.connect('RPGCONNECT|wss://example.org|ROOM01|kobe|test');sockets.at(-1).onopen();await receive({type:'welcome',protocolVersion:1,capabilities:['table-free-v5'],payload:{sessionMode:'table-free'}});};
   const command=(event)=>receive({type:'command',room:'ROOM01',characterId:'kobe',event:{characterId:'kobe',...event}});
@@ -132,4 +132,15 @@ test('a private physical roll writes the local result without sending a frame',a
  assert.equal(r.ok,true);
  assert.match(r.events[0].label,/30$/);
  assert.equal(t.sockets[0].messages.length,sent);
+});
+
+test('collective journal accepts only the current room and never republishes received activity',async()=>{
+ const received=[];const f=setup(new Map(),(room,rows)=>received.push({room,rows}));
+ await f.join();const before=f.sockets[0].messages.length;
+ const entry={id:'mj-1',text:'La garde arrive',serverOrder:1};
+ await f.receive({type:'activity-sync',room:'OTHER',payload:{entries:[entry]}});
+ await f.receive({type:'activity-sync',room:'ROOM01',payload:{entries:[entry]}});
+ await f.receive({type:'activity',room:'ROOM01',payload:entry});
+ assert.deepEqual(received.map(r=>r.rows),[[],[entry],[entry]]);
+ assert.equal(f.sockets[0].messages.length,before);
 });

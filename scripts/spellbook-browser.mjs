@@ -51,10 +51,10 @@ try {
         await page
           .getByRole("button", { name: "Fin de tour", exact: true })
           .click();
-        page.once("dialog", (d) => d.accept());
+
         await page
           .getByRole("button", { name: "Début de mon tour", exact: true })
-          .click();
+          .click();await page.locator('[data-dialog-accept]').click();
         await page
           .getByRole("button", { name: "Fin de tour", exact: true })
           .waitFor();
@@ -155,16 +155,6 @@ try {
       await page.getByLabel("Ennemi A", { exact: true }).check();
       await page.getByLabel("Ennemi B", { exact: true }).check();
       await page
-        .getByLabel(
-          "Portée, zone, cibles et toutes les conditions du sort vérifiées",
-        )
-        .check();
-      await page
-        .getByLabel(
-          "Parole, gestes, main et matériaux ou focaliseur disponibles",
-        )
-        .check();
-      await page
         .getByLabel("Dés physiques (facultatif ; sinon jet automatique)")
         .fill("4 4 4 4 4 4 4 4");
       await page.screenshot({ path: `screenshots/${name}-casting-modal.png` });
@@ -185,16 +175,6 @@ try {
       await next();
       await page.locator('[data-combat-view=offense]').click();
       await page.locator('[data-cast="circle-of-power"]').click();
-      await page
-        .getByLabel(
-          "Portée, zone, cibles et toutes les conditions du sort vérifiées",
-        )
-        .check();
-      await page
-        .getByLabel(
-          "Parole, gestes, main et matériaux ou focaliseur disponibles",
-        )
-        .check();
       await confirm();
       assert.equal((await state()).concentration.name, "Cercle de pouvoir");
       await page.reload();
@@ -204,16 +184,6 @@ try {
       await next();
       await page.locator('[data-cast="slow"]').click();
       await page.getByLabel("Ennemi A", { exact: true }).check();
-      await page
-        .getByLabel(
-          "Portée, zone, cibles et toutes les conditions du sort vérifiées",
-        )
-        .check();
-      await page
-        .getByLabel(
-          "Parole, gestes, main et matériaux ou focaliseur disponibles",
-        )
-        .check();
       await page
         .getByLabel("Remplacer la concentration : Cercle de pouvoir")
         .check();
