@@ -3,6 +3,9 @@ on:
   push:
     branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat, feat/kobe-lot3-spellbook, feat/kobe-lot4-kharvek]
   pull_request:
+concurrency:
+  group: validate-kobe-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   test-build:
     runs-on: ubuntu-latest
@@ -28,15 +31,55 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.58.2
       - name: Install headless browser engines
         run: npx playwright install --with-deps chromium webkit
+      - name: Load the tested V5 server with Kobe registered
+        uses: actions/checkout@v4
+        with:
+          repository: bryantoualy-del/RPG-Connect
+          ref: f1c441dbe9bc097e94677b6e98abc9cf66d8fb9d
+          path: .v5-test
+          persist-credentials: false
+      - name: Run canonical V5 server tests
+        working-directory: .v5-test
+        run: npm ci && npm test
       - name: Browser smoke (WebKit / Chromium, offline reload)
         run: |
           node scripts/browser-smoke.mjs
           node scripts/spellbook-browser.mjs
           node scripts/kharvek-browser.mjs
+          node scripts/table-browser.mjs
+          node scripts/resume-browser.mjs
 
+      - name: Prepare visual review
+        if: always()
+        run: node scripts/review-browser.mjs
+      - name: Probe the currently published Pages build (independent of PR)
+        if: always()
+        continue-on-error: true
+        run: node scripts/check-public.mjs https://bryantoualy-del.github.io/Kobe/
       - name: Preserve browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kobe-lot4-browser-evidence
+          name: kobe-lot5-browser-evidence
           path: screenshots/
+  ecosystem:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/checkout-v5.mjs
+      - run: npm ci && npm test
+        working-directory: .v5-env/RPG-Connect
+      - run: npm ci
+        working-directory: .v5-env/Encounter
+      - name: Six historical Companions and MJ in real HTML, and canonical authorities
+        working-directory: .v5-env/Encounter
+        run: |
+          npm run test:v5
+          node --test rpg-brack-authority.test.js rpg-samoth-automatismes.test.js rpg-zephyr-authority.test.js rpg-kentaro-authority.test.js rpg-rufus-authority.test.js rpg-nans-authority.test.js rpg-effective-damage.test.js
+      - name: Prepare the isolated seven-client browser run
+        working-directory: .v5-env/Encounter
+        run: npx playwright install --with-deps chromium
+      - run: npm run build && node scripts/table-ecosystem.mjs

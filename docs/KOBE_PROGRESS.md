@@ -9,7 +9,7 @@ Dernière mise à jour : 4 novembre 2026. Source de vérité de reprise avec doc
 | 2 Combat local / économie / Glamour / Social | Terminé et fusionné — PR #3 | Merge 0f8ea5e ; grimoire complet exclu de cette mission |
 | 3 Grimoire musical | Terminé et fusionné — PR #4 | Merge7d4f95d ; 78 tests et recettes Chromium/WebKit PASS |
 | 4 Khar-Vek | Terminé et fusionné — PR #5,34183ee |113 tests et recettes Chromium/WebKit PASS, P1 percussion livrée |
-| 5 Recette / livraison | Non commencé dans Kobe | Lots1–4, validation physique iPad |
+| 5 Recette / livraison | En recette sur PR #6 | Lots1–4, validation physique iPad |
 
 ## Commits et branches
 
@@ -373,3 +373,6 @@ externes confirmés à la table ; PV déclarés suivis localement, aucune mutati
 rythme/confort de session non persistés (les règles et ressources le sont). RPG Connect non intégré.
 Kobe est jouable localement avec ses pouvoirs après premier chargement et cache complet, sans
 serveur RPG Connect. Prochaine reprise : Lot5 recette/livraison depuis main, sans refaire Lots1–4.
+
+## Reprise du Lot 5
+PR Kobe #6, Encounter #21 et RPG-Connect #7. 127 tests Kobe, 10 tests serveur, 7 scénarios historiques et 111 contrôles d’autorité réussis sur les candidats. La recette réunit les sept clients et Encounter. L’initiative, les PV et la reprise sont exercés en salle isolée. Les soins alliés restent annoncés oralement. La production vérifiée sert le Lot 4. Le rechargement forcé après HTTP 503 avec WebKit Linux bloque la fusion. Voir scripts/resume-browser.mjs. Safari physique reste à tester. Portrait extrait de la page 2 et emblème officiel de Kobe intégrés à la coque et au cache.
