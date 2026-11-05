@@ -52,7 +52,7 @@ export function spellbookPanel(s) {
     const max=[4,3,3,3,2][i];
     return `<div class="slot-group"><b>N${i+1}</b><div class="dots">${Array.from({length:max},(_,j)=>`<button class="dot ${j<n?'on':''}" data-slot="${i+1}" data-slot-value="${j<n?j:j+1}" aria-label="Niveau ${i+1}, emplacement ${j+1} ${j<n?'disponible':'utilisé'}"></button>`).join('')}</div><small>${n}/${max}</small></div>`;
   }).join('');
-  const filters=['Tous',...Object.keys(roles)].map(role=>`<button class="role-${roles[role]||'all'} ${spellFilter===role?'active':''}" data-spell-filter="${role}" aria-pressed="${spellFilter===role}">${role} <small>${SPELLS.filter(sp=>role==='Tous'||sp.categories[0]===role).length}</small></button>`).join('');
+  const filters=['Tous',...Object.keys(roles)].map(role=>`<button class="role-${roles[role]||'all'} ${spellFilter===role?'active':''}" data-spell-filter="${role}" aria-pressed="${spellFilter===role}">${role} <small>${SPELLS.filter(sp=>role==='Tous'||sp.categories.includes(role)).length}</small></button>`).join('');
   const sections=[0,1,2,3,4,5].map(level=>`<section class="panel spell-section"><h2>${level?'Niveau '+level:'Tours de magie'}</h2><div class="spell-grid">${SPELLS.filter(sp=>sp.level===level).map(sp=>card(s,sp)).join('')}</div></section>`).join('');
   return `<div class="score"><section class="panel spell-slots"><h2>Emplacements</h2><div class="slot-groups">${slots}</div></section><div class="spell-legend" role="group" aria-label="Filtrer les sorts par type">${filters}</div><div class="actions"><input id="spell-search" aria-label="Rechercher un sort" type="search" placeholder="Rechercher un sort"><button data-combat="target-save">Ajouter une cible</button></div>${sections}<p id="spell-empty" hidden>Aucun sort pour ces filtres.</p></div>`;
 }
@@ -66,7 +66,7 @@ export function filterSpells(role){
   }
   for(const card of document.querySelectorAll('.score [data-spell-card]')){
     const sp=spellById(card.dataset.spellCard);
-    card.hidden=!(normalize(sp.name+' '+sp.summary).includes(q)&&(spellFilter==='Tous'||sp.categories[0]===spellFilter));
+    card.hidden=!(normalize(sp.name+' '+sp.summary).includes(q)&&(spellFilter==='Tous'||sp.categories.includes(spellFilter)));
   }
   for(const section of document.querySelectorAll('.spell-section'))section.hidden=!section.querySelector('[data-spell-card]:not([hidden])');
   const empty=document.querySelector('#spell-empty');if(empty)empty.hidden=!!document.querySelector('.spell-section:not([hidden])');

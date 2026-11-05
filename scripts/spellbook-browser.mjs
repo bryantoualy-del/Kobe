@@ -67,7 +67,7 @@ try {
         .waitFor();
       assert.equal(await page.locator("[data-spell-card]").count(), 19);
       await page.locator('[data-spell-filter="Soins"]').click();
-      assert.equal(await page.locator("[data-spell-card]:visible").count(), 1);
+      assert.equal(await page.locator("[data-spell-card]:visible").count(), 2);
       await page.locator('[data-spell-filter="Tous"]').click();
       await page.locator("#spell-search").fill("guerison");
       assert.equal(await page.locator("[data-spell-card]:visible").count(), 1);
