@@ -207,3 +207,11 @@ body{background:radial-gradient(circle at 84% -12%,#822f3525,transparent 31rem),
 @media(min-width:768px){.app .brack-offense{align-items:start}.brack-offense>.pyro-card,.brack-offense>.favorites-panel{grid-column:1}.brack-offense>.tactical-card{grid-column:2;grid-row:1 / span 2}.brack-offense>.favorites-panel{grid-row:2;margin:0}}
 
 .hit-box{width:min(470px,100%);background:linear-gradient(150deg,#201914,#0d0f11);border:1px solid #8d6235;border-radius:20px;box-shadow:0 24px 80px #000,0 0 35px #ff7a2a20;padding:20px;text-align:center}.hit-roll{font:800 clamp(2rem,8vw,4rem)/1 Georgia,serif;color:var(--copper);text-shadow:0 0 24px #d6a15f44;margin:10px}.hit-detail{color:var(--muted);margin-bottom:15px;white-space:pre-wrap}.hit-question{font:700 1.12rem Georgia,serif;margin:12px 0}.hit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hit-actions button{min-height:50px;border-radius:12px;font-weight:900;cursor:pointer}.hit-no{border:1px solid #704039;background:#281615}.hit-yes{border:1px solid #53705a;background:linear-gradient(135deg,#17331f,#28563a)}
+.strike-prepare .signature-modes{display:flex;align-items:center;gap:4px;margin:0;padding:0;border:none;min-width:0}
+.signature-modes legend{font-size:11px;color:var(--muted)}
+.strike-prepare .signature-modes label{display:block;position:relative;cursor:pointer}
+.signature-modes input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.signature-modes span{display:block;border:1px solid var(--line);border-radius:8px;padding:8px 5px}
+.signature-modes input:checked+span{background:#4a2d21;border-color:var(--copper);color:var(--gold)}
+.signature-modes input:focus-visible+span{outline:2px solid var(--gold)}
+@media(max-width:700px){.strike-prepare{flex-wrap:wrap}.signature-modes{flex-basis:100%}}

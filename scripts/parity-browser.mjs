@@ -29,14 +29,16 @@ try{
    await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
    await capture('combat');
    assert.equal(await page.locator('.dragon-art').count(),0);
-   await page.locator('#signature-mode').selectOption('advantage');
+   await page.locator('[name=signature-mode][value=advantage]').check();
    await page.locator('#signature-dice').fill('4 17');
    await page.locator('[data-signature]').click();
    assert.equal(await page.locator('.hit-roll').innerText(),'26');
+   await capture('confirmation-jet');
    await page.getByRole('button',{name:'Touché',exact:true}).click();
    await page.getByRole('button',{name:'Repos long',exact:true}).first().click();
    await page.getByRole('button',{name:'Annuler',exact:true}).click();
    await page.getByRole('button',{name:'Repos long',exact:true}).first().click();
+   await capture('confirmation-repos');
    await page.getByRole('button',{name:'Confirmer le repos long'}).click();
    await tab('Social');await page.locator('[data-social-view=inventory]').click();
    await page.locator('#inventoryAdd').click();

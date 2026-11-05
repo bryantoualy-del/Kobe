@@ -198,11 +198,7 @@ export function openSpellCast(id, s, dispatch) {
         ["disadvantage", "Désavantage"],
       ]) +
       '<label>D20 physiques (facultatif)<input name="attackRolls" placeholder="Un d20, ou deux avec avantage/désavantage"></label>';
-  if (spell.healing)
-    fields += check(
-      "healingEligible",
-      "Soin éligible : cible non morte-vivante, non artificielle",
-    );
+  if(spell.healing)fields+='<p>Confirmer le soin valide une cible vivante, ni artificielle ni morte-vivante.</p>';
   if (spell.id === "enhance-ability")
     fields += select(
       "ability",
@@ -232,7 +228,7 @@ export function openSpellCast(id, s, dispatch) {
       "tiny-hut",
     ].includes(spell.id)
   )
-    fields += input("detail", "Effet, tâche ou zone convenu avec le MJ");
+    fields += '<details><summary>Note facultative</summary><input name="detail" aria-label="Effet annoncé à la table"></details>';
   if (spell.id === "prestidigitation")
     fields += select("effectSeconds", "Durée de l’effet choisi", [
       [3600, "1 heure (selon effet)"],
@@ -242,6 +238,8 @@ export function openSpellCast(id, s, dispatch) {
   return show("Lancer · " + spell.name, fields, (p) => {
     p.spellId = id;
     p.eligible=true; p.components=true;
+    if(spell.healing)p.healingEligible=true;
+    if(id==='prestidigitation'&&!p.detail?.trim())p.detail='Effet annoncé à la table';
     p.level = spell.level ? Number(p.level) : 0;
     p.effectSeconds = Number(p.effectSeconds);
     if (spell.dice) p.rolls = readRolls(p.rolls, ...diceFor(spell, p.level));

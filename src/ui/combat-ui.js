@@ -53,7 +53,7 @@ export function openCombatForm(action,s,dispatch){
  dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),p=Object.fromEntries(f);for(const el of dialog.querySelectorAll('input[type=checkbox]'))if(el.name!=='target')p[el.name]=el.checked;
  if(targeting){p.targetIds=f.getAll('target');p.eligible=true;if(mode==='inspiration')p.noExistingDie=true;}
  for(const k of ['roll','meters','seconds','damage','song','value','duration'])if(k in p)p[k]=Number(p[k]);
- if(mode==='mantle'&&p.survivorTargetId)p.healRolls=healingRolls(p.healRolls,'survivors');
+ if(mode==='mantle'&&p.survivorTargetId){p.healingEligible=true;p.drumReady=true;p.healRolls=healingRolls(p.healRolls,'survivors');}
  if(mode==='mantle')p.choices=Object.fromEntries(p.targetIds.map(id=>[id,{temp:p['temp:'+id],move:p['move:'+id]===true,confirmed:p['move:'+id]===true}]));
  if(mode==='target-save'){p.id=extra.target?.id??'target-'+crypto.randomUUID();p.temp=Number(p.temp)===-1?null:Number(p.temp);p.reaction=p.reaction==='unknown'?null:p.reaction==='yes';}
  if(mode==='inspiration-use')p.effectId=extra.effectId;
