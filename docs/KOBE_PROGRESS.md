@@ -384,3 +384,4 @@ C — Jets privés interactifs et registre d’inventaire de Kentaro adaptés à
 D — Carnet, PNJ, portraits IndexedDB, archives et ZIP portés depuis Kentaro. Panneau conservé entre les transactions.
 E — Plugin étendu dans Kentaro avec son identifiant historique. Parcours décrit dans KOBE_OBSIDIAN_INTEGRATION.md.
 F — Original du dragon conservé, six orbes placées sur le dessin et rendu des sept valeurs de charge intégré au cache.
+G — Parcours réels Chromium et WebKit à 1180 × 820. Correction des portraits WebKit (octets IndexedDB) et du placement des actions dans la première vue. Importeur testé avec deux ZIP produits par les applications.

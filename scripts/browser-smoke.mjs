@@ -46,6 +46,7 @@ try{
    await page.reload();
    assert.equal(await page.getByLabel('Notes de Kobe').inputValue(),'Roark à retrouver.');
    await page.getByRole('tab',{name:'Journal'}).click();
+   await page.getByRole('tab',{name:'Journal mécanique',exact:true}).click();
    await page.getByText(/10 dégâts reçus/).waitFor();
    // Ensure app shell is cached and local state survives loss of network after initial installation.
    await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{timeout:15000});
@@ -70,20 +71,20 @@ try{
    await page.getByLabel('Nom',{exact:true}).fill('Brack');
    await page.getByLabel('Réaction déclarée').selectOption('yes');
    await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog').waitFor({state:'detached'});
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.getByRole('button',{name:'Inspiration · bonus · d10',exact:true}).click();
    await page.getByLabel('Brack',{exact:true}).check();
    await page.getByLabel('Portée et conditions ci-dessus vérifiées à la table').check();
    await page.getByLabel('La cible ne possède aucun autre dé').check();
    await page.getByRole('button',{name:'Confirmer',exact:true}).dblclick();
-   await page.locator('dialog').waitFor({state:'detached'});
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
    await page.reload();
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.effects.filter(e=>e.kind==='inspiration').length),1);
    await page.getByRole('button',{name:'Utiliser le d10',exact:true}).click();
    await page.getByLabel('Résultat du d10').fill('7');
    await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog').waitFor({state:'detached'});
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
    await page.getByRole('button',{name:'Début de mon tour',exact:true}).waitFor();
    page.once('dialog',d=>d.accept());
@@ -94,7 +95,7 @@ try{
    await page.getByLabel('Déplacement immédiat confirmé').check();
    await page.getByLabel('Portée et conditions ci-dessus vérifiées à la table').check();
    await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog').waitFor({state:'detached'});
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
    const target=await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.combat.targets[0]);
    assert.equal(target.temp,11);assert.equal(target.reaction,false);

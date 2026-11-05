@@ -57,13 +57,30 @@ function rosterFromHash(){
 function importRoster(){
  const incoming=rosterFromHash();if(!incoming.length)return 0;
  for(const person of incoming){const existing=data.active.people.find(x=>x.obsidianPath===person.obsidianPath||x.id===person.id);if(existing){existing.name=person.name;existing.category=person.category;existing.status=person.status;existing.source='obsidian';existing.obsidianPath=person.obsidianPath;if(typeof existing.participated!=='boolean')existing.participated=false}else data.active.people.push({...person,source:'obsidian',participated:false,note:'',debt:'',promise:'',goal:''})}
- history.replaceState(null,'',`${location.pathname}${location.search}`);return incoming.length;
+ save();history.replaceState(null,'',`${location.pathname}${location.search}`);return incoming.length;
 }
 const importedRosterCount=importRoster();
 
 function openMediaDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(DB_STORE))req.result.createObjectStore(DB_STORE,{keyPath:'id'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
-async function mediaPut(file,id=uid()){const db=await openMediaDb();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite'),record={id,blob:file,type:file.type||'image/jpeg',originalName:file.name||'portrait',updatedAt:new Date().toISOString()};tx.objectStore(DB_STORE).put(record);tx.oncomplete=()=>{db.close();resolve(record)};tx.onerror=()=>{db.close();reject(tx.error)}})}
-async function mediaGet(id){if(!id)return null;const db=await openMediaDb();return new Promise((resolve,reject)=>{const req=db.transaction(DB_STORE).objectStore(DB_STORE).get(id);req.onsuccess=()=>{db.close();resolve(req.result||null)};req.onerror=()=>{db.close();reject(req.error)}})}
+async function mediaPut(file,id=uid()){
+ const bytes=await file.arrayBuffer(),db=await openMediaDb();
+ const record={id,bytes,type:file.type||'image/jpeg',originalName:file.name||'portrait',updatedAt:new Date().toISOString()};
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction(DB_STORE,'readwrite');
+  tx.objectStore(DB_STORE).add(record);
+  tx.oncomplete=()=>{db.close();resolve(record)};
+  tx.onabort=()=>{db.close();reject(tx.error||new Error('Écriture du portrait interrompue.'))};
+ });
+}
+async function mediaGet(id){
+ if(!id)return null;
+ const db=await openMediaDb();
+ return new Promise((resolve,reject)=>{
+  const req=db.transaction(DB_STORE).objectStore(DB_STORE).get(id);
+  req.onsuccess=()=>{db.close();const media=req.result;if(media?.bytes)media.blob=new Blob([media.bytes],{type:media.type});resolve(media||null)};
+  req.onerror=()=>{db.close();reject(req.error||new Error('Lecture du portrait impossible.'))};
+ });
+}
 async function mediaDelete(id){if(!id)return;const db=await openMediaDb();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).delete(id);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
 
 const intro=panel.querySelector('.wonq-section-head'),mechanicalCard=panel.querySelector('.card');
@@ -84,7 +101,7 @@ const desk=document.createElement('article');desk.className='session-desk';desk.
   </aside>
  </div>
  <section class="people-card"><header><div><span>Distribution de la session</span><h3>PNJ préparés et nouvelles rencontres</h3><p>Un PNJ préparé n’est exporté que s’il est marqué présent ou relié à une note. Les figurants restent de simples mentions.</p></div><div><button id="addPerson" class="btn-gold">＋ Créer une fiche PNJ</button></div></header><div id="peopleList" class="people-list"></div></section>
- <section class="session-export"><div><span>Fin de séance</span><b>Import Obsidian en un geste</b><small>Télécharge le paquet, puis laisse le plugin Kobe le classer directement dans ton coffre.</small></div><div><button id="previewMarkdown">Aperçu</button><button id="setupObsidian">Installer le plugin</button><button id="exportObsidian" class="btn-gold">1 · Télécharger</button><button id="openObsidian">2 · Ouvrir Obsidian</button><button id="closeSession" class="session-close">Clore la session</button></div></section>
+ <section class="session-export"><div><span>Fin de séance</span><b>Import Obsidian en un geste</b><small>Télécharge le paquet, puis laisse le plugin de la Compagnie le classer directement dans ton coffre.</small></div><div><button id="previewMarkdown">Aperçu</button><button id="setupObsidian">Installer le plugin</button><button id="exportObsidian" class="btn-gold">1 · Télécharger</button><button id="openObsidian">2 · Ouvrir Obsidian</button><button id="closeSession" class="session-close">Clore la session</button></div></section>
  <section id="markdownPreview" class="session-preview" hidden><header><b>Aperçu de la note Obsidian</b><div class="session-preview-actions"><button id="copyMarkdown">Copier</button><button id="collapseMarkdown">Replier</button></div></header><pre></pre></section>
  <details class="session-archives"><summary>Sessions archivées <span id="archiveCount"></span></summary><div id="archiveList"></div></details>
  <dialog id="personEditor" class="session-dialog"><form method="dialog"><header><h3 id="personEditorTitle">Personne</h3><button value="cancel" aria-label="Fermer">×</button></header><div id="personEditorBody"></div></form></dialog>
@@ -125,7 +142,7 @@ q('#addEntry').onclick=addOrUpdateEntry;entryText.onkeydown=e=>{if(e.key==='Ente
 document.addEventListener('kobe-session-add',e=>{const detail=e.detail||{},text=String(detail.text||'').trim();if(!text)return;data.active.entries.push({id:uid(),type:TYPES.includes(detail.type)?detail.type:'Événement',text,createdAt:new Date().toISOString()});persist();renderEntries()});
 q('#cancelEntryEdit').onclick=()=>{editingEntry=-1;entryText.value='';q('#addEntry').textContent='Ajouter';q('#cancelEntryEdit').hidden=true;renderPnjCapture()};
 q('#entryFilters').onclick=e=>{const b=e.target.closest('[data-entry-filter]');if(b){entryFilter=b.dataset.entryFilter;renderEntries()}};
-q('#entryList').onclick=e=>{const edit=e.target.closest('[data-edit-entry]'),del=e.target.closest('[data-delete-entry]'),promote=e.target.closest('[data-promote-entry]');if(edit){editingEntry=Number(edit.dataset.editEntry);const item=data.active.entries[editingEntry];entryType.value=item.type;renderPnjCapture(item.personId||'',item.pnjKind||'information');entryText.value=item.text;entryText.focus();q('#addEntry').textContent='Mettre à jour';q('#cancelEntryEdit').hidden=false}if(del){data.active.entries.splice(Number(del.dataset.deleteEntry),1);persist();renderEntries()}if(promote){const index=Number(promote.dataset.promoteEntry),item=data.active.entries[index];editPerson('',{note:item.text,sourceEntryIndex:index})}};
+q('#entryList').onclick=e=>{const edit=e.target.closest('[data-edit-entry]'),del=e.target.closest('[data-delete-entry]'),promote=e.target.closest('[data-promote-entry]');if(edit){editingEntry=Number(edit.dataset.editEntry);const item=data.active.entries[editingEntry];entryType.value=item.type;renderPnjCapture(item.personId||'',item.pnjKind||'information');entryText.value=item.text;entryText.focus();q('#addEntry').textContent='Mettre à jour';q('#cancelEntryEdit').hidden=false}if(del){if(!confirm("Supprimer ce repère du carnet ?"))return;data.active.entries.splice(Number(del.dataset.deleteEntry),1);persist();renderEntries()}if(promote){const index=Number(promote.dataset.promoteEntry),item=data.active.entries[index];editPerson('',{note:item.text,sourceEntryIndex:index})}};
 title.oninput=()=>{data.active.title=title.value;persist()};date.onchange=()=>{data.active.date=date.value||isoDate();persist()};notes.oninput=()=>{data.active.notes=notes.value;persist()};
 q('.social-shortcuts').onclick=e=>{const b=e.target.closest('[data-social-shortcut]');if(!b)return;const action=SOCIAL_ACTIONS[Number(b.dataset.socialShortcut)];data.active.entries.push({id:uid(),type:'Événement',text:`${action[0]} — ${action[1]}`,createdAt:new Date().toISOString()});api.log(`♜ ${action[0]} consigné dans le carnet.`);persist();renderEntries();notify(`${action[0]} consigné ✓`)};
 
@@ -187,9 +204,9 @@ ${person.debt?`- **Dette :** ${person.debt}\n`:''}${person.promise?`- **Promesse
 
 - [[${session.date} — ${safeName(session.title)}]]
 `}
-function cleanMechanical(lines){const seen=new Set();return lines.filter(x=>{const t=String(x).trim();if(!t||seen.has(t))return false;seen.add(t);return true}).slice(-100)}
+
 function sessionMarkdown(session){
- const entries=session.entries||[],people=touchedPeople(session),mechanical=cleanMechanical(activeMechanical(session)),locations=entries.filter(x=>x.type==='Lieu').map(x=>x.text),pnj=[...people.map(x=>x.name),...entries.filter(x=>x.type==='PNJ').map(x=>people.find(p=>p.id===x.personId)?.name).filter(Boolean)];
+ const entries=session.entries||[],people=touchedPeople(session),mechanical=activeMechanical(session),locations=entries.filter(x=>x.type==='Lieu').map(x=>x.text),pnj=[...people.map(x=>x.name),...entries.filter(x=>x.type==='PNJ').map(x=>people.find(p=>p.id===x.personId)?.name).filter(Boolean)];
  const chronological=entries.length?entries.map(x=>{const person=people.find(p=>p.id===x.personId),subject=x.type==='PNJ'&&person?` · [[${person.name}]] · ${PNJ_KINDS[x.pnjKind]||'Information'}`:'';return `- **${x.type}${subject}** — ${x.text}`}).join('\n'):'_Aucun repère saisi._';
  const discoveries=entries.filter(x=>['Lieu','Indice','Butin','Mémoire'].includes(x.type));
  const decisions=entries.filter(x=>['Décision','Promesse','Objectif'].includes(x.type));
@@ -255,12 +272,12 @@ async function buildObsidianPackage(session=data.active){
  addText(`01 - Sessions/${base}.md`,sessionMarkdown(session),'session','ask');
  for(const person of people){
   if(person.source!=='obsidian')addText(`02 - Personnages/PNJ/${safeName(person.name)}.md`,personMarkdown(person,session),'person','skip-existing');
-  if(person.assetId){const media=await mediaGet(person.assetId).catch(()=>null);if(media?.blob)addBytes(`99 - Médias/${imageFileName(person)}`,new Uint8Array(await media.blob.arrayBuffer()),'media','keep-newest')}
+  if(person.assetId){const media=await mediaGet(person.assetId);if(!media?.blob)throw Error('Portrait introuvable : '+person.name);addBytes(`99 - Médias/${imageFileName(person)}`,new Uint8Array(await media.blob.arrayBuffer()),'media','keep-newest')}
  }
  const exportedAt=new Date(),stamp=exportedAt.toISOString().replace(/[-:]/g,'').slice(0,13),receipt=`# Import Kobe — ${session.date||isoDate()}\n\n- **Session :** [[${base}]]\n- **Identifiant :** \`${session.id||'session-sans-id'}\`\n- **PNJ suivis :** ${people.length}\n- **Nouvelles fiches proposées :** ${people.filter(x=>x.source!=='obsidian').length}\n- **Portraits :** ${people.filter(x=>x.assetId).length}\n- **Export réalisé :** ${exportedAt.toLocaleString('fr-FR')}\n\n> Les PNJ préparés mais absents ne sont pas exportés. Les simples mentions restent dans la session.\n`;
  addText(`98 - Archives/Imports Kentaro/${base} - Import ${stamp}.md`,receipt,'receipt','rename');
  const manifest={schema:'compagnie.obsidian-import',source:'kobe',version:5,createdAt:new Date().toISOString(),vaultHint:'DND',importer:{id:'kentaro-session-importer',minimumVersion:'1.5.0'},session:{id:session.id||'',date:session.date||isoDate(),title:session.title||'Session de Kobe',note:base},routes,personUpdates};
- files.unshift({path:'_compagnie-import.json',text:JSON.stringify(manifest,null,2)},{path:'LIRE AVANT IMPORT.md',text:`# Import Kobe pour Obsidian\n\nDans Obsidian, lance la commande **Importer une session Kobe** ou touche l’icône lune.\n\nSélectionne ce ZIP, vérifie l’aperçu puis confirme. Le plugin classe automatiquement la session, les fiches PNJ, les portraits et le reçu d’import dans le coffre actif.\n\nLe traitement est local et aucune fiche PNJ existante n’est écrasée.\n`});
+ files.unshift({path:'_compagnie-import.json',text:JSON.stringify(manifest,null,2)},{path:'LIRE AVANT IMPORT.md',text:`# Import Kobe pour Obsidian\n\nDans Obsidian, lance la commande **Importer une session de la Compagnie** ou touche l’icône lune.\n\nSélectionne ce ZIP, vérifie l’aperçu puis confirme. Le plugin classe automatiquement la session, les fiches PNJ, les portraits et le reçu d’import dans le coffre actif.\n\nLe traitement est local et aucune fiche PNJ existante n’est écrasée.\n`});
  return{blob:await makeZip(files),name:`Kobe - ${base}.zip`,count:routes.length,manifest}
 }
 async function exportObsidian(session=data.active){
@@ -276,7 +293,7 @@ function resetExportButton(){exportBusy=false;clearTimeout(exportResetTimer);exp
 exportButton.onclick=async()=>{if(exportBusy)return;exportBusy=true;exportButton.setAttribute('aria-busy','true');exportButton.textContent='Préparation…';exportResetTimer=setTimeout(resetExportButton,8000);try{await exportObsidian()}catch(error){window.alert(`Export impossible : ${error.message}`)}finally{resetExportButton()}};
 window.addEventListener('pageshow',resetExportButton);document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetExportButton()});
 q('#openObsidian').onclick=()=>{resetExportButton();window.location.href='obsidian://open?vault=DND'};
-q('#closeSession').onclick=async ()=>{if(!(await window.confirm('Clore cette session ? Elle restera exportable dans les archives.')))return;const closed={...clone(data.active),endedAt:new Date().toISOString(),mechanical:activeMechanical(data.active),peopleSnapshot:clone(touchedPeople(data.active))};data.archives.unshift(closed);data.archives=data.archives.slice(0,40);api.log(`☷ Session archivée : ${closed.title}`);data.active={...blank(0),lastRevision:api.events().at(-1)?.revision??0};preview.hidden=true;persist();render();notify('Nouvelle session ouverte ✓')};
+q('#closeSession').onclick=async ()=>{if(!(await window.confirm('Clore cette session ? Elle restera exportable dans les archives.')))return;const closed={...clone(data.active),endedAt:new Date().toISOString(),mechanical:activeMechanical(data.active),peopleSnapshot:clone(touchedPeople(data.active))};data.archives.unshift(closed);api.log(`☷ Session archivée : ${closed.title}`);data.active={...blank(0),lastRevision:api.events().at(-1)?.revision??0};preview.hidden=true;persist();render();notify('Nouvelle session ouverte ✓')};
 q('#archiveList').onclick=async e=>{const copy=e.target.closest('[data-copy-archive]'),exportBtn=e.target.closest('[data-export-archive]'),deleteBtn=e.target.closest('[data-delete-archive]');if(copy){const session=data.archives[Number(copy.dataset.copyArchive)];copyText(sessionMarkdown(session),copy)}if(exportBtn){exportBtn.disabled=true;try{await exportObsidian(data.archives[Number(exportBtn.dataset.exportArchive)])}finally{exportBtn.disabled=false}}if(deleteBtn){const index=Number(deleteBtn.dataset.deleteArchive),session=data.archives[index];if(!session)return;if(!(await window.confirm(`Supprimer définitivement « ${session.title} » des archives locales ?\n\nCette action ne supprime pas les fichiers déjà importés dans Obsidian.`)))return;data.archives.splice(index,1);persist();renderArchives();notify('Session archivée supprimée ✓')}};
 
 new MutationObserver(()=>{if(!q('#sessionCount'))return;q('#sessionCount').textContent=`${data.active.entries.length} repère${data.active.entries.length>1?'s':''} · ${activeMechanical(data.active).length} événements mécaniques`}).observe($('#log'),{childList:true,subtree:true});

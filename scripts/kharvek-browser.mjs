@@ -10,7 +10,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const context=await browser.newContext({viewport:{width:1180,height:820},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state);
- const confirm=async()=>{await page.locator('dialog [type=submit]').click();await page.locator('dialog[open]').waitFor({state:'detached'});};
+ const confirm=async()=>{await page.locator('dialog[open] [type=submit]').click();await page.locator('dialog[open]').waitFor({state:'detached'});};
  const checkHealing=async()=>{await page.locator('[name=healingEligible]').check();await page.locator('[name=drumReady]').check();};
  const next=async()=>{await page.getByRole('button',{name:'Fin de tour',exact:true}).click();page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Début de mon tour',exact:true}).click();await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();};
  const correct=async value=>{await page.locator('[data-kharvek=correct]').click();await page.locator('[name=value]').fill(String(value));await page.locator('[name=reason]').fill('Recette visuelle');await confirm();};
@@ -25,7 +25,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  await page.locator('#amount').fill('40');await page.getByRole('button',{name:'Dégâts',exact:true}).click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.hp.current===43);
  await page.locator('[data-kharvek=pulse]').click();await page.getByRole('button',{name:'Annuler',exact:true}).click();assert.equal((await state()).resources.charges,6);
  await page.locator('[data-kharvek=pulse]').click();await page.getByLabel('Kobe',{exact:true}).check();await checkHealing();await page.locator('[name=healRolls]').fill('4 5 6');await page.locator('dialog[open]').screenshot({path:`screenshots/${name}-pulse-confirmation.png`});
- await page.locator('dialog [type=submit]').evaluate(b=>{b.click();b.click();});await page.locator('dialog[open]').waitFor({state:'detached'});
+ await page.locator('dialog[open] [type=submit]').evaluate(b=>{b.click();b.click();});await page.locator('dialog[open]').waitFor({state:'detached'});
  assert.equal((await state()).hp.current,63);assert.equal((await state()).resources.charges,5);assert.equal((await state()).journal.filter(e=>e.sourceId==='kharvek-power').length,1);assert.equal(await page.locator('[data-kharvek=pulse]').isDisabled(),true);
  // Declare two allies and their HP through existing forms.
  for(const target of ['Roark','Jorakai']){await page.getByText('Bénéficiaires et ennemis · suivi local',{exact:true}).click();await page.locator('[data-combat=target-save]').click();await page.getByLabel('Nom',{exact:true}).fill(target);await confirm();await page.getByRole('button',{name:'PV des cibles',exact:true}).click();await page.getByLabel('Cible',{exact:true}).selectOption({label:target});await page.getByLabel('PV actuels',{exact:true}).fill('10');await page.getByLabel('PV maximum',{exact:true}).fill('50');await page.getByLabel('Informations confirmées à la table').check();await confirm();}
@@ -49,7 +49,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  for(const button of await page.locator('.power-list button').all()){const box=await button.boundingBox();assert(box.height>=44);}
  await page.locator('#kharvek').evaluate(el=>el.scrollIntoView({block:'center'}));await page.locator('#kharvek').screenshot({path:`screenshots/${name}-kharvek-complete.png`});
  if(name==='chromium'){await page.evaluate(()=>navigator.serviceWorker.ready);await page.reload();await page.getByText(/Sauvegarde locale · révision/).waitFor();await context.setOffline(true);await page.reload();await page.getByText(/Sauvegarde locale · révision/).waitFor();assert.equal(await page.locator('.charge-mark.lit').count(),6);await page.locator('[data-kharvek=pulse]').click();await page.getByLabel('Kobe',{exact:true}).check();await checkHealing();await page.locator('[name=healRolls]').fill('1 1 1');await confirm();assert.equal((await state()).resources.charges,5);}
- await page.getByRole('tab',{name:'Journal',exact:true}).click();await page.getByRole('heading',{name:'Journal de session'}).waitFor();await page.screenshot({path:`screenshots/${name}-kharvek-journal.png`,fullPage:true});
+ await page.getByRole('tab',{name:'Journal',exact:true}).click();await page.getByRole('tab',{name:'Journal mécanique',exact:true}).click();await page.locator('#log').waitFor();await page.screenshot({path:`screenshots/${name}-kharvek-journal.png`,fullPage:true});
  assert.deepEqual(errors,[]);console.log(`${name}: P0 direct powers/capped shared healing/Manteau/single spend/double submit/cancel/reload/dawn/0–6 visual/reduced motion/iPad1180x820 PASS; P1 1/2/3 beats/reset PASS${name==='chromium'?'; offline power PASS':''}`);
  await context.close();
  }finally{await browser.close();}

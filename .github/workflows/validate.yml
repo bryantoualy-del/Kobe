@@ -43,6 +43,7 @@ jobs:
         run: npm ci && npm test
       - name: Browser smoke (WebKit / Chromium, offline reload)
         run: |
+          node scripts/parity-browser.mjs
           node scripts/browser-smoke.mjs
           node scripts/spellbook-browser.mjs
           node scripts/kharvek-browser.mjs

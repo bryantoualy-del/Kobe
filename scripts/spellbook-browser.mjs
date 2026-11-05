@@ -45,7 +45,7 @@ try {
         await page
           .getByRole("button", { name: "Confirmer", exact: true })
           .click();
-        await page.locator("dialog").waitFor({ state: "detached" });
+        await page.locator("dialog[open]").waitFor({ state: "detached" });
       };
       const next = async () => {
         await page
@@ -102,7 +102,7 @@ try {
       }
       await page.locator('[data-spell-detail="circle-of-power"]').click();
       await page.getByText("Source / accès", { exact: true }).waitFor();
-      const box = await page.locator("dialog").boundingBox();
+      const box = await page.locator("dialog[open]").boundingBox();
       assert(
         box.x >= 0 && box.y >= 0 && box.width <= 1180 && box.height <= 820,
       );
