@@ -42,10 +42,11 @@ try {
           () => JSON.parse(localStorage.getItem("kobe-companion:v1")).state,
         );
       const confirm = async () => {
-        await page
-          .getByRole("button", { name: "Confirmer", exact: true })
-          .click();
-        await page.locator("dialog[open]").waitFor({ state: "detached" });
+        const submit=page.getByRole("button", { name: "Confirmer", exact: true });
+        const form=await submit.evaluateHandle(button=>button.closest("form"));
+        await submit.click();
+        await page.waitForFunction(node=>!node.isConnected,form);
+        await form.dispose();
       };
       const next = async () => {
         await page
