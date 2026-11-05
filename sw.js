@@ -1,5 +1,6 @@
-const CACHE='kobe-v11-parity-1';
-const FILES=['./src/companion/three.min.js',"./", "./index.html", "./src/companion/dice-engine.js", "./src/companion/inventory.js", "./src/companion/journal.js", "./src/companion/session.js", "./src/companion/social-dice.css", "./src/companion/social-dice.js", "./src/kobe/combat.js", "./src/kobe/connect.js", "./src/kobe/engine.js", "./src/kobe/health.js", "./src/kobe/kharvek.js", "./src/kobe/model.js", "./src/kobe/social.js", "./src/kobe/spell-catalog.js", "./src/kobe/spell-lifecycle.js", "./src/kobe/spells.js", "./src/kobe/storage.js", "./src/kobe/table-correction.js", "./src/ui/app.js", "./src/ui/combat-ui.js", "./src/ui/connect-ui.js", "./src/ui/dragon.webp", "./src/ui/emblem.jpg", "./src/ui/kharvek-ui.js", "./src/ui/portrait.jpg", "./src/ui/rhythm.js", "./src/ui/social.js", "./src/ui/spell-ui.js", "./src/ui/styles.css"];
+importScripts('./offline-shell.js');
+const CACHE='kobe-v11-'+self.KobeShellRevision;
+const FILES=['./',...Object.keys(self.KobeShellAssets).map(path=>'./'+path)];
 const root=new URL('./',self.registration.scope);
 const known=new Set(FILES.map(path=>new URL(path,root).pathname));
 self.addEventListener('install',event=>event.waitUntil((async()=>{
@@ -19,6 +20,14 @@ self.addEventListener('fetch',event=>{
    const file=req.mode==='navigate'&&(url.pathname===root.pathname||url.pathname===root.pathname+'index.html')
      ? new URL('./index.html',root).href : new URL(url.pathname,root).href;
    const hit=await cache.match(file,{ignoreVary:true});
-   return hit||fetch(req);
+   if(hit)return hit;
+   // Installed worker scripts survive the WebKit 26.0 worker cache partition issue.
+   const relative=new URL(file).pathname.slice(root.pathname.length);
+   const packed=self.KobeShellAssets[relative];
+   if(!packed)return fetch(req);
+   const [type,compressed,encoded]=packed;
+   const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0));
+   const body=compressed?new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')):bytes;
+   return new Response(body,{headers:{'Content-Type':type}});
  })());
 });

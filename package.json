@@ -1,5 +1,5 @@
 {
   "name": "kobe-companion", "version": "0.1.0", "private": true, "type": "module",
-  "scripts": {"test": "node --test tests/*.test.js", "build": "node scripts/build.mjs", "test:e2e": "node scripts/e2e.mjs"},
+  "scripts": {"offline:sync":"node scripts/offline-shell.mjs --write","test": "node --test tests/*.test.js", "build": "node scripts/build.mjs", "test:e2e": "node scripts/e2e.mjs"},
   "engines": {"node": ">=20"}
 }

@@ -45,7 +45,10 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     const state=store.getState();
     if(state.revision<lastRevision)epoch=uuid();
     lastRevision=state.revision;
-    const value=tacticalState(state,epoch),fingerprint=canonical(value);
+    const value=tacticalState(state,epoch);
+    // A private roll or a tab change advances the store without changing the public table.
+    const {stateRevision,...publicFields}=value;
+    const fingerprint=canonical(publicFields);
     if(fingerprint!==lastProjection&&send({type:'state',state:value}))lastProjection=fingerprint;
   }
   const unsubscribe=store.subscribe(sync);
