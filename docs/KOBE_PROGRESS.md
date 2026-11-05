@@ -381,3 +381,4 @@ PR Kobe #6, Encounter #21 et RPG-Connect #7. 127 tests Kobe, 10 tests serveur, 7
 Audit des quatre dépôts effectué. Base PR #6 retenue. Voir KOBE_PARITY_MATRIX.md.
 B — Barre de tour connectée au store et repères de fiche visibles sur les quatre onglets.
 C — Jets privés interactifs et registre d’inventaire de Kentaro adaptés à Kobe.
+D — Carnet, PNJ, portraits IndexedDB, archives et ZIP portés depuis Kentaro. Panneau conservé entre les transactions.
