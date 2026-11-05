@@ -376,3 +376,6 @@ serveur RPG Connect. Prochaine reprise : Lot5 recette/livraison depuis main, san
 
 ## Reprise du Lot 5
 PR Kobe #6, Encounter #21 et RPG-Connect #7. 127 tests Kobe, 10 tests serveur, 7 scénarios historiques et 111 contrôles d’autorité réussis sur les candidats. La recette réunit les sept clients et Encounter. L’initiative, les PV et la reprise sont exercés en salle isolée. Les soins alliés restent annoncés oralement. La production vérifiée sert le Lot 4. Le rechargement forcé après HTTP 503 avec WebKit Linux bloque la fusion. Voir scripts/resume-browser.mjs. Safari physique reste à tester. Portrait extrait de la page 2 et emblème officiel de Kobe intégrés à la coque et au cache.
+
+## V1.1 — A
+Audit des quatre dépôts effectué. Base PR #6 retenue. Voir KOBE_PARITY_MATRIX.md.
