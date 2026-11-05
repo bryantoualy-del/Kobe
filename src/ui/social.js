@@ -19,7 +19,7 @@ export function rollPanel(state){
  <div class="social-modebar v3-switch v3-social-mode" role="group" aria-label="Mode du jet">${buttons(modes,mode,'data-roll-mode')}
  <label><input type="checkbox" id="physical" ${physical?'checked':''}> Dé physique</label></div>
  ${last?'<output class="ribbon"></output>':''}${tables}
- <p class="v3-card" data-roll-group="info" ${pane==='info'?'':'hidden'}>Passifs · Perception 20 · Intuition 19 · Investigation 11</p></section>`;
+ <p class="v3-card" data-roll-group="info" ${pane==='info'?'':'hidden'}><img src="./src/ui/portrait.jpg" alt="Portrait de Kobe" width="62"> Passifs · Perception 20 · Intuition 19 · Investigation 11</p></section>`;
 }
 
 export function selectRollControl(target){

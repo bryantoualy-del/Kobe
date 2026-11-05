@@ -23,3 +23,6 @@ Exécuter npm test, npm run build puis npm run test:e2e. Les scripts parity-brow
 - Depuis Obsidian iPad, ouvrir Kobe avec la distribution, jouer une courte séance, télécharger le ZIP dans Fichiers, basculer vers DND, vérifier la prévisualisation et les changements sélectionnés. Réimporter pour vérifier le reçu dans ce coffre.
 - Après le premier chargement complet, passer l’iPad en mode avion, fermer Safari puis rouvrir Kobe et vérifier PV, charges, notes et portrait. Les tests Linux/WebKit évaluent le moteur, tandis que ce passage couvre iPadOS, Fichiers et le cycle de vie matériel.
 - Recueillir la revue ergonomique du joueur et du MJ. Les deux PR doivent être coordonnées avec la publication du Lot 5 et de la version 1.5 du plugin.
+
+### Après le retour joueur
+Le tableau a été réorganisé selon Brack. Le vestige est désormais un cinquième onglet. [Combat avec les quatre favoris](recette-v11/combat-brack.webp) et [dragon vide, à moitié rempli et plein](recette-v11/dragon.webp) sont les captures de la nouvelle interface sous Chromium. La recette du combat inclut la transmission du mode et des dés physiques de la préparation de frappe au dialogue de sort.

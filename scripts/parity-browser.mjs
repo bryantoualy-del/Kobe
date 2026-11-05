@@ -28,6 +28,13 @@ try{
    const capture=name=>page.screenshot({path:'screenshots/'+engine.name()+'-v11-'+name+'.png'});
    await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
    await capture('combat');
+   assert.equal(await page.locator('.dragon-art').count(),0);
+   await page.locator('#signature-mode').selectOption('advantage');
+   await page.locator('#signature-dice').fill('4 17');
+   await page.locator('[data-signature]').click();
+   assert.equal(await page.locator('[name=attackMode]').inputValue(),'advantage');
+   assert.equal(await page.locator('[name=attackRolls]').inputValue(),'4 17');
+   await page.locator('[data-cancel]').click();
    await tab('Social');await page.locator('[data-social-view=inventory]').click();
    await page.locator('#inventoryAdd').click();
    await page.locator('#inventoryEditName').fill('Flûte');

@@ -29,11 +29,12 @@ try{
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(address);
    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
-   for(const tab of ['Combat','Sorts & pouvoirs','Social','Journal']) {
+   for(const tab of ['Combat','Sorts & pouvoirs','Social','Khar-Vek','Journal']) {
     await page.getByRole('tab',{name:tab}).click();
     await page.waitForFunction(label => [...document.querySelectorAll('[role="tab"]')].some(el => el.textContent === label && el.getAttribute('aria-selected') === 'true'), tab);
    }
    await page.getByRole('tab',{name:'Combat'}).click();
+   await page.locator('[data-view=combat]').waitFor();
    await page.getByLabel('Valeur').fill('10');
    await page.getByRole('button',{name:'Dégâts'}).click();
    await page.locator('.stats').getByText('73/83').waitFor();
@@ -115,7 +116,7 @@ try{
    console.log(label+': Lot2 forms, double click, Inspiration, Manteau, reactions, reload and screenshots PASS');
    assert.deepEqual(errors,[],label+' errors');
    await context.close();
-   console.log(label+': four tabs, persistence, journal PASS'+(label==='chromium'?', offline reload PASS':', offline reload unverified (Playwright WebKit limitation)'));
+   console.log(label+': five tabs, persistence, journal PASS'+(label==='chromium'?', offline reload PASS':', offline reload unverified (Playwright WebKit limitation)'));
   } finally {await browser.close();}
  }
 }catch(e){failures++;console.error(e);process.exitCode=1;}

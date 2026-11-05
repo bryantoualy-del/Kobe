@@ -228,7 +228,7 @@ export function openSpellCast(id, s, dispatch) {
       [6, "Fin du prochain tour (objet ou illusion)"],
       [0, "Instantané"],
     ]);
-  show("Lancer · " + spell.name, fields, (p) => {
+  return show("Lancer · " + spell.name, fields, (p) => {
     p.spellId = id;
     p.level = spell.level ? Number(p.level) : 0;
     p.effectSeconds = Number(p.effectSeconds);

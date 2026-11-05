@@ -167,3 +167,16 @@ body{background:radial-gradient(circle at 84% -12%,#822f3525,transparent 31rem),
  .app .tabs button{flex:1;padding:4px;font-size:11px;white-space:normal}
  .app .layout,[data-view=kharvek] .kharvek-panel{grid-template-columns:1fr}
 }
+.app .strike-prepare{display:flex;gap:10px;margin-top:8px}
+.strike-prepare label{display:grid;gap:3px;font-size:11px;color:var(--muted);flex:1}
+.strike-prepare select,.strike-prepare input{width:100%;padding:5px 8px;min-height:34px}
+.favorites-panel .compact .spell-meta{display:none}
+.app .favorites-panel .compact{padding:8px}
+.app .favorites-panel .compact h3{margin:0;font-size:15px}
+.app .favorites-panel .compact .actions{display:flex;gap:4px}
+.app .favorites-panel .compact .actions button{flex:1;min-height:36px;padding:4px}
+.app .favorites-panel .score-heading{margin:0 0 6px}
+.app .favorites-panel:before{display:none}
+.app .hp-main-row input{max-width:52px}
+@media(min-width:768px){.app .favorite-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.vitals .stat-roll{border:none;background:transparent;font-size:20px;font-weight:800;padding:3px;min-height:36px}
