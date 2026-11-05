@@ -393,3 +393,6 @@ Revue ouverte dans Kobe #7 et Kentaro #13. Prochain jalon : Safari et Obsidian s
 
 ## Révision après essai joueur
 Brack est la référence de présentation. En-tête identité/vitalité, barre standard, commandes et sous-vues de combat, Profil et Inventaire dans Social. Les quatre favoris restent accessibles depuis Attaques. Khar-Vek dispose de son onglet, accessible aussi pendant un combat. Le dragon officiel est révélé de gauche à droite par sixième sur un contour gris. Un nouveau personnage débute à zéro charge, les sauvegardes reprennent leur valeur effective. La nouvelle aube remplit les six charges.
+
+### Retour de table · socle Brack
+L’attaque signature se prépare depuis Attaques. Une cible annoncée oralement est possible. Le même moteur gère le résultat Touché/Raté, les critiques et les défenses facultatives. Le repos reprend le dialogue de Brack avec une confirmation unique. La fiche affiche les PV courants et temporaires modifiables et le grand emblème détouré. Groupe reprend les rangées d’initiative de Brack, les commandes rapides et la connexion V5. Le journal mécanique utilise RPGJournalUI pour regrouper les actions par tour et reçoit les activités collectives de la salle. Les notes et jets privés restent locaux.

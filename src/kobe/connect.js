@@ -18,6 +18,12 @@ export function publicGroup(rows) {
   return (Array.isArray(rows)?rows:[]).slice(0,100).map(r=>{
     const row={id:String(r.id??''),name:String(r.name??'').slice(0,100),kind:r.kind,activeTurn:r.activeTurn===true,
       conditions:(Array.isArray(r.conditions)?r.conditions:[]).map(c=>String(c?.name??c).slice(0,80))};
+    if(Number.isFinite(r.initiative))row.initiative=r.initiative;
+    if(['player','ally'].includes(r.kind)){
+      if(Number.isFinite(r.ac))row.ac=r.ac;
+      if(typeof r.concentration==='boolean')row.concentration=r.concentration;
+      if(typeof r.reaction==='boolean')row.reaction=r.reaction;
+    }
     // No enemy health is retained, even if a malformed upstream message includes it.
     if(['player','ally'].includes(r.kind)&&r.health)row.health={current:r.health.current,max:r.health.max,temp:r.health.temp};
     return row;
@@ -30,7 +36,7 @@ export async function operationId(scope,event) {
 }
 import {correction} from './table-correction.js';
 export {correction};
-export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout}) {
+export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},onActivity=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout}) {
   let socket=null,invite=null,active=false,timer=null,attempt=0,generation=0,chain=Promise.resolve();
   let epoch=uuid(),lastRevision=-1,lastProjection='',groupEpoch=null,groupRevision=-1,sessionRevision=-1;
   const retired=new Set(),pending=new Map(),sent=new Map();
@@ -68,6 +74,12 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     if(m.type==='session-mode'&&m.payload?.mode!=='table-free'){disconnect();note('La salle a quitté Table Libre. Jeu local conservé.');return;}
     if(m.type==='error'){disconnect();note(m.message||'Connexion refusée');return;}
     if(!view.connected)return;
+    if(['activity','activity-sync'].includes(m.type)){
+      if(m.room&&m.room!==invite.room)return;
+      const rows=m.type==='activity'?[m.payload]:(m.payload?.entries??[]);
+      if(Array.isArray(rows))onActivity(scope(),rows.slice(-500).filter(row=>row&&typeof row==='object'));
+      return;
+    }
     if(m.type==='table-presence'){view.gmOnline=m.payload?.gmOnline===true;publish();return;}
     if(m.type==='ack'){const item=sent.get(m.id);if(item){item.status=m.result||'Reçu par le serveur (validation MJ distincte)';publish();}return;}
     if(m.type!=='command'||m.characterId!=='kobe'||m.room!==invite.room)return;
@@ -126,7 +138,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     };
   }
   return {
-    connect(text){const next=parseInvite(text);disconnect();invite=next;epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
+    connect(text){const next=parseInvite(text);disconnect();invite=next;onActivity(scope(),[]);epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
     disconnect,sync,
     status:()=>structuredClone({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]}),
     async initiative(eventId,die){

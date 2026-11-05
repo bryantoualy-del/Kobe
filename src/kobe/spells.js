@@ -148,7 +148,7 @@ export function spellCommand(s, c) {
             targetIds.length > 0 &&
             targetIds.length <= maxTargets(spell, level) &&
             new Set(targetIds).size === targetIds.length &&
-            targetIds.every((id) => targetExists(s, id)),
+            targetIds.every((id) => targetExists(s, id) || (spell.id==='fire-bolt' && id==='Cible annoncée')),
           "Cibles invalides.",
         );
       if (spell.concentration || spell.seconds || ritual)

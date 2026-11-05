@@ -37,11 +37,11 @@ export function selectRollControl(target){
 export async function roll(name,dispatch){
  physical=document.querySelector('#physical').checked;
  const count=mode==='normal'?1:2;
- const raw=physical?prompt(`Résultat de ${count} d20 (séparés par un espace)`):'';
+ const raw=physical?await RPGDialogs.prompt(`Résultat de ${count} d20 (séparés par un espace)`):'';
  if(raw===null)return;
  const dice=physical?raw.trim().split(/\s+/).map(Number):Array.from({length:count},()=>1+Math.floor(Math.random()*20));
  try{
   const result=resolveRoll({name,mode,dice});
   if((await dispatch('private-roll',{name,mode,dice}))?.ok)window.CompanionSocialDice.show(result);
- }catch(error){alert(error.message)}
+ }catch(error){await RPGDialogs.alert(error.message)}
 }

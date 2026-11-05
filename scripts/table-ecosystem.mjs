@@ -44,7 +44,7 @@ try{
  await k.getByLabel('Invitation Kobe').fill(['RPGCONNECT',endpoint,room,'kobe',token].join('|'));
  await k.getByRole('button',{name:'Rejoindre la partie'}).click();await k.getByText(/MJ : en ligne/).waitFor();
  await gm.waitForFunction(()=>RPGConnectMJ.getStatus().players.filter(p=>p.online).length===7);
- await k.getByLabel('Valeur').fill('8');await k.getByRole('button',{name:'Dégâts',exact:true}).click();
+ await k.getByRole('button',{name:'Dégâts',exact:true}).click();await k.locator('[name=answer]').fill('8');await k.locator('[data-dialog-accept]').click();
  await gm.waitForFunction(()=>state.encounter.participants.find(p=>p.id==='cc-kobe')?.hp===75);
  assert.equal(await gm.evaluate(()=>state.encounter.participants.filter(p=>p.id==='cc-kobe').length),1);
  await k.locator('#rpg-connect').getByText('Samoth',{exact:true}).waitFor();

@@ -56,7 +56,7 @@ try{
    assert.equal(await hp(),60);
    correct();await until(()=>rx.some(m=>m.id==='correction-1'&&m.result==='already-reviewed'),'duplicate acknowledgment');
    command('initiative-1','initiative:request',{requestId:'fight-1'});
-   page.once('dialog',d=>d.accept('12'));await page.getByRole('button',{name:'Transmettre mon initiative'}).click();
+   await page.getByRole('button',{name:'Transmettre mon initiative'}).click();await page.locator('[name=answer]').fill('12');await page.locator('[data-dialog-accept]').click();
    const ev=await until(()=>rx.find(m=>m.type==='event'&&m.event.type==='initiative:rolled'),'initiative');
    assert.equal(ev.event.payload.total,16);send({type:'event-ack',id:ev.event.id});
    touchCounts.initiative=(await count())-start;
@@ -64,11 +64,11 @@ try{
    old.terminate();await until(()=>rooms.get(room).players.get('kobe')!==old&&rooms.get(room).players.get('kobe'),'reconnected');
    assert.equal(await hp(),60);
    await page.getByRole('button',{name:'Déconnecter',exact:true}).click();
-   start=await count();await page.getByLabel('Valeur').fill('5');await page.getByRole('button',{name:'Soin',exact:true}).click();
-   await page.locator('.stats').getByText('65/83').waitFor();
+   start=await count();await page.getByRole('button',{name:'Soin',exact:true}).click();await page.locator('[name=answer]').fill('5');await page.locator('[data-dialog-accept]').click();
+   await page.locator('#hp[value="65"]').waitFor();
    touchCounts.heal=(await count())-start;console.log(name+' FRICTION measured DOM clicks (text entry and native prompt excluded): '+JSON.stringify(touchCounts));
    await page.close();page=await context.newPage();await page.goto(address);
-   await page.locator('.stats').getByText('65/83').waitFor();
+   await page.locator('#hp[value="65"]').waitFor();
    await page.getByRole('link',{name:'Groupe / connexion'}).click();await joinRoom();
    await until(()=>rx.some(m=>m.type==='state'&&m.state.hp.current===65),'current snapshot only');
    correct();await until(()=>rx.filter(m=>m.id==='correction-1'&&m.result==='already-reviewed').length>=2,'persisted duplicate receipt');

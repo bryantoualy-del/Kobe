@@ -186,3 +186,32 @@ body{background:radial-gradient(circle at 84% -12%,#822f3525,transparent 31rem),
 #ribbon .rb{margin-top:5px;font:750 14px ui-monospace,monospace;white-space:pre-wrap}
 #ribbon[data-tone=heal]{border-color:#4caf73}#ribbon[data-tone=damage]{border-color:#ef5350}
 @media(max-width:699px){#ribbon{bottom:74px}.app .group-launch{font-size:10px;padding:4px}}
+
+.combat-abilities{display:grid;gap:8px}
+.combat-ability{--ability-accent:#d6a15f;display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:4px 9px;position:relative;padding:9px 0;border-bottom:1px solid #30343a}
+.combat-ability:last-child{border-bottom:0}.tone-heal{--ability-accent:#91b99a}.tone-steel{--ability-accent:#a8bfcc}.tone-fire{--ability-accent:#ef965e}
+.ability-cost{font-size:.67rem;font-weight:750;color:#b6b5b1;line-height:1.35}
+.combat-ability-button{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;min-height:44px;padding:9px 10px;text-align:left;border:1px solid color-mix(in srgb,var(--ability-accent) 44%,#30343a);border-radius:10px;background:linear-gradient(145deg,#242323,#151719);color:var(--ink);cursor:pointer;touch-action:manipulation;transition:border-color .18s,background .18s,opacity .18s}
+.combat-ability-button:hover:not(:disabled),.combat-ability-button:focus-visible{border-color:var(--ability-accent);background:#2c2923;outline:2px solid var(--ability-accent);outline-offset:2px}
+.combat-ability-button:active:not(:disabled){background:#373025}.combat-ability-button:disabled{opacity:.4;cursor:not-allowed}
+.ability-name{font-size:.76rem;font-weight:850;line-height:1.25;overflow-wrap:normal}.ability-charge{flex:0 0 auto;white-space:nowrap;font-size:.62rem;font-weight:800;color:var(--ability-accent);font-variant-numeric:tabular-nums}
+.ability-note{grid-column:2;color:#979ca0;font-size:.61rem;line-height:1.4}
+.app .identity{padding-right:112px!important;min-height:105px!important}
+.app .identity .signature{width:100px!important;height:100px!important;top:50%;transform:translateY(-50%);right:4px!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0}
+.identity .signature:before{display:none}.app .identity .signature svg{width:100%!important;height:100%!important;filter:none}
+.app .combat-ability{grid-template-columns:48px minmax(0,1fr);padding:2px 0;gap:0 6px}
+.app .combat-ability-button{min-height:35px;width:100%}.combat-ability .ability-note{grid-column:2}.ability-cost,.ability-note,.ability-charge{font-size:10px}
+.rpg-group-view>.card{grid-column:auto}.rpg-group-view .combat-ability-button{width:100%}.group-launch.active{background:var(--gold);color:#121212}
+
+.hit-box{text-align:center;max-width:420px}.hit-roll{font:bold 3rem Georgia;color:var(--gold)}.hit-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.hit-yes{background:#315c42}.hit-no{background:#643333}.hit-options{margin-top:12px;font-size:.8rem}.layout>.card{grid-column:auto}
+@media(min-width:768px){.app .brack-offense{align-items:start}.brack-offense>.pyro-card,.brack-offense>.favorites-panel{grid-column:1}.brack-offense>.tactical-card{grid-column:2;grid-row:1 / span 2}.brack-offense>.favorites-panel{grid-row:2;margin:0}}
+
+.hit-box{width:min(470px,100%);background:linear-gradient(150deg,#201914,#0d0f11);border:1px solid #8d6235;border-radius:20px;box-shadow:0 24px 80px #000,0 0 35px #ff7a2a20;padding:20px;text-align:center}.hit-roll{font:800 clamp(2rem,8vw,4rem)/1 Georgia,serif;color:var(--copper);text-shadow:0 0 24px #d6a15f44;margin:10px}.hit-detail{color:var(--muted);margin-bottom:15px;white-space:pre-wrap}.hit-question{font:700 1.12rem Georgia,serif;margin:12px 0}.hit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hit-actions button{min-height:50px;border-radius:12px;font-weight:900;cursor:pointer}.hit-no{border:1px solid #704039;background:#281615}.hit-yes{border:1px solid #53705a;background:linear-gradient(135deg,#17331f,#28563a)}
+.strike-prepare .signature-modes{display:flex;align-items:center;gap:4px;margin:0;padding:0;border:none;min-width:0}
+.signature-modes legend{font-size:11px;color:var(--muted)}
+.strike-prepare .signature-modes label{display:block;position:relative;cursor:pointer}
+.signature-modes input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.signature-modes span{display:block;border:1px solid var(--line);border-radius:8px;padding:8px 5px}
+.signature-modes input:checked+span{background:#4a2d21;border-color:var(--copper);color:var(--gold)}
+.signature-modes input:focus-visible+span{outline:2px solid var(--gold)}
+@media(max-width:700px){.strike-prepare{flex-wrap:wrap}.signature-modes{flex-basis:100%}}
