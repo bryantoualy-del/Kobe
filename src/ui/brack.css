@@ -180,3 +180,9 @@ body{background:radial-gradient(circle at 84% -12%,#822f3525,transparent 31rem),
 .app .hp-main-row input{max-width:52px}
 @media(min-width:768px){.app .favorite-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .vitals .stat-roll{border:none;background:transparent;font-size:20px;font-weight:800;padding:3px;min-height:36px}
+.app .group-launch{margin-left:auto;align-self:center;color:var(--gold);background:#151518;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:11px;text-decoration:none}
+#ribbon{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100% - 20px),780px);z-index:41;padding:12px 14px;border:1px solid #9e6b36;border-radius:14px;background:#111416f5;box-shadow:0 16px 50px #000d;pointer-events:none}
+#ribbon .rt{font-size:.75rem;text-transform:uppercase;color:var(--gold);font-weight:850;letter-spacing:.08em}
+#ribbon .rb{margin-top:5px;font:750 14px ui-monospace,monospace;white-space:pre-wrap}
+#ribbon[data-tone=heal]{border-color:#4caf73}#ribbon[data-tone=damage]{border-color:#ef5350}
+@media(max-width:699px){#ribbon{bottom:74px}.app .group-launch{font-size:10px;padding:4px}}
