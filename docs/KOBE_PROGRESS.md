@@ -383,3 +383,4 @@ B — Barre de tour connectée au store et repères de fiche visibles sur les qu
 C — Jets privés interactifs et registre d’inventaire de Kentaro adaptés à Kobe.
 D — Carnet, PNJ, portraits IndexedDB, archives et ZIP portés depuis Kentaro. Panneau conservé entre les transactions.
 E — Plugin étendu dans Kentaro avec son identifiant historique. Parcours décrit dans KOBE_OBSIDIAN_INTEGRATION.md.
+F — Original du dragon conservé, six orbes placées sur le dessin et rendu des sept valeurs de charge intégré au cache.

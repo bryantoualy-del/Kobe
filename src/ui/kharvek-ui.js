@@ -2,12 +2,13 @@ import {POWERS,kharvekAvailability,dragonStage} from '../kobe/kharvek.js';
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function drumSVG(charges){
  const stage=dragonStage(charges);
- return `<svg viewBox="0 0 600 350" role="img" aria-label="Tambour rouge et or ; dragon ${stage} ; ${charges} charges" data-dragon="${stage}">
- <defs><linearGradient id="barrel" x2="0" y2="1"><stop stop-color="#872F35"/><stop offset=".5" stop-color="#5d2029"/><stop offset="1" stop-color="#27151d"/></linearGradient><radialGradient id="skin"><stop stop-color="#f0e5ce"/><stop offset=".7" stop-color="#d5b989"/><stop offset="1" stop-color="#b86637"/></radialGradient><linearGradient id="dragon" x2="0" y2="1"><stop stop-color="#ce5146"/><stop offset=".6" stop-color="#872f35"/><stop offset="1" stop-color="#471a28"/></linearGradient></defs>
- <ellipse cx="300" cy="307" rx="182" ry="18" fill="#09090c" opacity=".65"/>
- <g class="dragon-back" fill="none" stroke="url(#dragon)" stroke-width="27" stroke-linecap="round"><path d="M410 284 C520 305 552 239 513 189 C486 154 445 136 473 90 C495 53 438 28 385 53 C324 83 265 49 217 67 C143 94 177 160 119 181"/><path d="M119 181 C59 204 98 271 164 270"/></g>
- <g class="dragon-ridge" fill="none" stroke="#E5B963" stroke-width="3" stroke-dasharray="3 13"><path d="M410 272 C508 290 535 237 503 194 C470 154 431 128 461 85 C480 57 435 43 389 65 C325 94 267 62 223 78 C157 101 188 168 125 192"/></g>
- <g class="drum-body"><path d="M198 110 C245 89 366 88 414 119 L414 261 C356 294 239 282 198 252Z" fill="url(#barrel)" stroke="#b86637" stroke-width="5"/><ellipse cx="198" cy="181" rx="30" ry="73" fill="#34171f" stroke="#b86637" stroke-width="9"/>
+ const orbs=[[454,212],[551,369],[771,396],[863,290],[1112,210],[1306,351]];
+ const lit=orbs.slice(0,charges).map(([x,y])=>`<circle cx="${x}" cy="${y}" r="29" fill="url(#orb-light)"/>`).join('');
+ return `<svg class="dragon-art" viewBox="0 0 1536 512" role="img" aria-label="Dragon de Khar-Vek, ${charges} charges" data-dragon="${stage}">
+ <defs><radialGradient id="orb-light"><stop stop-color="white"/><stop offset=".32" stop-color="#fff4a3" stop-opacity=".93"/><stop offset="1" stop-color="#ff9700" stop-opacity="0"/></radialGradient></defs>
+ <image class="dragon-illustration" width="1536" height="512" href="./src/ui/dragon.webp" style="filter:brightness(${.32+charges*.108}) saturate(${.45+charges*.11})"/>
+ ${lit}</svg>
+ <svg class="drum-instrument" viewBox="150 75 360 265" aria-hidden="true"> <defs><linearGradient id="barrel" x2="0" y2="1"><stop stop-color="#872F35"/><stop offset=".5" stop-color="#5d2029"/><stop offset="1" stop-color="#27151d"/></linearGradient><radialGradient id="skin"><stop stop-color="#f0e5ce"/><stop offset=".7" stop-color="#d5b989"/><stop offset="1" stop-color="#b86637"/></radialGradient></defs> <g class="drum-body"><path d="M198 110 C245 89 366 88 414 119 L414 261 C356 294 239 282 198 252Z" fill="url(#barrel)" stroke="#b86637" stroke-width="5"/><ellipse cx="198" cy="181" rx="30" ry="73" fill="#34171f" stroke="#b86637" stroke-width="9"/>
  <path d="M219 111 Q264 184 220 261 M260 102 Q302 188 260 277 M303 101 Q346 192 303 281" fill="none" stroke="#a44c3c" stroke-width="2"/>
  <path d="M243 102 Q290 176 249 276 M323 102 Q366 187 325 279" fill="none" stroke="#21181b" stroke-width="15"/><path d="M243 102 Q290 176 249 276 M323 102 Q366 187 325 279" fill="none" stroke="#b86637" stroke-width="2"/>
  <path d="M276 158 C303 130 332 156 309 174 C282 194 277 211 300 228 C327 248 293 266 279 244" fill="none" stroke="#e5b963" stroke-width="4"/><path d="M297 145 l16 -8 12 11 -15 8 -10 -4" fill="#e5b963"/>
@@ -15,9 +16,7 @@ export function drumSVG(charges){
  <path d="M416 144 Q431 169 425 182 Q448 195 423 204 Q430 223 416 240 Q401 218 408 204 Q383 191 409 182 Q401 164 416 144Z" fill="#b86637"/><path d="M416 171 Q432 192 416 214 Q404 192 416 171" fill="#e5b963"/>
  ${Array.from({length:14},(_,i)=>{const a=i/14*Math.PI*2;return `<circle cx="${414+61*Math.cos(a)}" cy="${191+87*Math.sin(a)}" r="4" fill="#e5b963" stroke="#6a3c25"/>`;}).join('')}
  <path d="M180 293 L340 320 M207 295 L377 308" stroke="#b86637" stroke-width="9" stroke-linecap="round"/><path d="M180 293 L240 303 M207 295 L264 299" stroke="#872f35" stroke-width="7" stroke-linecap="round"/></g>
- <g class="dragon-front"><path d="M164 270 C228 318 341 321 395 290 C429 270 446 265 467 272" fill="none" stroke="url(#dragon)" stroke-width="29" stroke-linecap="round"/><path d="M166 260 C226 304 336 308 393 279" fill="none" stroke="#e5b963" stroke-width="3" stroke-dasharray="3 11"/>
- <g class="dragon-head" transform="translate(467 267)"><path d="M-10 8 L-11 -12 Q2 -37 23 -22 L49 -15 58 -3 38 8 20 4 5 19Z" fill="url(#dragon)" stroke="#e5b963" stroke-width="2"/><path d="M-5 -18 L-18 -41 -2 -31 6 -49 15 -22 M5 17 L13 35 26 14" fill="#b86637" stroke="#e5b963" stroke-width="2"/><path d="M32 -11 L49 -7 38 -2" fill="#f0e5ce"/><circle cx="23" cy="-16" r="4" fill="#f0e5ce"/><path d="M46 3 Q83 4 77 -20 M44 7 Q75 27 86 11" fill="none" stroke="#e5b963" stroke-width="2"/><path d="M-10 -10 L-28 -24 -19 -4 -31 5 -11 12" fill="#872f35" stroke="#b86637" stroke-width="2"/></g></g>
- </svg>`;
+</svg>`;
 }
 export function kharvekPanel(s){
  const charges=s.resources.charges;
