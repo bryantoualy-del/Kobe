@@ -31,7 +31,10 @@ try{
    assert.equal(await page.locator('.dragon-art').count(),0);
    await page.locator('[name=signature-mode][value=advantage]').check();
    await page.locator('#signature-dice').fill('4 17');
+   await page.emulateMedia({reducedMotion:'no-preference'});
    await page.locator('[data-signature]').click();
+   const overlay=page.locator('#ccDiceOverlay.open[data-dismissable="1"]');await overlay.waitFor();
+   assert.deepEqual(await overlay.boundingBox(),{x:0,y:0,width:1180,height:820});await overlay.click();await page.emulateMedia({reducedMotion:'reduce'});
    assert.equal(await page.locator('.hit-roll').innerText(),'26');
    await capture('confirmation-jet');
    await page.getByRole('button',{name:'Touché',exact:true}).click();

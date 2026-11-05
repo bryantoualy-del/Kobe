@@ -59,7 +59,9 @@ export function transition(state, command, context = {}) {
         }
         s.economy[p.economy] = false; label = 'Dépense manuelle confirmée'; break;
       }
+      case 'turn-next':
       case 'turn-start': {
+        if(command.type==='turn-next')combatCommand(s,{...command,type:'turn-end'});
         if (p.turn !== state.turn.startRevision + 1 || p.epoch !== state.turn.epoch || p.combatId !== state.turn.combatId) fail('STALE_REVISION','Tour déjà traité ou hors séquence.');
         advance(s,6); s.effects=s.effects.filter(e=>!e.untilTurn||e.untilTurn>p.turn); s.combat.round++;s.combat.turnDamage=0;s.combat.phase='active';s.combat.bonusSpell=false;s.combat.leveledAction=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`; break;
       }

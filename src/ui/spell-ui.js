@@ -31,53 +31,54 @@ function availability(s, spell) {
     options[0] ?? { ok: false, label: "Emplacements épuisés" }
   );
 }
+const roles = {Contrôle:'controle', Protection:'defense', Soins:'soin', Dégâts:'flamme', Utilitaire:'arcane'};
+let spellFilter='Tous';
+function source(spell){
+  const slug=spell.id==='tiny-hut'?'petite-hutte-de-leomund':spell.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  return 'https://www.aidedd.org/dnd/sorts.php?vf='+slug;
+}
 function card(s, spell, compact = false) {
   const av = availability(s, spell),
     favorite = s.preferences.favorites.includes(spell.id);
+  const role=spell.categories[0];
+  if(!compact)return `<article class="spell role-${roles[role]}" data-spell-card="${spell.id}"><div class="eyebrow">${esc(spell.castTime)} · ${role}</div><h3>${esc(spell.name)}</h3><div class="meta">${esc(spell.range)}${spell.concentration?' · concentration':''}</div><details class="spell-doc"><summary>Description du sort</summary><div class="spell-doc-body">${esc(spell.components)} · ${esc(durationLabel(spell))}<p>${esc(spell.summary)}</p><a class="spell-doc-source" target="_blank" rel="noopener noreferrer" href="${source(spell)}">Fiche AideDD ↗</a></div></details><div class="actions">${btn("data-cast",spell.id,"Lancer",`class="primary" ${av.ok?'':'disabled'} title="${esc(av.label)}"`)}${btn("data-favorite",spell.id,favorite?'★':'☆',`aria-label="Favori · ${esc(spell.name)}" aria-pressed="${favorite}" ${!favorite&&s.preferences.favorites.length===4?'disabled':''}`)}</div></article>`;
   return `<article class="spell-card ${compact ? "compact" : ""}" data-spell-card="${spell.id}"><div class="spell-title"><h3>${esc(spell.name)}</h3><span class="spell-level">${spell.level ? "N" + spell.level : "Tour de magie"}${spell.secret ? " · Secret" : ""}</span></div><p class="spell-meta">${esc(spell.castTime)}${compact?"":" · "+esc(spell.range)}<br>${esc(durationLabel(spell))} · ${spell.level ? "Emplacement N" + spell.level + "–5" : "Sans emplacement"}</p>${compact ? "" : `<p class="spell-summary">${esc(spell.summary)}</p>`}<div class="spell-status ${av.ok ? "ready" : ""}">${esc(av.label)}</div><div class="actions">${btn("data-cast", spell.id, "Lancer", `class="primary" ${av.ok ? "" : "disabled"}`)}${compact ? "" : btn("data-favorite", spell.id, favorite ? "★ Favori" : "☆ Favori", `aria-pressed="${favorite}" ${!favorite && s.preferences.favorites.length === 4 ? "disabled" : ""}`)}${btn("data-spell-detail", spell.id, "Détails")}</div></article>`;
 }
 export function favoritesPanel(s) {
   return `<section class="panel span favorites-panel"><div class="score-heading"><h2>♫ Les quatre mesures</h2><button type="button" data-tab="spells">Modifier les favoris</button></div><div class="favorite-grid">${s.preferences.favorites.map((id) => card(s, spellById(id), true)).join("")}${Array.from({ length: 4 - s.preferences.favorites.length }, () => '<div class="favorite-empty">Une mesure libre<br><small>Choisir un favori dans le grimoire</small></div>').join("")}</div></section>`;
 }
 export function spellbookPanel(s) {
-  return `<section class="panel score"><div class="score-heading"><div><div class="eyebrow">Le répertoire du Tambour ardent</div><h2>Grimoire en partition</h2></div><span>19 sorts · CHA +5 · attaque +9 · DD17</span></div><div class="slot-strip">${s.slots
-    .slice(1)
-    .map(
-      (n, i) =>
-        `<button type="button" data-slot="${i + 1}" aria-label="Corriger emplacements niveau ${i + 1}">N${i + 1} <strong>${n}/${[4, 3, 3, 3, 2][i]}</strong></button>`,
-    )
-    .join(
-      "",
-    )}</div><div class="spell-filters"><label>Rechercher un sort<input id="spell-search" type="search" placeholder="Nom, effet…"></label><label>Usage<select id="spell-category">${["Tous", "Contrôle", "Protection", "Soins", "Dégâts", "Utilitaire"].map((c) => `<option>${c}</option>`).join("")}</select></label><label>Niveau<select id="spell-level"><option value="all">Tous</option>${[0, 1, 2, 3, 4, 5].map((n) => `<option value="${n}">${n ? "Niveau " + n : "Tours de magie"}</option>`).join("")}</select></label></div><p class="muted">${s.preferences.favorites.length}/4 favoris · Portées et résultats confirmés à la table. <button type="button" data-combat="target-save">Ajouter une cible</button></p><div class="spell-grid">${SPELLS.map((spell) => card(s, spell)).join("")}</div><p id="spell-empty" hidden>Aucun sort pour ces filtres.</p></section>`;
+  const slots=s.slots.slice(1).map((n,i)=>{
+    const max=[4,3,3,3,2][i];
+    return `<div class="slot-group"><b>N${i+1}</b><div class="dots">${Array.from({length:max},(_,j)=>`<button class="dot ${j<n?'on':''}" data-slot="${i+1}" data-slot-value="${j<n?j:j+1}" aria-label="Niveau ${i+1}, emplacement ${j+1} ${j<n?'disponible':'utilisé'}"></button>`).join('')}</div><small>${n}/${max}</small></div>`;
+  }).join('');
+  const filters=['Tous',...Object.keys(roles)].map(role=>`<button class="role-${roles[role]||'all'} ${spellFilter===role?'active':''}" data-spell-filter="${role}" aria-pressed="${spellFilter===role}">${role} <small>${SPELLS.filter(sp=>role==='Tous'||sp.categories.includes(role)).length}</small></button>`).join('');
+  const sections=[0,1,2,3,4,5].map(level=>`<section class="panel spell-section"><h2>${level?'Niveau '+level:'Tours de magie'}</h2><div class="spell-grid">${SPELLS.filter(sp=>sp.level===level).map(sp=>card(s,sp)).join('')}</div></section>`).join('');
+  return `<div class="score"><section class="panel spell-slots"><h2>Emplacements</h2><div class="slot-groups">${slots}</div></section><div class="spell-legend" role="group" aria-label="Filtrer les sorts par type">${filters}</div><div class="actions"><input id="spell-search" aria-label="Rechercher un sort" type="search" placeholder="Rechercher un sort"><button data-combat="target-save">Ajouter une cible</button></div>${sections}<p id="spell-empty" hidden>Aucun sort pour ces filtres.</p></div>`;
 }
-export function filterSpells() {
-  const normalize = (v) =>
-      v
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase(),
-    q = normalize(document.querySelector("#spell-search")?.value ?? ""),
-    cat = document.querySelector("#spell-category")?.value ?? "Tous",
-    level = document.querySelector("#spell-level")?.value ?? "all";
-  let count = 0;
-  document.querySelectorAll(".score [data-spell-card]").forEach((card) => {
-    const spell = spellById(card.dataset.spellCard);
-    card.hidden = !(
-      normalize(spell.name + " " + spell.summary).includes(q) &&
-      (cat === "Tous" || spell.categories.includes(cat)) &&
-      (level === "all" || spell.level === Number(level))
-    );
-    if (!card.hidden) count++;
-  });
-  const empty = document.querySelector("#spell-empty");
-  if (empty) empty.hidden = count > 0;
+export function filterSpells(role){
+  if(typeof role==='string')spellFilter=role;
+  const normalize=v=>v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const q=normalize(document.querySelector('#spell-search')?.value||'');
+  for(const b of document.querySelectorAll('[data-spell-filter]')){
+    const active=b.dataset.spellFilter===spellFilter;
+    b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
+  }
+  for(const card of document.querySelectorAll('.score [data-spell-card]')){
+    const sp=spellById(card.dataset.spellCard);
+    card.hidden=!(normalize(sp.name+' '+sp.summary).includes(q)&&(spellFilter==='Tous'||sp.categories.includes(spellFilter)));
+  }
+  for(const section of document.querySelectorAll('.spell-section'))section.hidden=!section.querySelector('[data-spell-card]:not([hidden])');
+  const empty=document.querySelector('#spell-empty');if(empty)empty.hidden=!!document.querySelector('.spell-section:not([hidden])');
 }
-function show(title, body, onSubmit) {
-  const d = document.createElement("dialog");
+function show(title, body, onSubmit, anchor) {
+  const d = document.createElement(anchor ? "section" : "dialog");
   d.className = "combat-dialog spell-dialog";
   d.innerHTML = `<form><h2>${esc(title)}</h2>${body}<p role="alert" class="form-error"></p><div class="actions">${onSubmit ? '<button type="submit" class="primary">Confirmer</button>' : ""}<button type="button" data-cancel>${onSubmit ? "Annuler" : "Fermer"}</button></div></form>`;
-  document.body.append(d);
-  d.showModal();
+  if(anchor){
+    document.querySelector('.spell-inline')?.remove();
+    d.classList.add('spell-inline');anchor.after(d);d.close=()=>d.remove();d.scrollIntoView({block:'nearest'});
+  }else{document.body.append(d);d.showModal();}
   d.querySelector("[data-cancel]").onclick = () => d.close();
   d.onclose = () => d.remove();
   d.querySelector("form").onsubmit = async (e) => {
@@ -142,7 +143,10 @@ export async function quickAttack(dispatch,target,mode,physical){
  const result=await dispatch('spell-cast',{spellId:'fire-bolt',level:0,targetIds:[target],eligible:true,components:true,attackMode:mode,attackRolls,rolls:dice(2,10)});
  if(!result?.ok)return;
  const pending=result.state.pendingResolutions.find(r=>r.sourceId===result.events[0].id&&r.kind==='spell');
- if(pending)hitDialog(pending,result.state,dispatch);
+ if(pending){
+   await window.CompanionDiceEngine?.roll({label:'Trait de feu',rolls:attackRolls,mode:mode==='advantage'?'adv':mode==='disadvantage'?'dis':'normal',chosen:pending.natural,total:pending.attackTotal,detail:'d20 '+attackRolls.join(' / ')+' + 9',verdict:'Jet d’attaque'});
+   hitDialog(pending,result.state,dispatch);
+ }
 }
 function hitDialog(r,state,dispatch){
  const dialog=document.createElement('dialog');
@@ -154,11 +158,17 @@ function hitDialog(r,state,dispatch){
  dialog.querySelector('.hit-yes').onclick=()=>apply(r.natural===20?'critical':'hit');
  dialog.querySelector('.hit-options').onclick=()=>{dialog.close();openSpellResolve(r.id,state,dispatch);};
 }
-export function openSpellCast(id, s, dispatch) {
+export function openSpellCast(id, s, dispatch, chosenLevel) {
   const spell = spellById(id),
     levels = availableLevels(s, spell);
   let fields = `<p>${esc(spell.summary)}</p><p class="spell-meta">${esc(spell.components)} · ${esc(spell.range)} · ${esc(durationLabel(spell))}</p>`;
-  if (spell.level)
+  const anchor=document.querySelector(`[data-spell-card="${id}"]`)||document.querySelector('.abilities-card');
+  if(spell.level && chosenLevel===undefined && anchor){
+    return show(spell.name,select("level","Niveau d’emplacement",levels.map(n=>[n,"Niveau "+n+" · "+s.slots[n]+" restant(s)"]).concat(spell.ritual?[["ritual","Rituel · sans emplacement"]]:[])),p=>{
+      openSpellCast(id,s,dispatch,p.level);return {ok:true};
+    });
+  }
+  if (spell.level && !anchor)
     fields += select(
       "level",
       "Niveau d’emplacement",
@@ -169,7 +179,7 @@ export function openSpellCast(id, s, dispatch) {
           ])
         : [[spell.level, "Aucun emplacement (rituel seulement)"]],
     );
-  if (spell.ritual)
+  if (spell.ritual && !anchor)
     fields += check(
       "ritual",
       "Lancer en rituel : +10 minutes, sans emplacement",
@@ -240,7 +250,8 @@ export function openSpellCast(id, s, dispatch) {
     p.eligible=true; p.components=true;
     if(spell.healing)p.healingEligible=true;
     if(id==='prestidigitation'&&!p.detail?.trim())p.detail='Effet annoncé à la table';
-    p.level = spell.level ? Number(p.level) : 0;
+    if(chosenLevel==="ritual")p.ritual=true;
+    p.level = spell.level ? Number(p.ritual ? spell.level : chosenLevel ?? p.level) : 0;
     p.effectSeconds = Number(p.effectSeconds);
     if (spell.dice) p.rolls = readRolls(p.rolls, ...diceFor(spell, p.level));
     if (spell.id === "enhance-ability")
@@ -257,7 +268,7 @@ export function openSpellCast(id, s, dispatch) {
       p.checkRolls = readRolls(p.checkRolls, n, 20);
     }
     return dispatch("spell-cast", p);
-  });
+  },anchor);
 }
 export function openSpellResolve(id, s, dispatch) {
   const r = s.pendingResolutions.find((r) => r.id === id),

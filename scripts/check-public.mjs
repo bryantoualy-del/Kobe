@@ -9,8 +9,8 @@ try{
  const response=await page.goto(url,{timeout:25000});
  if(!response?.ok())throw Error('HTTP '+response?.status());
  await page.getByRole('heading',{name:'Kobe Kozzo',exact:true}).waitFor({timeout:10000});
- await page.getByRole('tab',{name:'Sorts & pouvoirs'}).click();await page.locator('[data-spell-detail]').first().waitFor();
- await page.getByRole('tab',{name:'Combat'}).click();await page.locator('#kharvek').waitFor();
+ await page.getByRole('tab',{name:'Sorts & pouvoirs'}).click();await page.locator('[data-spell-card]').first().waitFor();
+ await page.getByRole('tab',{name:'Combat'}).click();await page.locator('[data-combat-view=kharvek]').click();await page.locator('#kharvek').waitFor();
  if(errors.length)throw Error(errors.join('; '));
  console.log('PUBLIC_SMOKE: '+page.url()+' HTTP '+response.status()+' · Combat, grimoire, Khar-Vek chargés · '+await page.locator('footer').innerText());
 }finally{await browser.close();}

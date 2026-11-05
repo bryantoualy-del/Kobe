@@ -396,3 +396,6 @@ Brack est la référence de présentation. En-tête identité/vitalité, barre s
 
 ### Retour de table · socle Brack
 L’attaque signature se prépare depuis Attaques. Une cible annoncée oralement est possible. Le même moteur gère le résultat Touché/Raté, les critiques et les défenses facultatives. Le repos reprend le dialogue de Brack avec une confirmation unique. La fiche affiche les PV courants et temporaires modifiables et le grand emblème détouré. Groupe reprend les rangées d’initiative de Brack, les commandes rapides et la connexion V5. Le journal mécanique utilise RPGJournalUI pour regrouper les actions par tour et reçoit les activités collectives de la salle. Les notes et jets privés restent locaux.
+
+### 5 novembre · Combat, grimoire et vestige
+Khar-Vek rejoint les sous-vues de Combat. Les commandes de suivi, de défense et de correction sont accessibles depuis Ressources. Le bouton doré clôt et renouvelle le tour local dans une transaction. Avec un MJ connecté, il transmet la fin de tour à RPG Connect. Le grimoire reprend les groupes de niveau, points d’emplacement, filtres, descriptions dépliables et liens AideDD de Samoth. Les favoris restent accessibles en Combat. Le nouvel emblème WebP possède une couche alpha.
