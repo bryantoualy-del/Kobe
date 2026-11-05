@@ -1,3 +1,4 @@
+import {resolveRoll} from './social.js';
 import {correction} from './table-correction.js';
 import {kharvekCommand} from "./kharvek.js";
 import {spellCommand} from './spells.js';
@@ -17,6 +18,11 @@ export function transition(state, command, context = {}) {
     const s = structuredClone(state), p = command.payload ?? {}, before = snapshot(state);
     let kind = 'info', label, detail;
     switch (command.type) {
+      case 'private-roll': {
+        const r=resolveRoll(p);
+        label=`Jet privé · ${r.label} · ${r.mode} · d20 ${r.dice.join(' / ')} · bonus ${r.bonus} = ${r.total}`;
+        detail={rolls:r.dice};kind='social';break;
+      }
       case 'initiative-roll': {
         integer(p.die,1,20);detail={rolls:[p.die]};
         label=`Initiative : ${p.die} + 4 = ${p.die+4} · validation MJ`;break;
@@ -79,7 +85,7 @@ export function transition(state, command, context = {}) {
       actorId: 'kobe', targetIds: detail?.targetIds ?? ['kobe'], sourceId: command.type, costs: detail?.costs ?? (command.type === 'spend' ? p : {}), rolls: detail?.rolls ?? [],
       before, after: snapshot(s), time: context.time ?? null, options:detail?.options??p, authority: command.origin, applicationStatus: 'applied-local'}] : [];
     s.journal = [...s.journal, ...events].slice(-300);
-    if (!['undo','preferences'].includes(command.type) && !(command.type==='network-review' && p.decision==='declined')) s.undo = {commandId: command.id, before};
+    if (!['undo','preferences','private-roll'].includes(command.type) && !(command.type==='network-review' && p.decision==='declined')) s.undo = {commandId: command.id, before};
     validateState(s);
     return {ok: true, state: s, events, replay: false};
   } catch (e) { return {ok: false, state, code: e.code ?? 'INVALID_COMMAND', message: e.message}; }
