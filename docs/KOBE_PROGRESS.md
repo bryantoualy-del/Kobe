@@ -385,3 +385,8 @@ D — Carnet, PNJ, portraits IndexedDB, archives et ZIP portés depuis Kentaro. 
 E — Plugin étendu dans Kentaro avec son identifiant historique. Parcours décrit dans KOBE_OBSIDIAN_INTEGRATION.md.
 F — Original du dragon conservé, six orbes placées sur le dessin et rendu des sept valeurs de charge intégré au cache.
 G — Parcours réels Chromium et WebKit à 1180 × 820. Correction des portraits WebKit (octets IndexedDB) et du placement des actions dans la première vue. Importeur testé avec deux ZIP produits par les applications.
+
+### Point de reprise V1.1
+128 tests moteur et 2 parcours de navigateur (Chromium et WebKit). Les scènes sociales, les ZIP et les captures sont décrits dans [la recette V1.1](KOBE_V11_VALIDATION.md). Correctif de reprise à froid vérifié sur WebKit 26.0 et 26.5. Les fichiers de secours du worker contiennent uniquement le code et les illustrations publiques du Companion. Les données du joueur restent dans leurs stockages locaux.
+
+Revue ouverte dans Kobe #7 et Kentaro #13. Prochain jalon : Safari et Obsidian sur iPad physique avant fusion. Garder la dépendance avec Kobe #6.
