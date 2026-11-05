@@ -382,3 +382,4 @@ Audit des quatre dépôts effectué. Base PR #6 retenue. Voir KOBE_PARITY_MATRIX
 B — Barre de tour connectée au store et repères de fiche visibles sur les quatre onglets.
 C — Jets privés interactifs et registre d’inventaire de Kentaro adaptés à Kobe.
 D — Carnet, PNJ, portraits IndexedDB, archives et ZIP portés depuis Kentaro. Panneau conservé entre les transactions.
+E — Plugin étendu dans Kentaro avec son identifiant historique. Parcours décrit dans KOBE_OBSIDIAN_INTEGRATION.md.
