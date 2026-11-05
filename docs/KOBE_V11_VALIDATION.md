@@ -26,3 +26,6 @@ Exécuter npm test, npm run build puis npm run test:e2e. Les scripts parity-brow
 
 ### Après le retour joueur
 Le tableau a été réorganisé selon Brack. Le vestige est désormais un cinquième onglet. [Combat avec les quatre favoris](recette-v11/combat-brack.webp) et [dragon vide, à moitié rempli et plein](recette-v11/dragon.webp) sont les captures de la nouvelle interface sous Chromium. La recette du combat inclut la transmission du mode et des dés physiques de la préparation de frappe au dialogue de sort.
+
+### Recette des ajustements du 5 novembre
+Chromium automatisé à 1180 × 820 : plein écran du d20 de Trait de feu avant le verdict, filtres et recherche, sorts multicibles, quatre favoris, renouvellement du tour, distribution des PNJ, passage hors ligne. Les sept positions de découpe du dragon sont vérifiées, avec captures à 0, 3 et 6 charges. Le test RPG Connect utilise le serveur V5. Aucune manipulation sur iPad physique pour cette livraison.

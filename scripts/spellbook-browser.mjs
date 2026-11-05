@@ -52,9 +52,7 @@ try {
           .getByRole("button", { name: "Fin de tour", exact: true })
           .click();
 
-        await page
-          .getByRole("button", { name: "Début de mon tour", exact: true })
-          .click();await page.locator('[data-dialog-accept]').click();
+        
         await page
           .getByRole("button", { name: "Fin de tour", exact: true })
           .waitFor();
@@ -65,12 +63,12 @@ try {
         .getByRole("tab", { name: "Sorts & pouvoirs", exact: true })
         .click();
       await page
-        .getByRole("heading", { name: "Grimoire en partition" })
+        .getByRole("heading", { name: "Emplacements" })
         .waitFor();
       assert.equal(await page.locator("[data-spell-card]").count(), 19);
-      await page.locator("#spell-category").selectOption("Soins");
-      assert.equal(await page.locator("[data-spell-card]:visible").count(), 2);
-      await page.locator("#spell-category").selectOption("Tous");
+      await page.locator('[data-spell-filter="Soins"]').click();
+      assert.equal(await page.locator("[data-spell-card]:visible").count(), 1);
+      await page.locator('[data-spell-filter="Tous"]').click();
       await page.locator("#spell-search").fill("guerison");
       assert.equal(await page.locator("[data-spell-card]:visible").count(), 1);
       await page.locator("#spell-search").fill("");
@@ -100,13 +98,10 @@ try {
         await page.getByLabel("Type", { exact: true }).selectOption("enemy");
         await confirm();
       }
-      await page.locator('[data-spell-detail="circle-of-power"]').click();
-      await page.getByText("Source / accès", { exact: true }).waitFor();
-      const box = await page.locator("dialog[open]").boundingBox();
-      assert(
-        box.x >= 0 && box.y >= 0 && box.width <= 1180 && box.height <= 820,
-      );
-      await page.getByRole("button", { name: "Fermer", exact: true }).click();
+      const description=page.locator('[data-spell-card="circle-of-power"] details');
+      await description.locator('summary').click();
+      assert.match(await description.locator('a').getAttribute('href'),/vf=cercle-de-pouvoir$/);
+      assert.equal(await page.locator('dialog[open]').count(),0);
       await mkdir("screenshots", { recursive: true });
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({
@@ -136,7 +131,7 @@ try {
         path: `screenshots/${name}-favorites.png`,
         fullPage: true,
       });
-      await page.locator('[data-combat-view=control]').click();
+      await page.locator('[data-combat-view=resources]').click();
       // Set locally declared HP through real forms.
       for (const target of ["Ennemi A", "Ennemi B"]) {
         await page
@@ -152,6 +147,7 @@ try {
       }
       await page.locator('[data-combat-view=offense]').click();
       await page.locator('[data-cast="fireball"]').click();
+      await confirm();
       await page.getByLabel("Ennemi A", { exact: true }).check();
       await page.getByLabel("Ennemi B", { exact: true }).check();
       await page
@@ -160,7 +156,7 @@ try {
       await page.screenshot({ path: `screenshots/${name}-casting-modal.png` });
       await confirm();
       assert.equal((await state()).slots[3], 2);
-      await page.locator('[data-combat-view=control]').click();
+      await page.locator('[data-combat-view=resources]').click();
       for (const result of ["failure", "success"]) {
         await page.locator("[data-spell-resolve]").first().click();
         await page
@@ -176,6 +172,7 @@ try {
       await page.locator('[data-combat-view=offense]').click();
       await page.locator('[data-cast="circle-of-power"]').click();
       await confirm();
+      await confirm();
       assert.equal((await state()).concentration.name, "Cercle de pouvoir");
       await page.reload();
       await page.getByText(/Sauvegarde locale · révision/).waitFor();
@@ -183,6 +180,7 @@ try {
       assert.equal((await state()).preferences.favorites.length, 4);
       await next();
       await page.locator('[data-cast="slow"]').click();
+      await confirm();
       await page.getByLabel("Ennemi A", { exact: true }).check();
       await page
         .getByLabel("Remplacer la concentration : Cercle de pouvoir")
@@ -210,7 +208,7 @@ try {
           .getByRole("tab", { name: "Sorts & pouvoirs", exact: true })
           .click();
         await page
-          .getByRole("heading", { name: "Grimoire en partition" })
+          .getByRole("heading", { name: "Emplacements" })
           .waitFor();
         assert.equal(await page.locator("[data-spell-card]").count(), 19);
       }

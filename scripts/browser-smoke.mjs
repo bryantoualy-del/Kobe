@@ -29,7 +29,7 @@ try{
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(address);
    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
-   for(const tab of ['Combat','Sorts & pouvoirs','Social','Khar-Vek','Journal']) {
+   for(const tab of ['Combat','Sorts & pouvoirs','Social','Journal']) {
     await page.getByRole('tab',{name:tab}).click();
     await page.waitForFunction(label => [...document.querySelectorAll('[role="tab"]')].some(el => el.textContent === label && el.getAttribute('aria-selected') === 'true'), tab);
    }
@@ -66,7 +66,7 @@ try{
     await page.locator('#hp[value="73"]').waitFor();
    }
    // Lot2: real form workflow, then persistence/offline. No injected combat state.
-   await page.locator('[data-combat-view=control]').click();await page.getByText('Bénéficiaires et ennemis · suivi local').click();
+   await page.locator('[data-combat-view=resources]').click();await page.getByText('Bénéficiaires et ennemis · suivi local').click();
    await page.getByRole('button',{name:'Ajouter / actualiser une cible'}).click();
    await page.getByLabel('Nom',{exact:true}).fill('Brack');
    await page.getByLabel('Réaction déclarée').selectOption('yes');
@@ -79,14 +79,14 @@ try{
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
    await page.reload();
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.effects.filter(e=>e.kind==='inspiration').length),1);
-   await page.locator('[data-combat-view=control]').click();await page.getByRole('button',{name:'Utiliser le d10',exact:true}).click();
+   await page.locator('[data-combat-view=resources]').click();await page.getByRole('button',{name:'Utiliser le d10',exact:true}).click();
    await page.getByLabel('Résultat du d10').fill('7');
    await page.getByRole('button',{name:'Confirmer',exact:true}).click();
    await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
-   await page.getByRole('button',{name:'Début de mon tour',exact:true}).waitFor();
+   
 
-   await page.getByRole('button',{name:'Début de mon tour',exact:true}).click();await page.locator('[data-dialog-accept]').click();
+   
    await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();
    await page.locator('[data-combat-view=offense]').click();await page.locator('.tactical-card [data-combat=mantle]').click();
    await page.getByLabel('Brack',{exact:true}).check();
