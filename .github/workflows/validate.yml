@@ -65,6 +65,8 @@ jobs:
           path: screenshots/
   ecosystem:
     runs-on: ubuntu-24.04
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -80,7 +82,4 @@ jobs:
         run: |
           npm run test:v5
           node --test rpg-brack-authority.test.js rpg-samoth-automatismes.test.js rpg-zephyr-authority.test.js rpg-kentaro-authority.test.js rpg-rufus-authority.test.js rpg-nans-authority.test.js rpg-effective-damage.test.js
-      - name: Prepare the isolated seven-client browser run
-        working-directory: .v5-env/Encounter
-        run: npx playwright install --with-deps chromium
       - run: npm run build && node scripts/table-ecosystem.mjs
