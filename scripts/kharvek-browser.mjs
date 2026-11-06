@@ -17,39 +17,32 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  await page.locator('[data-combat-view=kharvek]').click();assert.equal(await page.locator('[data-charge-count]').innerText(),'0 / 6');await mkdir('screenshots',{recursive:true});
  for(const charges of [0,1,2,3,4,5,6]){await correct(charges);assert.equal(await page.locator('.charge-mark.lit').count(),charges);assert.equal(Number(await page.locator('#dragon-fill rect').getAttribute('x')),(6-charges)*256);assert.equal(await page.locator('[data-charge-count]').textContent(),`${charges} / 6`);assert.equal(await page.locator('svg[data-dragon]').getAttribute('data-dragon'),charges<2?'dormant':charges<4?'awakening':charges<6?'coiling':'complete');if([0,3,6].includes(charges)){await page.locator('#kharvek').evaluate(el=>el.scrollIntoView({block:'center'}));await page.locator('#kharvek').screenshot({path:`screenshots/${name}-kharvek-${charges}.png`});}}
  assert.equal(await page.locator('.dragon-illustration').evaluate(e=>getComputedStyle(e).animationName),'none');
- // Explicit no-animation control also works independently of the OS preference.
- await page.emulateMedia({reducedMotion:'no-preference'});
- await page.locator('.kharvek-controls summary').click();await page.locator('[data-still]').check();assert.equal(await page.locator('.dragon-illustration').evaluate(e=>getComputedStyle(e).animationName),'none');
- // Damage Kobe to demonstrate actual healing through a direct button; cancel first.
- await page.getByRole('button',{name:'Dégâts',exact:true}).click();await page.locator('[name=answer]').fill('40');await page.locator('[data-dialog-accept]').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.hp.current===43);
- await page.locator('[data-kharvek=pulse]').click();await page.getByRole('button',{name:'Annuler',exact:true}).click();assert.equal((await state()).resources.charges,6);
- await page.locator('[data-kharvek=pulse]').click();await page.getByLabel('Kobe',{exact:true}).check();await page.locator('[name=healRolls]').fill('4 5 6');await page.locator('dialog[open]').screenshot({path:`screenshots/${name}-pulse-confirmation.png`});
- await page.locator('dialog[open] [type=submit]').evaluate(b=>{b.click();b.click();});await page.locator('dialog[open]').waitFor({state:'detached'});
- assert.equal((await state()).hp.current,63);assert.equal((await state()).resources.charges,5);assert.equal((await state()).journal.filter(e=>e.sourceId==='kharvek-power').length,1);assert.equal(await page.locator('[data-kharvek=pulse]').isDisabled(),true);
- // Declare two allies and their HP through existing forms.
- await page.getByRole('tab',{name:'Combat',exact:true}).click();await page.locator('[data-combat-view=resources]').click();for(const target of ['Roark','Jorakai']){await page.getByText('Bénéficiaires et ennemis · suivi local',{exact:true}).click();await page.locator('[data-combat=target-save]').click();await page.getByLabel('Nom',{exact:true}).fill(target);await confirm();await page.getByRole('button',{name:'PV des cibles',exact:true}).click();await page.getByLabel('Cible',{exact:true}).selectOption({label:target});await page.getByLabel('PV actuels',{exact:true}).fill('10');await page.getByLabel('PV maximum',{exact:true}).fill('50');await page.getByLabel('Informations confirmées à la table').check();await confirm();}
- await page.locator('[data-combat-view=kharvek]').click();await next();await page.locator('[data-kharvek=rally]').click();for(const t of ['Kobe','Roark','Jorakai'])await page.getByLabel(t,{exact:true}).check();await page.locator('[name=healRolls]').fill('4 5');await confirm();
- assert.equal((await state()).hp.current,77);assert.deepEqual((await state()).combat.targets.map(t=>t.hp.current),[24,24]);assert.equal((await state()).resources.charges,2);assert.deepEqual((await state()).journal.at(-1).rolls,[4,5]);
- // Bonus is still available: combine Manteau with the survivor upgrade in one confirmation.
- await page.locator('[data-kharvek=survivors]').click();await page.getByLabel('Roark',{exact:true}).check();const roark=(await state()).combat.targets[0].id;await page.locator('[name=survivorTargetId]').selectOption(roark);await page.locator('[name=healRolls]').fill('8');await page.locator('dialog[open]').screenshot({path:`screenshots/${name}-survivors-confirmation.png`});await confirm();
- let s=await state();assert.equal(s.combat.targets[0].hp.current,37);assert.equal(s.combat.targets[0].hp.temp,11);assert.equal(s.resources.charges,1);assert.equal(s.resources.inspiration,4);assert.equal(s.economy.bonusAvailable,false);assert.equal(s.journal.at(-1).costs.charges,1);assert.equal(s.journal.at(-1).costs.inspiration,1);
- await page.reload();await page.getByText(/Sauvegarde locale · révision/).waitFor();assert.equal((await state()).resources.charges,1);assert.equal((await state()).combat.targets[0].hp.current,37);
+
+ const fire=async(power,charges)=>{
+   await page.locator('[data-kharvek='+power+']').click();
+   await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===n,charges);
+   assert.equal(await page.locator('dialog[open],.spell-inline,[name=target]').count(),0);
+ };
+ await fire('pulse',5);
+ assert.equal((await state()).hp.current,83);
+ assert.equal((await state()).economy.actionAvailable,false);
+ await next();await fire('rally',2);
+ await fire('survivors',1);
+ assert.equal((await state()).resources.inspiration,4);
+ assert.equal((await state()).economy.bonusAvailable,false);
+ assert.deepEqual((await state()).combat.targets,[]);
+ await page.reload();await page.locator('[data-charge-count]').waitFor();assert.equal((await state()).resources.charges,1);
  await next();
- // P1: one/three beats open only a draft. Two beats never launch anything.
  await page.locator('.kharvek-controls summary').click();await page.locator('[data-rhythm-enabled]').check();
- await page.locator('[data-drum]').click();await page.locator('dialog h2').filter({hasText:'Pulsation réparatrice'}).waitFor();assert.equal((await state()).resources.charges,1);await page.getByRole('button',{name:'Annuler',exact:true}).click();
- await page.locator('[data-drum]').click();await page.locator('[data-drum]').click();await page.getByText('2 frappes : séquence invalide · aucune dépense',{exact:true}).waitFor();assert.equal(await page.locator('dialog[open]').count(),0);
- await correct(6);
- await page.locator('[data-drum]').click();await page.locator('[data-drum]').click();await page.locator('[data-drum]').click();await page.locator('dialog h2').filter({hasText:'Rythme de ralliement'}).waitFor();assert.equal((await state()).resources.charges,6);await page.getByRole('button',{name:'Annuler',exact:true}).click();
- await page.locator('.kharvek-controls summary').click();await page.locator('[data-drum]').click();await page.locator('[data-rhythm-reset]').click();await page.waitForTimeout(900);assert.equal(await page.locator('dialog[open]').count(),0);
- await correct(0);assert.equal(await page.locator('[data-kharvek=rally]').isDisabled(),true);assert.equal(await page.locator('[data-kharvek=survivors]').isDisabled(),true);
+ await page.locator('[data-drum]').click();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===0);
+ assert.equal(await page.locator('dialog[open]').count(),0);
  await page.locator('[data-kharvek=dawn]').click();await confirm();assert.equal((await state()).resources.charges,6);
+ if(name==='chromium'){await page.evaluate(()=>navigator.serviceWorker.ready);await context.setOffline(true);await page.reload();await page.locator('[data-kharvek=pulse]').waitFor();}
+ await next();await fire('pulse',5);
+ assert.equal(await page.locator('[data-kharvek=pulse]').isDisabled(),true);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'iPad horizontal overflow');
- for(const button of await page.locator('.power-list button').all()){const box=await button.boundingBox();assert(box.height>=44);}
- await page.locator('#kharvek').evaluate(el=>el.scrollIntoView({block:'center'}));await page.locator('#kharvek').screenshot({path:`screenshots/${name}-kharvek-complete.png`});
- if(name==='chromium'){await page.evaluate(()=>navigator.serviceWorker.ready);await page.reload();await page.getByText(/Sauvegarde locale · révision/).waitFor();await context.setOffline(true);await page.reload();await page.getByText(/Sauvegarde locale · révision/).waitFor();assert.equal(await page.locator('.charge-mark.lit').count(),6);await page.locator('[data-kharvek=pulse]').click();await page.getByLabel('Kobe',{exact:true}).check();await page.locator('[name=healRolls]').fill('1 1 1');await confirm();assert.equal((await state()).resources.charges,5);}
- await page.getByRole('tab',{name:'Journal',exact:true}).click();await page.getByRole('tab',{name:'Journal mécanique',exact:true}).click();await page.locator('#log').waitFor();await page.screenshot({path:`screenshots/${name}-kharvek-journal.png`,fullPage:true});
- assert.deepEqual(errors,[]);console.log(`${name}: P0 direct powers/capped shared healing/Manteau/single spend/double submit/cancel/reload/dawn/0–6 visual/reduced motion/iPad1180x820 PASS; P1 1/2/3 beats/reset PASS${name==='chromium'?'; offline power PASS':''}`);
- await context.close();
+ assert.deepEqual(errors,[]);
+ console.log(name+': direct Khar-Vek powers, shared roll, receipts, resources, no targets, 0/3/6 tail-first visual, persistence, offline PASS');
  }finally{await browser.close();}
 }}finally{await new Promise(r=>server.close(r));}

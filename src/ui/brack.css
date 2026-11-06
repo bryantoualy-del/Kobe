@@ -358,3 +358,15 @@ body{background:radial-gradient(circle at 84% -12%,#822f3525,transparent 31rem),
 .score .slot-group .dot.on:before{background:#e5b963;box-shadow:0 0 7px #d4ba7e55}
 #kharvek .drum-pad{background:transparent;border:0;box-shadow:none}
 #kharvek .rhythm-feedback:empty{display:none}
+
+.cast-level{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px}
+.cast-level select{min-width:0;flex:1}
+.rpg-quick-connect{display:grid;gap:8px;padding:12px;margin:8px 0;border:1px solid rgba(120,160,210,.35);border-radius:12px;background:rgba(13,22,32,.72)}
+.rpg-quick-connect>small{opacity:.8}
+.rpg-quick-connect textarea{width:100%;box-sizing:border-box;resize:none;border:1px solid rgba(255,255,255,.16);border-radius:9px;background:rgba(0,0,0,.25);color:inherit;padding:9px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}
+.rpg-connect-config{display:none}.rpg-show-config .rpg-connect-config:not([hidden]){display:grid}
+.rpg-connect-details{margin-top:6px;opacity:.72}
+.rpg-end-turn-request{pointer-events:auto;margin-top:7px;min-height:34px;padding:6px 12px;border:1px solid rgba(211,154,82,.68);border-radius:9px;background:rgba(92,57,24,.5);color:#ffe4b3;font-weight:900}
+.rpg-connect [hidden]{display:none!important}
+.rpg-request{padding:12px 0;border-top:1px solid #466175}
+.rpg-request button{margin:6px 4px 0 0}

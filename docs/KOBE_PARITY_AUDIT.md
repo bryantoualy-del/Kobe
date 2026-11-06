@@ -12,3 +12,7 @@ La barre des Companions lit un état mutable global. Kobe reconstruit le DOM à 
 - Le carnet, la base de portraits et la génération ZIP proviennent de kentaro-session.js. Les références de campagne, les clés locales et les identifiants de session sont propres à Kobe. Les PNJ importés du coffre gardent leur chemin permanent.
 - Dans la version 1.4 de l’importeur, keep-newest pouvait remplacer des images, et un réimport pouvait créer une copie de session et de reçu. La 1.5 conserve les images existantes, reconnaît la session et écrit un reçu durable après application des choix. Les mises à jour PNJ utilisent Vault.process et les marqueurs historiques.
 - Une capture de chaque application de référence et de la vue Kobe correspondante figure dans recette-v11/compagnons.webp. Les couleurs, l’ordre des commandes et la densité restent appréciables côte à côte.
+
+#### Retour du 6 novembre
+Les formulaires propres à Kobe exigeaient des cibles locales pour utiliser des actions. Le joueur demande leur suppression complète. L’UI déclenche désormais le moteur avec un mode de résolution à la table. Les anciens chemins ciblés du moteur sont conservés pour compatibilité des effets et sauvegardes. Le grimoire reprend la sélection de niveau avant incantation du sélecteur de Samoth.
+L’interface réseau provient de Brackmard/rpg-connect-client.js, rpg-connect-client.css, rpg-group-view.js et rpg-table-view.css. Seule la présentation est adaptée au transport déjà validé de Kobe.

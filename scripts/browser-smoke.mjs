@@ -65,37 +65,15 @@ try{
     await page.getByRole('tab',{name:'Combat'}).click();
     await page.locator('#hp[value="73"]').waitFor();
    }
-   // Lot2: real form workflow, then persistence/offline. No injected combat state.
-   await page.locator('[data-combat-view=resources]').click();await page.getByText('Bénéficiaires et ennemis · suivi local').click();
-   await page.getByRole('button',{name:'Ajouter / actualiser une cible'}).click();
-   await page.getByLabel('Nom',{exact:true}).fill('Brack');
-   await page.getByLabel('Réaction déclarée').selectOption('yes');
-   await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog[open]').waitFor({state:'detached'});
-   await page.locator('[data-combat-view=offense]').click();await page.locator('.tactical-card [data-combat=inspiration]').click();
-   await page.getByLabel('Brack',{exact:true}).check();
-   await page.getByRole('button',{name:'Confirmer',exact:true}).dblclick();
-   await page.locator('dialog[open]').waitFor({state:'detached'});
+   await page.locator('[data-combat-view=offense]').click();
+   await page.locator('.tactical-card [data-combat=inspiration]').click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
-   await page.reload();
-   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.effects.filter(e=>e.kind==='inspiration').length),1);
-   await page.locator('[data-combat-view=resources]').click();await page.getByRole('button',{name:'Utiliser le d10',exact:true}).click();
-   await page.getByLabel('Résultat du d10').fill('7');
-   await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog[open]').waitFor({state:'detached'});
-   await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
-   
-
-   
-   await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();
-   await page.locator('[data-combat-view=offense]').click();await page.locator('.tactical-card [data-combat=mantle]').click();
-   await page.getByLabel('Brack',{exact:true}).check();
-   await page.getByLabel('Déplacement immédiat confirmé').check();
-   await page.getByRole('button',{name:'Confirmer',exact:true}).click();
-   await page.locator('dialog[open]').waitFor({state:'detached'});
+   assert.equal(await page.locator('dialog[open]').count(),0);
+   await page.reload();await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+   await page.locator('.tactical-card [data-combat=mantle]').click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
-   const target=await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.combat.targets[0]);
-   assert.equal(target.temp,11);assert.equal(target.reaction,false);
+   assert.equal(await page.locator('dialog[open],.spell-inline').count(),0);
+   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.combat.targets),[]);
    if(label==='chromium')await context.setOffline(true);
    await page.reload();
    await page.getByRole('heading',{name:'Capacités de combat'}).waitFor();
@@ -107,9 +85,9 @@ try{
    await page.getByRole('heading',{name:'Représentation captivante',exact:true}).waitFor();
    await page.screenshot({path:'screenshots/'+label+'-social.png',fullPage:true});
    await page.getByRole('tab',{name:'Journal',exact:true}).click();
-   await page.locator('.rpg-journal-action > p').filter({hasText:'Manteau : 11 PV temporaires proposés'}).first().waitFor();
+   await page.locator('.rpg-journal-action > p').filter({hasText:'Manteau : 11 PV temporaires'}).first().waitFor();
    await page.screenshot({path:'screenshots/'+label+'-journal.png',fullPage:true});
-   console.log(label+': Lot2 forms, double click, Inspiration, Manteau, reactions, reload and screenshots PASS');
+   console.log(label+': Direct Inspiration, Manteau, no targeting, reload and screenshots PASS');
    assert.deepEqual(errors,[],label+' errors');
    await context.close();
    console.log(label+': five tabs, persistence, journal PASS'+(label==='chromium'?', offline reload PASS':', offline reload unverified (Playwright WebKit limitation)'));

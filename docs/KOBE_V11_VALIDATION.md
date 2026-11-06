@@ -29,3 +29,8 @@ Le tableau a été réorganisé selon Brack. Le vestige est désormais un cinqui
 
 ### Recette des ajustements du 5 novembre
 Chromium automatisé à 1180 × 820 : plein écran du d20 de Trait de feu avant le verdict, filtres et recherche, sorts multicibles, quatre favoris, renouvellement du tour, distribution des PNJ, passage hors ligne. Les sept positions de découpe du dragon sont vérifiées, avec captures à 0, 3 et 6 charges. Le test RPG Connect utilise le serveur V5. Aucune manipulation sur iPad physique pour cette livraison.
+
+### 6 novembre · Régression sur les formulaires de cible
+152 tests Node réussis, dont 19 incantations sans cible, les capacités bardiques, les trois soins du vestige, limites de ressources, Silence, incapacitation, sérialisation et Undo.
+Contrôle visuel manuel en navigateur de développement effectué sur Inspiration, Manteau, Boule de feu, panneau de connexion et éditeur personnel. Les scripts de recette vérifient désormais les actions directes, l’absence de formulaires de cible, les filtres et favoris, le niveau d’incantation inline, les ressources et le remplacement de concentration. Les tests de réseau gardent un serveur isolé et les contrôles de rejeu/confidentialité.
+Validation physique iPad Air 5 toujours à réaliser.
