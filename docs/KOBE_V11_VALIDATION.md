@@ -34,3 +34,10 @@ Chromium automatisé à 1180 × 820 : plein écran du d20 de Trait de feu avant 
 152 tests Node réussis, dont 19 incantations sans cible, les capacités bardiques, les trois soins du vestige, limites de ressources, Silence, incapacitation, sérialisation et Undo.
 Contrôle visuel manuel en navigateur de développement effectué sur Inspiration, Manteau, Boule de feu, panneau de connexion et éditeur personnel. Les scripts de recette vérifient désormais les actions directes, l’absence de formulaires de cible, les filtres et favoris, le niveau d’incantation inline, les ressources et le remplacement de concentration. Les tests de réseau gardent un serveur isolé et les contrôles de rejeu/confidentialité.
 Validation physique iPad Air 5 toujours à réaliser.
+
+### 6 novembre · Interface compacte et dés réservés au Social
+Les animations du moteur de dés ne se déclenchent que depuis les jets du Social. Trait de feu garde le calcul, le verdict Touché/Raté et la résolution transactionnelle ; les initiatives de Combat et RPG Connect sont affichées sans animation. Palette du dé : rouge, or et cuivre, y compris le rendu de secours sans WebGL.
+
+Combat comporte Attaques et Khar-Vek. Les anciens onglets Ressources et Capacités sont retirés ; un ancien onglet mémorisé revient sur Attaques. Les capacités restent dans l’accès rapide, les effets/résolutions et corrections restent accessibles dans Suivi & ajustements. Khar-Vek propose des boutons 0 à 6 pour régler directement les charges via la commande de correction existante (sauvegarde et Undo inchangés). Les commandes gestuelles de percussion et leur temporisation ne sont plus exposées. Le dragon et ses pouvoirs sont conservés.
+
+Les cartes du grimoire sont compactées en trois colonnes au format paysage ; niveau et lancement sont sur la même ligne, descriptions et liens AideDD restent dépliables. Contrôles tactiles d’au moins 44 px conservés. Tests moteur : 152 réussis ; compilation et contrôles statiques réussis. Les scénarios navigateur vérifient absence d’animation en attaque, présence en Social, charges cliquables 0–6 et reprise, ainsi que hauteur des cartes. Validation Safari sur iPad physique non réalisée.

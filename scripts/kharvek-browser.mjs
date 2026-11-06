@@ -12,7 +12,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state);
  const confirm=async()=>{await page.locator('dialog[open] [type=submit]').click();await page.locator('dialog[open]').waitFor({state:'detached'});};
  const next=async()=>{await page.getByRole('button',{name:'Fin de tour',exact:true}).click();await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();};
- const correct=async value=>{await page.locator('[data-kharvek=correct]').click();await page.locator('[name=value]').fill(String(value));await confirm();};
+ const correct=async value=>{await page.locator('[data-charge-value="'+value+'"]').click();await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===n,value);assert.equal(await page.locator('dialog[open]').count(),0);};
  await page.goto('http://127.0.0.1:'+server.address().port);await page.getByText(/Sauvegarde locale · révision/).waitFor();
  await page.locator('[data-combat-view=kharvek]').click();assert.equal(await page.locator('[data-charge-count]').innerText(),'0 / 6');await mkdir('screenshots',{recursive:true});
  for(const charges of [0,1,2,3,4,5,6]){await correct(charges);assert.equal(await page.locator('.charge-mark.lit').count(),charges);assert.equal(Number(await page.locator('#dragon-fill rect').getAttribute('x')),(6-charges)*256);assert.equal(await page.locator('[data-charge-count]').textContent(),`${charges} / 6`);assert.equal(await page.locator('svg[data-dragon]').getAttribute('data-dragon'),charges<2?'dormant':charges<4?'awakening':charges<6?'coiling':'complete');if([0,3,6].includes(charges)){await page.locator('#kharvek').evaluate(el=>el.scrollIntoView({block:'center'}));await page.locator('#kharvek').screenshot({path:`screenshots/${name}-kharvek-${charges}.png`});}}
@@ -33,13 +33,14 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  assert.deepEqual((await state()).combat.targets,[]);
  await page.reload();await page.locator('[data-charge-count]').waitFor();assert.equal((await state()).resources.charges,1);
  await next();
- await page.locator('.kharvek-controls summary').click();await page.locator('[data-rhythm-enabled]').check();
- await page.locator('[data-drum]').click();
+ assert.equal(await page.locator('[data-rhythm-enabled],[data-rhythm-window],[data-drum],[data-kharvek=correct]').count(),0);
+ await page.locator('[data-kharvek=pulse]').click();
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===0);
  assert.equal(await page.locator('dialog[open]').count(),0);
  await page.locator('[data-kharvek=dawn]').click();await confirm();assert.equal((await state()).resources.charges,6);
  if(name==='chromium'){await page.evaluate(()=>navigator.serviceWorker.ready);await context.setOffline(true);await page.reload();await page.locator('[data-kharvek=pulse]').waitFor();}
- await next();await fire('pulse',5);
+ await correct(3);await page.reload();await page.locator('[data-charge-count]').waitFor();assert.equal((await state()).resources.charges,3);
+ await correct(6);await next();await fire('pulse',5);
  assert.equal(await page.locator('[data-kharvek=pulse]').isDisabled(),true);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'iPad horizontal overflow');
  assert.deepEqual(errors,[]);

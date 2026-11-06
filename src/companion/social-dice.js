@@ -1,4 +1,4 @@
-window.CompanionDiceTheme={"id":"kobe","primary":"#B86637","rim":"#E5B963","secondary":"#e8f7ff","floor":"#0b1725","surface":["#8ac5e4","#4f90bd","#285370","#142a42"],"edge":"#e6f6ff","aura":"rgba(110,184,232,.24)","border":"#6aa9ce","panel":"#32251f","glow":"#8bcff588","text":"#eaf8ff"};
+window.CompanionDiceTheme={"id":"kobe","primary":"#872F35","rim":"#E5B963","secondary":"#B86637","floor":"#151419","surface":["#C5503D","#872F35","#57252B","#28181E"],"edge":"#E5B963","aura":"rgba(184,102,55,.24)","border":"#B86637","panel":"#32201F","glow":"#E5B96388","text":"#F0E5CE"};
 /* Companion social rolls use the character's own rules; this only presents Pik's d20 engine. */
 (function(){
   const theme=window.CompanionDiceTheme;
@@ -9,7 +9,7 @@ window.CompanionDiceTheme={"id":"kobe","primary":"#B86637","rim":"#E5B963","seco
   const pending=[];
   let last='',scheduled=false;
   const root=document.documentElement;
-  for(const [name,value] of Object.entries({aura:theme.aura,highlight:theme.rim,border:theme.border,panel:theme.panel,glow:theme.glow,text:theme.text}))root.style.setProperty('--cc-dice-'+name,value);
+  for(const [name,value] of Object.entries({primary:theme.primary,secondary:theme.secondary,aura:theme.aura,highlight:theme.rim,border:theme.border,panel:theme.panel,glow:theme.glow,text:theme.text}))root.style.setProperty('--cc-dice-'+name,value);
   function dispatch(opts){if(window.CompanionDiceEngine)window.CompanionDiceEngine.roll(opts);else pending.push(opts)}
   window.CompanionSocialDice={
     show({label,dice,bonus,total,mode}){

@@ -33,8 +33,10 @@ try{
    await page.locator('#signature-dice').fill('4 17');
    await page.emulateMedia({reducedMotion:'no-preference'});
    await page.locator('[data-signature]').click();
-   const overlay=page.locator('#ccDiceOverlay.open[data-dismissable="1"]');await overlay.waitFor();
-   assert.deepEqual(await overlay.boundingBox(),{x:0,y:0,width:1180,height:820});await overlay.click();await page.emulateMedia({reducedMotion:'reduce'});
+   assert.equal(await page.locator('#ccDiceOverlay.open').count(),0);
+   assert.equal(await page.locator('[data-combat-view]').count(),2);
+   assert.equal(await page.locator('[data-combat-view=resources],[data-combat-view=powers]').count(),0);
+   await page.emulateMedia({reducedMotion:'reduce'});
    assert.equal(await page.locator('.hit-roll').innerText(),'26');
    await capture('confirmation-jet');
    await page.getByRole('button',{name:'Touché',exact:true}).click();
@@ -60,6 +62,12 @@ try{
    await tab('Social');
    await page.locator('[data-social-view=profile]').click();await page.locator('[data-roll=Persuasion]').waitFor();
    assert.equal(await page.locator('[data-roll]').count(),31);
+   await page.emulateMedia({reducedMotion:'no-preference'});
+   await page.locator('[data-roll=Persuasion]').click();
+   const overlay=page.locator('#ccDiceOverlay.open[data-dismissable="1"]');await overlay.waitFor();
+   assert.deepEqual(await overlay.boundingBox(),{x:0,y:0,width:1180,height:820});
+   assert.equal(await page.evaluate(()=>CompanionDiceTheme.primary),'#872F35');
+   await capture('social-dice');await overlay.click();await page.emulateMedia({reducedMotion:'reduce'});
    await page.locator('#physical').check();
    for(const [name,mode,dice,total] of [['Persuasion','adv','4 17',30],['Représentation','normal','11',24],['Sauvegarde Dextérité','normal','12',18]]){
     if(name.startsWith('Sauvegarde'))await page.locator('[data-roll-pane=abilities]').click();

@@ -45,6 +45,9 @@ try {
       await page.getByRole('tab',{name:'Sorts & pouvoirs',exact:true}).click();
       await page.getByRole('heading',{name:'Emplacements',exact:true}).waitFor();
       assert.equal(await page.locator('[data-spell-card]').count(),19);
+      const cards=await page.locator('.spell-section').first().locator('.spell').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,height:r.height};}));
+      assert.equal(cards[0].y,cards[1].y,'compact cards share a row');
+      assert(cards.every(c=>c.height<230),'compact collapsed spell cards');
       await page.locator('[data-spell-filter="Soins"]').click();
       assert.equal(await page.locator('[data-spell-card]:visible').count(),2);
       await page.locator('[data-spell-filter="Tous"]').click();
