@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: bryantoualy-del/RPG-Connect
-          ref: f1c441dbe9bc097e94677b6e98abc9cf66d8fb9d
+          ref: 5b13cd5f28e483088550cad3b2b893dde4ae2d3a
           path: .v5-test
           persist-credentials: false
       - name: Run canonical V5 server tests

@@ -13,8 +13,8 @@ export function drumSVG(charges){
    </filter>
    <mask id="dragon-mask" style="mask-type:alpha"><image width="1536" height="512" href="./src/ui/dragon.webp" filter="url(#dragon-shape)"/></mask>
    <filter id="dragon-outline" x="-2%" y="-3%" width="104%" height="106%">
-     <feMorphology in="SourceAlpha" operator="dilate" radius="2.5" result="outer"/>
-     <feFlood flood-color="#b5adb0"/><feComposite in2="outer" operator="in"/>
+     <feMorphology in="SourceAlpha" operator="dilate" radius="1.5" result="outer"/>
+     <feFlood flood-color="#8c6e50"/><feComposite in2="outer" operator="in"/>
      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
    </filter>
    <mask id="dragon-fill"><g fill="none" stroke="white" stroke-width="285" stroke-linecap="round">${segments.slice(0,charges).map(d=>`<path d="${d}"/>`).join('')}</g>${charges===6?'<rect width="1536" height="512" fill="white"/>':''}</mask>

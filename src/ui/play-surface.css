@@ -73,3 +73,5 @@
 }
 /* The imported journal offset assumed the old permanent combat header. */
 .app #sessionDesk .journal-subtabs{position:static;top:auto}
+
+.app .drum-pad .dragon-art{background:transparent}
