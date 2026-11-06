@@ -274,7 +274,7 @@ export function spellCommand(s, c) {
         kind = "heal";
         label =
           `${spell.name} N${level} : ${amount} PV · ` +
-          (p.table === true ? ["À annoncer à la table"] : targetIds
+          (p.table === true ? "À annoncer à la table" : targetIds
             .map((id) => `${id} : ${applyHP(s, id, amount, true, c)}`)
             .join(" ; "));
       } else if (spell.save || spell.attack) {
