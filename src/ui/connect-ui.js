@@ -64,8 +64,7 @@ export function mountConnect(store,quickActions,dispatch){
       const die=value===''?1+Math.floor(Math.random()*20):Number(value);
       const r=await client.initiative(initiative.dataset.request,die);
       notice=r.message||'Initiative envoyée';render(client.status());
-      if(r.ok)window.CompanionSocialDice.show({label:'Initiative',dice:[die],bonus:4,total:die+4,mode:'normal'});
-      else initiative.querySelector('[data-init-result]').textContent=notice;
+      if(!r.ok)initiative.querySelector('[data-init-result]').textContent=notice;
     }finally{button.disabled=false;}
   };
   const client=createConnect({store,onChange:render,onActivity:(room,rows)=>document.dispatchEvent(new CustomEvent('kobe-activity',{detail:{room,rows}}))});

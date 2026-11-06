@@ -370,3 +370,30 @@ body{background:radial-gradient(circle at 84% -12%,#822f3525,transparent 31rem),
 .rpg-connect [hidden]{display:none!important}
 .rpg-request{padding:12px 0;border-top:1px solid #466175}
 .rpg-request button{margin:6px 4px 0 0}
+
+/* Compact play surface: secondary controls remain accessible without duplicate tabs. */
+.combat-tools{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.combat-tools>summary{min-height:44px;cursor:pointer;padding:12px 0;color:var(--muted)}
+.combat-tools[open]{padding-bottom:12px}.combat-tools .panel{margin-top:10px}
+#kharvek .charge-mark{width:44px;height:44px;min-height:44px;padding:0;font-size:14px;flex-shrink:0}
+#kharvek .charge-mark[aria-pressed=true]{outline:2px solid var(--gold);outline-offset:3px}
+#kharvek div.drum-pad{cursor:default}
+.score .spell-section{padding:12px}.score .spell-section h2{margin:0 0 10px;font-size:1.1rem}
+.score .spell-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;gap:8px}
+.score .spell{padding:10px;gap:3px;min-width:0}
+.score .spell h3{margin:0;font-size:1rem;line-height:1.25}
+.score .spell .meta{min-height:0;font-size:12px;line-height:1.4}
+.score .spell .spell-doc{margin:0;border:0;padding:0}
+.score .spell .spell-doc summary{min-height:44px;display:flex;align-items:center;font-size:12px;cursor:pointer}
+.score .spell .spell-doc summary::before{content:'▸';margin-right:6px}
+.score .spell .spell-doc[open] summary::before{content:'▾'}
+.spell-cast-actions{display:flex;align-items:center;flex-wrap:nowrap;gap:6px;margin-top:3px}
+.spell-cast-actions .cast-level{margin:0;gap:4px;font-size:11px;flex:1;min-width:0}
+.spell-cast-actions .cast-level select{width:100%;min-height:44px;padding:4px;font-size:12px}
+.spell-cast-actions button,.score .spell .primary{margin:0;min-height:44px;padding:6px 10px;font-size:13px;flex-shrink:0}
+.spell-cast-actions [data-favorite]{min-width:44px;padding:6px}
+.favorites-panel .spell-card{padding:10px}.favorites-panel .spell-meta{margin:6px 0;line-height:1.4}
+.favorites-panel .spell-status{margin-bottom:6px}.favorites-panel .spell-title h3{line-height:1.3}
+.favorites-panel .spell-cast-actions{flex-wrap:wrap}.favorites-panel .spell-cast-actions .cast-level{flex-basis:100%}
+@media(max-width:1000px){.score .spell-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.score .spell-grid{grid-template-columns:1fr}#kharvek .charge-marks{gap:6px}}
