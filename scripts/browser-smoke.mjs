@@ -41,7 +41,6 @@ try{
    await page.locator('#hp[value="73"]').waitFor();
    await page.getByRole('tab',{name:'Social'}).click();
    await page.getByLabel('Notes de Kobe').fill('Roark à retrouver.');
-   await page.getByRole('button',{name:'Enregistrer les notes'}).click();
    await page.waitForFunction(() => JSON.parse(localStorage.getItem('kobe-companion:v1') || '{}').state?.notes === 'Roark à retrouver.');
    await page.reload();
    assert.equal(await page.getByLabel('Notes de Kobe').inputValue(),'Roark à retrouver.');

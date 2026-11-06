@@ -411,3 +411,11 @@ Les animations du moteur de dés ne se déclenchent que depuis les jets du Socia
 Combat comporte Attaques et Khar-Vek. Les anciens onglets Ressources et Capacités sont retirés ; un ancien onglet mémorisé revient sur Attaques. Les capacités restent dans l’accès rapide, les effets/résolutions et corrections restent accessibles dans Suivi & ajustements. Khar-Vek propose des boutons 0 à 6 pour régler directement les charges via la commande de correction existante (sauvegarde et Undo inchangés). Les commandes gestuelles de percussion et leur temporisation ne sont plus exposées. Le dragon et ses pouvoirs sont conservés.
 
 Les cartes du grimoire sont compactées en trois colonnes au format paysage ; niveau et lancement sont sur la même ligne, descriptions et liens AideDD restent dépliables. Contrôles tactiles d’au moins 44 px conservés. Tests moteur : 152 réussis ; compilation et contrôles statiques réussis. Les scénarios navigateur vérifient absence d’animation en attaque, présence en Social, charges cliquables 0–6 et reprise, ainsi que hauteur des cartes. Validation Safari sur iPad physique non réalisée.
+
+
+## 6 novembre — suite de l’audit UX iPhone
+- En-tête contextuel, barre de tour mobile en grille, navigation basse et commandes PV sans chevauchement.
+- Console Khar-Vek : trois soins dans Combat, coûts combinés explicites, charges 0–6 sur une ligne et masque serpentin de la queue à la tête.
+- Résultat persistant avec Annuler ; notes privées autosauvegardées ; invitation RPG Connect restaurée après rechargement et oubliée sur déconnexion explicite.
+- 154 tests moteur passent. Serveur : 10 tests passent et PR7 fusionnée. Encounter : validation locale V5 et MJ 8/8 ; manifeste CI réparé pour utiliser le serveur comprenant Kobe.
+- Recette navigateur et CI de livraison en cours. iPhone/iPad physiques non disponibles ; ne pas assimiler WebKit à une recette physique.

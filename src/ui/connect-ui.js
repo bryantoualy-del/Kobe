@@ -67,7 +67,7 @@ export function mountConnect(store,quickActions,dispatch){
       if(!r.ok)initiative.querySelector('[data-init-result]').textContent=notice;
     }finally{button.disabled=false;}
   };
-  const client=createConnect({store,onChange:render,onActivity:(room,rows)=>document.dispatchEvent(new CustomEvent('kobe-activity',{detail:{room,rows}}))});
+  const client=createConnect({store,connectionStorage:localStorage,onChange:render,onActivity:(room,rows)=>document.dispatchEvent(new CustomEvent('kobe-activity',{detail:{room,rows}}))});
   shell.addEventListener('click',async e=>{
     const b=e.target.closest('button');if(!b)return;
     try{
@@ -100,6 +100,6 @@ export function mountConnect(store,quickActions,dispatch){
       if(r?.ok)editor.close();else editor.querySelector('[role=alert]').textContent=r?.message||'Correction refusée';
     }finally{b.disabled=false;}
   };
-  store.subscribe(()=>render(client.status()));render(client.status());
+  store.subscribe(()=>render(client.status()));render(client.status());client.resume();
   return client;
 }
