@@ -399,3 +399,8 @@ L’attaque signature se prépare depuis Attaques. Une cible annoncée oralement
 
 ### 5 novembre · Combat, grimoire et vestige
 Khar-Vek rejoint les sous-vues de Combat. Les commandes de suivi, de défense et de correction sont accessibles depuis Ressources. Le bouton doré clôt et renouvelle le tour local dans une transaction. Avec un MJ connecté, il transmet la fin de tour à RPG Connect. Le grimoire reprend les groupes de niveau, points d’emplacement, filtres, descriptions dépliables et liens AideDD de Samoth. Les favoris restent accessibles en Combat. Le nouvel emblème WebP possède une couche alpha.
+
+### 6 novembre · Actions directes et présentation RPG Connect commune
+Le clic sur un sort, une capacité bardique ou un pouvoir du vestige utilise les commandes transactionnelles existantes avec une résolution annoncée à la table. Aucun bénéficiaire, nombre de cibles, case d’admissibilité ou confirmation narrative n’est demandé. Le niveau/rituel se choisit sur la carte avant Lancer. Les PV des autres créatures ne sont pas inventés ou automatiquement modifiés. Le résultat, les ressources, l’économie d’action, la concentration, les durées et Undo restent enregistrés. Le suivi explicite des anciennes sauvegardes reste décodable et les anciens appels du moteur restent testés.
+
+RPG Connect reprend le cadre HTML et le CSS de Brackmard/rpg-connect-client ainsi que les cartes de rpg-group-view et rpg-table-view. Bouton RPG flottant, panneau d’invitation, bannière de session, initiative, onglet Groupe, édition personnelle et raccourcis utilisent le transport V5 existant. Les jets privés restent locaux. La connexion automatique mémorisée de Brack ne fait pas partie de ce changement de présentation.

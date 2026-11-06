@@ -32,13 +32,13 @@ try{
   send({type:'invite',characterId:'kobe'});const token=(await until(()=>rx.find(m=>m.type==='invite'),'invite')).payload.token;
   const browser=await engine.launch();
   try{
-   const context=await browser.newContext({viewport:{width:1180,height:820},hasTouch:true});
+   const context=await browser.newContext({viewport:{width:1180,height:820},hasTouch:true,reducedMotion:'reduce'});
    let page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-   await page.goto(address);await page.getByRole('link',{name:'Groupe / connexion'}).click();
+   await page.goto(address);await page.getByRole('tab',{name:'Groupe',exact:true}).click();await page.getByRole('button',{name:'RPG Connect',exact:true}).click();
    const joinRoom=async()=>{
      await page.getByLabel('Invitation Kobe').fill('RPGCONNECT|'+endpoint+'|'+room+'|kobe|'+token);
      await page.getByRole('button',{name:'Rejoindre la partie'}).click();
-     await page.getByText(/MJ : en ligne/).waitFor();
+     await page.getByText(/Connecté · MJ en ligne/).waitFor();
    };
    await joinRoom();
    const touchCounts={};await page.evaluate(()=>{window.__taps=0;document.addEventListener('click',()=>window.__taps++,true);});
@@ -47,7 +47,7 @@ try{
    assert.equal(first.state.hp.current,83);assert.equal(first.state.characterId,'kobe');assert.ok(!('resources' in first.state));
    const command=(id,type,payload)=>send({type:'command',room,characterId:'kobe',event:{id,type,payload,characterId:'kobe'}});
    command('group','state:sync',{syncEpoch:'A',groupRevision:1,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current:45,max:60,temp:3}},{id:'e',kind:'enemy',name:'Garde',health:{current:90,max:90}}]});
-   await page.getByText(/45\/60 PV/).waitFor();
+   await page.getByText(/45 \/ 60 PV/).waitFor();
    const correct=()=>command('correction-1','hp:set',{manualTable:true,expectedValue:83,value:60});
    correct();await page.getByRole('button',{name:'Appliquer cette correction'}).click();
    await until(()=>rx.some(m=>m.type==='command-ack'&&m.id==='correction-1'),'accepted correction');
@@ -56,25 +56,25 @@ try{
    assert.equal(await hp(),60);
    correct();await until(()=>rx.some(m=>m.id==='correction-1'&&m.result==='already-reviewed'),'duplicate acknowledgment');
    command('initiative-1','initiative:request',{requestId:'fight-1'});
-   await page.getByRole('button',{name:'Transmettre mon initiative'}).click();await page.locator('[name=answer]').fill('12');await page.locator('[data-dialog-accept]').click();
+   await page.locator('[data-init-manual]').fill('12');await page.locator('[data-init-roll]').click();
    const ev=await until(()=>rx.find(m=>m.type==='event'&&m.event.type==='initiative:rolled'),'initiative');
    assert.equal(ev.event.payload.total,16);send({type:'event-ack',id:ev.event.id});
    touchCounts.initiative=(await count())-start;
    const old=rooms.get(room).players.get('kobe');
    old.terminate();await until(()=>rooms.get(room).players.get('kobe')!==old&&rooms.get(room).players.get('kobe'),'reconnected');
    assert.equal(await hp(),60);
-   await page.getByRole('button',{name:'Déconnecter',exact:true}).click();
+   await page.locator('[data-toggle-config]').click();await page.getByRole('button',{name:'Déconnecter',exact:true}).click();
    start=await count();await page.getByRole('button',{name:'Soin',exact:true}).click();await page.locator('[name=answer]').fill('5');await page.locator('[data-dialog-accept]').click();
    await page.locator('#hp[value="65"]').waitFor();
    touchCounts.heal=(await count())-start;console.log(name+' FRICTION measured DOM clicks (text entry and native prompt excluded): '+JSON.stringify(touchCounts));
    await page.close();page=await context.newPage();await page.goto(address);
    await page.locator('#hp[value="65"]').waitFor();
-   await page.getByRole('link',{name:'Groupe / connexion'}).click();await joinRoom();
+   await page.getByRole('tab',{name:'Groupe',exact:true}).click();await page.getByRole('button',{name:'RPG Connect',exact:true}).click();await joinRoom();
    await until(()=>rx.some(m=>m.type==='state'&&m.state.hp.current===65),'current snapshot only');
    correct();await until(()=>rx.filter(m=>m.id==='correction-1'&&m.result==='already-reviewed').length>=2,'persisted duplicate receipt');
    assert.equal(await hp(),65);assert.ok(!rx.some(m=>m.type==='event'&&/heal|damage/.test(m.event.type)));
    command('group2','state:sync',{syncEpoch:'A',groupRevision:2,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current:45,max:60,temp:3}}]});
-   await page.getByText(/45\/60 PV/).waitFor();await page.locator('#rpg-connect').scrollIntoViewIfNeeded();
+   await page.getByText(/45 \/ 60 PV/).waitFor();await page.locator('#rpg-connect').scrollIntoViewIfNeeded();
    await page.screenshot({path:'screenshots/'+name+'-lot5-table.png'});assert.deepEqual(errors,[]);
    console.log(name+': real V5 invite, private projection, group, correction/replay, initiative 12+4, reconnect, closed tab, latest HP snapshot and persistent receipt PASS');
   }finally{await browser.close();gm.close();}

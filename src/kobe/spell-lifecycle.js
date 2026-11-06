@@ -44,7 +44,7 @@ export function validateSpellState(s, spellById) {
       need(e.applied === true && integer(e.amount, 5, 20));
     if (e.spellId === "mirror-image") need(integer(e.duplicates, 1, 3));
     if (e.spellId === "enhance-ability")
-      need(["FOR", "DEX", "CON", "INT", "SAG", "CHA"].includes(e.ability));
+      need(["FOR", "DEX", "CON", "INT", "SAG", "CHA", "table"].includes(e.ability));
     if (e.repeat) need(e.repeat === "end");
     if (e.turns)
       for (const n of Object.values(e.turns)) need(integer(n, 1, 1000000));

@@ -65,6 +65,20 @@ export function transition(state, command, context = {}) {
         if (p.turn !== state.turn.startRevision + 1 || p.epoch !== state.turn.epoch || p.combatId !== state.turn.combatId) fail('STALE_REVISION','Tour déjà traité ou hors séquence.');
         advance(s,6); s.effects=s.effects.filter(e=>!e.untilTurn||e.untilTurn>p.turn); s.combat.round++;s.combat.turnDamage=0;s.combat.phase='active';s.combat.bonusSpell=false;s.combat.leveledAction=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`; break;
       }
+      case 'self-correct': {
+        integer(p.hp,0,s.hp.max);integer(p.temp,0,10000);integer(p.ac,0,100);
+        if(typeof p.reaction!=='boolean'||typeof p.concentration!=='string'||p.concentration.length>120||!Array.isArray(p.conditions)||p.conditions.some(x=>typeof x!=='string'||!x||x.length>120))fail('INVALID_COMMAND','Correction personnelle invalide.');
+        s.hp.current=p.hp;s.hp.temp=p.temp;s.profile.ac=p.ac;s.economy.reactionAvailable=p.reaction;
+        if(p.hp>0)s.combat.death={success:0,failure:0,stable:false,dead:false};
+        if(p.concentration!==(s.concentration?.name||'')){
+          endConcentration(s);
+          if(p.concentration)s.concentration={id:command.id,name:p.concentration};
+        }
+        s.effects=s.effects.filter(e=>e.kind!=='condition'||p.conditions.includes(e.conditionName));
+        s.combat.conditions=[...new Set(p.conditions)];
+        if(!p.hp||p.conditions.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x)))endConcentration(s);
+        label='État personnel actualisé';break;
+      }
       case 'correct': {
         if (typeof p.reason !== 'string' || p.reason.length > 500) fail('INVALID_COMMAND','Motif invalide.');
         if (p.field === 'hp') { integer(p.value, 0, s.hp.max); s.hp.current = p.value; if(p.value===0)endConcentration(s);else s.combat.death={success:0,failure:0,stable:false,dead:false}; }

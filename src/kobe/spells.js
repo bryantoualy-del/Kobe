@@ -138,11 +138,11 @@ export function spellCommand(s, c) {
       const av = spellAvailability(s, spell, level, ritual);
       need(av.ok, av.label);
       need(
-        p.eligible === true && p.components === true,
+        p.table === true || p.eligible === true && p.components === true,
         "Confirmez cibles, portée, conditions et composantes.",
       );
-      targetIds = spell.maxTargets === 0 ? ["kobe"] : (p.targetIds ?? []);
-      if (spell.maxTargets !== 0)
+      targetIds = spell.maxTargets === 0 ? ["kobe"] : p.table === true ? (spell.attack ? ["Cible annoncée"] : []) : (p.targetIds ?? []);
+      if (spell.maxTargets !== 0 && p.table !== true)
         need(
           Array.isArray(targetIds) &&
             targetIds.length > 0 &&
@@ -153,12 +153,12 @@ export function spellCommand(s, c) {
         );
       if (spell.concentration || spell.seconds || ritual)
         need(
-          !s.concentration || p.replaceConcentration === true,
+          p.table === true || !s.concentration || p.replaceConcentration === true,
           "Confirmez le remplacement de concentration.",
         );
       if (spell.seconds || ritual)
         need(
-          p.uninterrupted === true,
+          p.table === true || p.uninterrupted === true,
           "Incantation longue : confirmer concentration ininterrompue et actions consacrées pendant toute la durée.",
         );
       spendAction(s, spell.economy, null, costs);
@@ -192,7 +192,7 @@ export function spellCommand(s, c) {
       }
       if (spell.id === "enhance-ability") {
         need(
-          ["FOR", "DEX", "CON", "INT", "SAG", "CHA"].includes(p.ability),
+          p.table === true && p.ability === "table" || ["FOR", "DEX", "CON", "INT", "SAG", "CHA"].includes(p.ability),
           "Caractéristique requise.",
         );
         if (p.ability === "CON") {
@@ -268,15 +268,15 @@ export function spellCommand(s, c) {
       }
       if (spell.healing) {
         need(
-          p.healingEligible === true,
+          p.table === true || p.healingEligible === true,
           "Non morte-vivante, non artificielle ; soin possible à confirmer.",
         );
         kind = "heal";
         label =
           `${spell.name} N${level} : ${amount} PV · ` +
-          targetIds
+          (p.table === true ? ["À annoncer à la table"] : targetIds
             .map((id) => `${id} : ${applyHP(s, id, amount, true, c)}`)
-            .join(" ; ");
+            .join(" ; "));
       } else if (spell.save || spell.attack) {
         const attackRoll = spell.attack
           ? roll(
@@ -318,8 +318,13 @@ export function spellCommand(s, c) {
               : null,
           });
         rolls = [...rolls, ...(p.attackRolls ?? [])];
-        label = `${spell.name} N${level} · ${spell.attack ? `attaque ${natural}+9 = ${natural + 9}` : spell.save + " DD17"} · ${amount ? amount + " " + spell.damageType + " bruts · " : ""}${targetIds.length} résultat(s) MJ attendu(s)`;
+        label = `${spell.name} N${level} · ${spell.attack ? `attaque ${natural}+9 = ${natural + 9}` : spell.save + " DD17"} · ${amount ? amount + " " + spell.damageType + " bruts · " : ""}${p.table===true?'à annoncer à la table':targetIds.length+' résultat(s) MJ attendu(s)'}`;
       } else if (spell.id === "dispel-magic") {
+        if(p.table===true){
+          const natural=roll(p.checkRolls,1,20);rolls=p.checkRolls;
+          label=spell.name+" N"+level+" · dissipe automatiquement les sorts jusqu’à N"+level+" · test CHA "+natural+" + 7 = "+(natural+7)+" si niveau supérieur (DD 10 + niveau)";
+          break;
+        }
         need(
           Array.isArray(p.spellLevels) &&
             p.spellLevels.length > 0 &&

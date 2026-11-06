@@ -21,7 +21,7 @@ await new Promise(r=>http.listen(0,'127.0.0.1',r));
 const origin='http://127.0.0.1:'+http.address().port;
 const browser=await chromium.launch();const errors=[];
 async function app(name){
- const page=await browser.newPage({viewport:name==='Encounter'?{width:1280,height:800}:{width:1180,height:820},hasTouch:true});
+ const page=await browser.newPage({viewport:name==='Encounter'?{width:1280,height:800}:{width:1180,height:820},hasTouch:true,reducedMotion:'reduce'});
  page.on('pageerror',e=>errors.push(name+': '+e.message));
  await page.route('https://cdn.jsdelivr.net/npm/three@0.186.1/build/*',async route=>route.fulfill({body:await readFile(resolve('.v5-env/Encounter/node_modules/three/build',route.request().url().split('/').at(-1))),contentType:'text/javascript'}));
  await page.goto(origin+'/'+name+'/index.html');return page;
@@ -39,10 +39,10 @@ try{
   await p.evaluate(({endpoint,room,token})=>{document.querySelector('[name=endpoint]').value=endpoint;document.querySelector('[name=room]').value=room;document.querySelector('[name=token]').value=token;RPGConnect.connect();},{endpoint,room,token});
   await p.waitForFunction(()=>RPGConnect.getStatus().connected&&RPGTable.active());
  }
- const k=await app('Kobe');await k.getByRole('link',{name:'Groupe / connexion'}).click();
+ const k=await app('Kobe');await k.getByRole('tab',{name:'Groupe',exact:true}).click();await k.getByRole('button',{name:'RPG Connect',exact:true}).click();
  const token=backend.rooms.get(room).tokens.get('kobe');assert.ok(token,'MJ issued invitation for Kobe');
  await k.getByLabel('Invitation Kobe').fill(['RPGCONNECT',endpoint,room,'kobe',token].join('|'));
- await k.getByRole('button',{name:'Rejoindre la partie'}).click();await k.getByText(/MJ : en ligne/).waitFor();
+ await k.getByRole('button',{name:'Rejoindre la partie'}).click();await k.getByText(/Connecté · MJ en ligne/).waitFor();
  await gm.waitForFunction(()=>RPGConnectMJ.getStatus().players.filter(p=>p.online).length===7);
  await k.getByRole('button',{name:'Dégâts',exact:true}).click();await k.locator('[name=answer]').fill('8');await k.locator('[data-dialog-accept]').click();
  await gm.waitForFunction(()=>state.encounter.participants.find(p=>p.id==='cc-kobe')?.hp===75);
