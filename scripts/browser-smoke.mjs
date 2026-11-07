@@ -69,18 +69,18 @@ try{
     await page.locator('#hp[value="73"]').waitFor();
    }
    await page.locator('[data-combat-view=offense]').click();
-   await page.locator('.tactical-card [data-combat=inspiration]').click();
+   await page.locator('.intent-inspire [data-combat=inspiration]').click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
    assert.equal(await page.locator('dialog[open]').count(),0);
    await page.reload();await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
-   await page.locator('.tactical-card [data-combat=mantle]').click();
+   await page.locator('.intent-inspire [data-combat=mantle]').click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
    assert.equal(await page.locator('dialog[open],.spell-inline').count(),0);
    assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.combat.targets),[]);
    if(label==='chromium')await context.setOffline(true);
    await page.reload();
-   await page.getByRole('heading',{name:'Capacités de combat'}).waitFor();
-   const actionBox=await page.locator('.tactical-card [data-combat=fire-bolt]').boundingBox();
+   await page.locator('.support-cockpit').waitFor();
+   const actionBox=await page.locator('.intent-attack').boundingBox();
    assert.ok(actionBox.y+actionBox.height<=820,'primary action visible on iPad viewport');
    await mkdir('screenshots',{recursive:true});
    await page.screenshot({path:'screenshots/'+label+'-combat.png',fullPage:true});

@@ -53,7 +53,7 @@ jobs:
         if: always()
         run: |
           failed=0
-          for recipe in parity-browser browser-smoke spellbook-browser kharvek-browser table-browser resume-browser; do
+          for recipe in support-browser parity-browser browser-smoke spellbook-browser kharvek-browser table-browser resume-browser; do
             node scripts/$recipe.mjs || failed=1
           done
           exit "$failed"

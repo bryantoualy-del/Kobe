@@ -7,7 +7,7 @@ const btn=(action,label)=>`<button type="button" data-combat="${action}">${esc(l
 const check=(name,label,checked=false)=>`<label class="check"><input type="checkbox" name="${name}" ${checked?'checked':''}>${label}</label>`;
 const input=(name,label,type='text',value='')=>`<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" required></label>`;
 const select=(name,label,options)=>`<label>${label}<select name="${name}" aria-label="${esc(label)}">${options.map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join('')}</select></label>`;
-export function quickActions(s){
+export function quickActions(s,ids=null){
  const items=[
   ['inspiration','Inspiration','Bonus',s.resources.inspiration+'/5','d10 · un allié'],
   ['mantle','Manteau d’inspiration','Bonus',s.resources.inspiration+'/5','11 PV temporaires · déplacement'],
@@ -16,7 +16,7 @@ export function quickActions(s){
   ['cry','Cri draconique','Bonus',s.resources.cry+'/4','Ennemis à 3 m'],
   ['fire-bolt','Trait de feu','Action','2d10','Attaque à distance · feu']
  ];
- return `<div class="eyebrow">Kobe Kozzo · accès rapide</div><h2>Capacités de combat</h2><div class="combat-abilities">${items.map(([id,label,cost,charge,note])=>{
+ return `<div class="eyebrow">Kobe Kozzo · accès rapide</div><h2>Capacités de combat</h2><div class="combat-abilities">${items.filter(item=>!ids||ids.includes(item[0])).map(([id,label,cost,charge,note])=>{
    const availability=id==='fire-bolt'?spellAvailability(s,spellById(id)):bardicAvailability(s,id);
    return `<div class="combat-ability" data-power-tone="${id}"><span class="ability-cost">${cost}</span><button class="combat-ability-button" data-combat="${id}" ${availability.ok?'':'disabled'} title="${esc(availability.label)}"><span class="ability-name">${label}</span><span class="ability-charge">${charge}</span></button><small class="ability-note">${note}</small></div>`;
  }).join('')}</div>`;

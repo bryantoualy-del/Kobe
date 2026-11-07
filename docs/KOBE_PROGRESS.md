@@ -448,3 +448,31 @@ Validation définitive de main cd2f54a : CI 42348457910 entièrement verte, dont
 Capture utilisateur confirmée : le header complet était remplacé hors Combat par le bandeau mobile, même sur iPad. Rétablissement du header et de la barre de tour sur tous les onglets au-dessus de 720 px, dont Groupe. Le header compact et l’absence de barre de tour hors Combat restent limités aux téléphones pour conserver les parcours mobiles validés. Aucune donnée ni règle modifiée. La recette layout vérifie désormais le bandeau, l’emblème, les PV et la barre de tour dans Sorts, Social, Journal et Groupe, sous Chromium/WebKit.
 
 Première CI : contrôles layout Chromium/WebKit et écosystème verts. La recette parity lisait la géométrie avant la fin du changement d’onglet (header désormais présent mais masqué sur mobile) : attente explicite de l’onglet sélectionné ajoutée avant toute mesure. Capture WebKit iPad Social examinée : header complet rétabli.
+
+## V1.2 — Lot A · 7 novembre 2026
+Base propre `a8269e2` (main) : PR12 fusionnée, puis PR13 header persistant fusionnée. Aucune PR ouverte à la reprise ; branches historiques conservées. Branche dédiée `feat/kobe-v12-support-cockpit`. Fiche PDF trois pages relue : 19 sorts, dont Mot de guérison et Aide ; trois soins Khar-Vek et Manteau conditionnel confirmés. Moteurs, commandes directes, Undo, stockage, dragon et adaptateur V5 conservés. Choix : raccourci séquentiel pour le combo, deux commandes existantes, sans déplacement automatique ni questionnaire.
+
+### Lot B — cockpit
+Quatre intentions, Inspiration/Manteau/variante soin directs, ressources dérivées de l'état existant. Accès rapide général conservé uniquement dans Groupe. Favoris personnels conservés dans un panneau repliable. Sous-vue Khar-Vek intacte. Bandeau Battement Ardent séquentiel : étape 1 vérifie aussi la disponibilité de Boule de feu ; étape 2 ouvre le catalogue pour choisir son niveau et lancer. Aucun moteur ni déplacement allié ajouté.
+
+### Lots C et D — catalogue et vestige
+Navigation intention → catalogue avec filtre préactivé et recherche réinitialisée. Tous/Soins/Offensif/Contrôle & Défense dérivent du catalogue validé ; sous-filtres offensifs, Boule de feu en tête. Khar-Vek dans Soins/Tous, commande partagée avec le dragon ; Manteau des survivants explicitement conditionnel. Majesté et Injonction dans Contrôle & Défense. Niveaux, emplacements, portée et action conservés. Aucun changement des contrats, des calculs, des coûts ou du stockage.
+
+### Lot E — Groupe responsive
+Cause identifiée : la grille mobile de `[data-group-quick]` plaçait l'unique grille de capacités dans une demi-colonne, elle-même subdivisée. Conteneur remis en bloc ; grille de capacités deux colonnes téléphone / une colonne rail iPad, libellés multilignes et compteurs sans rétrécissement. Boutons ≥44 px, notes en dessous, état personnel pleine largeur. Raccourcis et événements conservés.
+
+### Lot F — validation initiale
+164 tests Node, build et contrôle statique/cache réussis. PR14 brouillon ouverte, cinq commits fonctionnels publiés via API GitHub (Git HTTPS local sans identité de push). Nouveau parcours Chromium/WebKit aux quatre formats ; recettes existantes adaptées, contrats V5 inchangés. CI 42357786301 en cours. Navigateur local indisponible (socket refusée) ; aucune recette locale ou physique revendiquée. Détail : KOBE_V12_VALIDATION.md.
+
+### Lot F — première recette et corrections
+CI 42357786301 : 164 tests/build et écosystème sept clients réussis ; sorts, Khar-Vek, réseau et reprise à froid Chromium/WebKit réussis. Captures examinées : Groupe corrigé ; cockpit trop haut à 375 px. Réduction des intentions, effets du combo repliables ; correction des radios Trait de feu qui se recouvraient dans leur nouvelle carte. Deux assertions de parcours corrigées : sélecteur Offensif ambigu et retour explicite à Combat après Undo (qui restaure aussi l'onglet précédent selon le moteur existant). Nouvelle recette requise.
+
+### Lot F — lecture des captures Soins
+Le catalogue affichait trop de commandes d'emplacements avant les capacités. Résumé compact N1–N5 toujours visible, correction des emplacements dépliable ; le titre du sort ouvre maintenant sa description, supprimant une rangée dédiée. Dans Soins, Khar-Vek passe en tête pour rendre ses trois commandes accessibles rapidement. Les niveaux de lancement restent directement sur chaque carte. Aucun changement métier.
+
+### Lot F — grimoire compact
+CI 42358413457 : mise en page complète, moteur/build, sorts, Social/Journal, Khar-Vek, V5 et reprise réussis. L'assertion supplémentaire de correction d'emplacement s'est arrêtée sur un sélecteur CSS numérique non cité ; correction du script uniquement, puis nouvelle exécution complète. Les captures de cette exécution confirment le résumé d'emplacements compact.
+
+## V1.2 — clôture fonctionnelle, 7 novembre 2026
+Lots A–F réalisés. Tête de code distante `31e68a2` validée par CI **42358689295**, trois jobs verts : 164 tests, build/cache/statique, Chromium/WebKit à 375/390/430/1180, parcours de soutien, toutes les suites existantes, sept clients et Encounter. Corrections d'emplacements et Undo vérifiées dans la version compacte. Captures finales examinées puis sélectionnées dans `docs/recette-v12` ; rapport et matrice des 16 scénarios dans `docs/KOBE_V12_VALIDATION.md`.
+PR14 : https://github.com/bryantoualy-del/Kobe/pull/14, branche `feat/kobe-v12-support-cockpit`, base main `a8269e2`. Aucun changement `src/kobe` ni `src/companion`, aucun contrat V5 modifié. Combo séquentiel documenté, Undo de dernière action conservé. Aucune régression critique identifiée par les contrôles exécutés. Limite : Safari iOS physique non testé. Pas de fusion ni déploiement.
