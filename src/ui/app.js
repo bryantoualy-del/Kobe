@@ -1,3 +1,5 @@
+import {conditionButton, openConditions} from './condition-ui.js';
+import {canAct} from '../kobe/combat.js';
 import {supportCockpit,comboAvailability,ardentStage} from './support-ui.js';
 import {initJournal} from '../companion/journal.js';
 import {initSession} from '../companion/session.js';
@@ -30,7 +32,7 @@ if(['combat','kharvek'].includes(state.preferences.tab)){
 }
 if(state.preferences.tab==='spells')return spellbookPanel(state);
 if(state.preferences.tab==='social')return sectionButtons({profile:'Profil',inventory:'Inventaire'},socialView,'social-view')+(socialView==='inventory'?'<div id="inventory-slot"></div>':`${rollPanel(state)}<section class="panel"><h2>Social · notes privées</h2><p class="muted">Carnet conservé localement. Les décisions et résultats restent annoncés à la table.</p>${socialPanel(state)}<label for="notes">Notes de Kobe</label><textarea id="notes" maxlength="20000">${escapeHTML(state.notes)}</textarea><small id="notes-status">Sauvegarde automatique</small></section>`);
-return `<div id="session-slot"></div><section class="panel"><h2>Sauvegarde de jeu</h2><div class="actions">${button('export','Exporter la sauvegarde','primary')}${button('import','Importer une sauvegarde')}</div></section>`;
+return `<div id="session-slot"></div>${combatFollowups(state, 'effects')}<section class="panel"><h2>Sauvegarde de jeu</h2><div class="actions">${button('export','Exporter la sauvegarde','primary')}${button('import','Importer une sauvegarde')}</div></section>`;
 }
 let combatView=sessionStorage.getItem('combat-pane')==='kharvek'?'kharvek':'offense',socialView='profile';
 function sectionButtons(items,selected,attribute){
@@ -38,8 +40,7 @@ function sectionButtons(items,selected,attribute){
 }
 const secondaryView=()=>groupOpen||!['combat','kharvek'].includes(state.preferences.tab);
 function header(){
- const pending=state.pendingResolutions.length;
- const compact=secondaryView()? `<header class="compact-header"><strong>Kobe Kozzo</strong><span>${state.hp.current}/${state.hp.max} PV · CA ${state.profile.ac}</span></header>`:'';
+ const compact=secondaryView()? `<header class="compact-header"><strong>Kobe Kozzo</strong><span>${state.hp.current}/${state.hp.max} PV · CA ${state.profile.ac}</span>${conditionButton(state)}</header>`:'';
  return `${compact}<header class="top turn-header">
    <div class="turn-identity"><img src="./src/ui/emblem.webp" alt="Emblème de Kobe"><div><h1>Kobe Kozzo</h1><p>Barde 10 · Collège du Glamour</p></div></div>
    <div class="turn-vitals">
@@ -50,32 +51,23 @@ function header(){
      <label class="turn-value tempstat"><input id="tempHpInput" type="number" min="0" max="10000" aria-label="PV temporaires de Kobe" value="${state.hp.temp}"> PV temp.</label>
      <span class="turn-metric">CA <b>${state.profile.ac}</b></span><span class="turn-metric">DD <b>17</b></span>
    </div>
-   <details class="turn-more"><summary aria-label="Plus de commandes${pending?' · '+pending+' en attente':''}">⋯${pending?`<span class="turn-pending-badge" aria-hidden="true">${pending}</span>`:''}</summary>
-     <div class="turn-more-panel">${combatFollowups(state)}<span>Vitesse · 9 m</span>
-     <button data-action="initiative" aria-label="Lancer l’initiative">Initiative +4</button>
-     <button data-combat="rest" data-rest-kind="short">Repos court</button>
-     <button data-combat="rest" data-rest-kind="long">Repos long</button>
-     <button data-action="spend-action" ${state.combat.phase==='active'&&state.economy.actionAvailable?'':'disabled'}>Dépenser l’action</button>
-     <button data-action="spend-bonus" ${state.combat.phase==='active'&&state.economy.bonusAvailable?'':'disabled'}>Dépenser l’action bonus</button>
-     <button data-combat="condition">États</button>
-     <button data-combat="death-save">Jet de mort</button>
-     <button data-combat="time">Temps écoulé</button>
-     <button data-combat="combat-correct">Correction MJ</button>
-     ${button('temp','Appliquer des PV temporaires')}
-     ${state.undo?button('undo','Annuler la dernière action'):''}
-     <label class="turn-critical"><input id="critical" type="checkbox"> Critique à 0 PV</label></div>
-   </details>
+   ${conditionButton(state)}
  </header>`;
 }
 
 function turnbar(){
  const active=state.combat.phase==='active';
- const canAct=state.hp.current>0&&!state.combat.death.dead&&!state.combat.conditions.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x));
+ const able=canAct(state);
  return `<section id="cc-turnbar-standard" class="turnbar turn-strip" aria-label="Barre de tour">
    <strong class="turn-number">Tour ${state.turn.startRevision+1}</strong>
-   <button data-action="spend-reaction" ${canAct&&state.economy.reactionAvailable?'':'disabled'}>Réaction <small>${state.economy.reactionAvailable?'disponible':'dépensée'}</small></button>
-   <button data-combat="move" ${active&&canAct&&state.economy.movementRemaining?'':'disabled'}>${state.economy.movementRemaining} m <small>restants</small></button>
+   <button data-action="initiative" aria-label="Lancer l’initiative">Initiative +4</button>
+   <button data-action="spend-reaction" ${able&&state.economy.reactionAvailable?'':'disabled'}>Réaction <small>${state.economy.reactionAvailable?'disponible':'dépensée'}</small></button>
+   <button data-combat="move" ${active&&able&&state.economy.movementRemaining?'':'disabled'}>${state.economy.movementRemaining} m <small>restants</small></button>
    <button data-combat="${state.concentration?'concentration-end':'concentration'}">Concentration <small>${escapeHTML(state.concentration?.name??'aucune')}</small></button>
+   <div class="turn-rests" aria-label="Repos">
+     <button type="button" class="restquick" data-combat="rest" data-rest-kind="short" aria-label="Repos court"><span aria-hidden="true">↻</span> Court</button>
+     <button type="button" class="restquick long" data-combat="rest" data-rest-kind="long" aria-label="Repos long"><span aria-hidden="true">☾</span> Long</button>
+   </div>
  </section>`;
 }
 
@@ -89,6 +81,9 @@ function render(){
  const next=end?button('end-turn','Fin de tour','turn-finish'):button('next-turn','Début de mon tour','turn-finish');
  mount.innerHTML=`<main class="shell app" data-view="${state.preferences.tab}" data-secondary="${secondary}">
    ${header()}${turnbar()}
+   ${state.hp.current===0&&!state.combat.death.dead
+     ? `<div class="turn-dying">${state.combat.death.stable?'':'<button type="button" data-combat="death-save">Jet de mort</button>'}<label><input id="critical" type="checkbox"> Dégâts critiques à 0 PV</label></div>` : ''}
+   ${combatFollowups(state, 'pending')}
    ${problem?`<div role="alert" class="warning">${escapeHTML(problem)}</div>`:''}
    <div aria-live="polite" class="status">${loaded?'Sauvegardé':'Initialisation…'} · <span data-cache-status>${escapeHTML(cacheMessage)}</span></div>
    ${body()}
@@ -130,6 +125,7 @@ resultRibbon.querySelector('[data-ribbon-undo]').onclick=async()=>{if(state.undo
 function updateRibbon(result,type){
  if(!result.ok||result.replay||['preferences','notes','favorites','private-roll'].includes(type))return;
  resultRibbon.hidden=true;
+ if(type==='condition')return; // The panel and header already show the result.
  const event=result.events?.at(-1);
  if(!event?.label)return;
  resultRibbon.querySelector('.rb').textContent=type==='undo'?'Dernière action annulée.':event.label;
@@ -196,7 +192,7 @@ mount.addEventListener('click',async e=>{
    }
    return;
  }
- if(e.target.closest('[data-network-link]')){e.preventDefault();groupOpen=true;render();window.scrollTo(0,0);return;}const view=e.target.closest('[data-combat-view],[data-social-view]');if(view){if(view.dataset.combatView){combatView=view.dataset.combatView;sessionStorage.setItem('combat-pane',combatView);}else socialView=view.dataset.socialView;render();return;}if(selectRollControl(e.target))return;if(e.target.closest('[data-inventory-link]'))inventoryDesk.open=true;const check=e.target.closest('[data-roll]');if(check){await roll(check.dataset.roll,dispatch);return;}const charge=e.target.closest('[data-charge-value]');if(charge){await dispatch('correct',{field:'charges',value:Number(charge.dataset.chargeValue),reason:'Ajustement des charges'});return;}const kv=e.target.closest('[data-kharvek]');if(kv){openKharvekForm(kv.dataset.kharvek,state,dispatch);return;}const cast=e.target.closest('[data-cast]');if(cast){openSpellCast(cast.dataset.cast,state,dispatch);return;}const detail=e.target.closest('[data-spell-detail]');if(detail){openSpellDetail(detail.dataset.spellDetail);return;}const fav=e.target.closest('[data-favorite]');if(fav){const id=fav.dataset.favorite,ids=state.preferences.favorites.includes(id)?state.preferences.favorites.filter(x=>x!==id):[...state.preferences.favorites,id];await dispatch('favorites',{ids});return;}const sr=e.target.closest('[data-spell-resolve]');if(sr){openSpellResolve(sr.dataset.spellResolve,state,dispatch);return;}const sc=e.target.closest('[data-spell-control]');if(sc){openSpellControl(sc.dataset.spellControl,state,dispatch);return;}const slot=e.target.closest('[data-slot]');if(slot){await dispatch('slot-correct',{level:Number(slot.dataset.slot),value:Number(slot.dataset.slotValue),reason:'Ajustement du grimoire'});return;}const combat=e.target.closest('[data-combat]');if(combat&&combat.dataset.combat==='fire-bolt'){await quickAttack(dispatch,mount.querySelector('#signature-target')?.value??'Cible annoncée',mount.querySelector('[name=signature-mode]:checked')?.value??'normal',mount.querySelector('#signature-dice')?.value??'');return;}if(combat){if(combat.dataset.restKind){quickRest(combat.dataset.restKind);return;}openCombatForm(combat.dataset.combat,state,dispatch);return;}const tab=e.target.closest('[data-tab]');if(tab){groupOpen=false;await dispatch('preferences',{tab:tab.dataset.tab});window.scrollTo(0,0);return;}const target=e.target.closest('[data-action]');if(!target)return;const a=target.dataset.action;if(a==='initiative'){const die=1+Math.floor(Math.random()*20);await dispatch('initiative-roll',{die});return;}if(['damage','heal','temp'].includes(a)){const raw=await RPGDialogs.prompt(a==='damage'?'Dégâts reçus':a==='heal'?'PV récupérés':'PV temporaires reçus','1');if(raw===null)return;const amount=Number(raw);if(!Number.isSafeInteger(amount)||amount<=0||amount>10000){await RPGDialogs.alert('Saisir un nombre entier entre 1 et 10 000.');return;}await dispatch(a==='temp'?'set-temp-hp':a,{amount,...(a==='damage'?{critical:document.querySelector('#critical')?.checked===true}:{})});return;}if(a.startsWith('spend-')){const key={ 'spend-action':'actionAvailable','spend-bonus':'bonusAvailable','spend-reaction':'reactionAvailable'}[a];await dispatch('spend',{economy:key});return;}if(a==='end-turn'){if(!table.status().gmOnline){await dispatch('turn-next',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}const r=await dispatch('turn-end',{});if(r?.ok&&!r.replay)table.sendEvent('turn:end-request',{turn:state.turn.startRevision,actionId:r.events[0].id});return;}if(a==='next-turn'){await dispatch('turn-start',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}if(a==='save-notes'){await dispatch('notes',{text:document.querySelector('#notes').value});return;}if(a==='undo'){if(state.undo)await dispatch('undo',{commandId:state.undo.commandId});return;}if(a==='correct'){const value=await RPGDialogs.prompt('Nouveaux PV (0 à '+state.hp.max+')',state.hp.current);if(value===null)return;const v=Number(value);if(!Number.isSafeInteger(v)||v<0||v>state.hp.max){problem='Valeur de PV invalide.';render();return;}const reason='Correction de table';await dispatch('correct',{field:'hp',value:v,reason:reason.trim()});return;}if(a==='export'){await download(store.export(),'kobe-sauvegarde-v1.json');return;}if(a==='import'){await importFile();}});
+ if(e.target.closest('[data-network-link]')){e.preventDefault();groupOpen=true;render();window.scrollTo(0,0);return;}const view=e.target.closest('[data-combat-view],[data-social-view]');if(view){if(view.dataset.combatView){combatView=view.dataset.combatView;sessionStorage.setItem('combat-pane',combatView);}else socialView=view.dataset.socialView;render();return;}if(selectRollControl(e.target))return;if(e.target.closest('[data-inventory-link]'))inventoryDesk.open=true;const check=e.target.closest('[data-roll]');if(check){await roll(check.dataset.roll,dispatch);return;}const charge=e.target.closest('[data-charge-value]');if(charge){await dispatch('correct',{field:'charges',value:Number(charge.dataset.chargeValue),reason:'Ajustement des charges'});return;}const kv=e.target.closest('[data-kharvek]');if(kv){openKharvekForm(kv.dataset.kharvek,state,dispatch);return;}const cast=e.target.closest('[data-cast]');if(cast){openSpellCast(cast.dataset.cast,state,dispatch);return;}const detail=e.target.closest('[data-spell-detail]');if(detail){openSpellDetail(detail.dataset.spellDetail);return;}const fav=e.target.closest('[data-favorite]');if(fav){const id=fav.dataset.favorite,ids=state.preferences.favorites.includes(id)?state.preferences.favorites.filter(x=>x!==id):[...state.preferences.favorites,id];await dispatch('favorites',{ids});return;}const sr=e.target.closest('[data-spell-resolve]');if(sr){openSpellResolve(sr.dataset.spellResolve,state,dispatch);return;}const sc=e.target.closest('[data-spell-control]');if(sc){openSpellControl(sc.dataset.spellControl,state,dispatch);return;}const slot=e.target.closest('[data-slot]');if(slot){await dispatch('slot-correct',{level:Number(slot.dataset.slot),value:Number(slot.dataset.slotValue),reason:'Ajustement du grimoire'});return;}const combat=e.target.closest('[data-combat]');if(combat&&combat.dataset.combat==='fire-bolt'){await quickAttack(dispatch,mount.querySelector('#signature-target')?.value??'Cible annoncée',mount.querySelector('[name=signature-mode]:checked')?.value??'normal',mount.querySelector('#signature-dice')?.value??'');return;}if(combat){if(combat.dataset.restKind){quickRest(combat.dataset.restKind);return;}openCombatForm(combat.dataset.combat,state,dispatch);return;}const tab=e.target.closest('[data-tab]');if(tab){groupOpen=false;await dispatch('preferences',{tab:tab.dataset.tab});window.scrollTo(0,0);return;}const target=e.target.closest('[data-action]');if(!target)return;const a=target.dataset.action;if(a==='conditions'){openConditions(()=>state,dispatch);return;}if(a==='initiative'){const die=1+Math.floor(Math.random()*20);await dispatch('initiative-roll',{die});return;}if(['damage','heal','temp'].includes(a)){const raw=await RPGDialogs.prompt(a==='damage'?'Dégâts reçus':a==='heal'?'PV récupérés':'PV temporaires reçus','1');if(raw===null)return;const amount=Number(raw);if(!Number.isSafeInteger(amount)||amount<=0||amount>10000){await RPGDialogs.alert('Saisir un nombre entier entre 1 et 10 000.');return;}await dispatch(a==='temp'?'set-temp-hp':a,{amount,...(a==='damage'?{critical:document.querySelector('#critical')?.checked===true}:{})});return;}if(a.startsWith('spend-')){const key={ 'spend-action':'actionAvailable','spend-bonus':'bonusAvailable','spend-reaction':'reactionAvailable'}[a];await dispatch('spend',{economy:key});return;}if(a==='end-turn'){if(!table.status().gmOnline){await dispatch('turn-next',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}const r=await dispatch('turn-end',{});if(r?.ok&&!r.replay)table.sendEvent('turn:end-request',{turn:state.turn.startRevision,actionId:r.events[0].id});return;}if(a==='next-turn'){await dispatch('turn-start',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}if(a==='save-notes'){await dispatch('notes',{text:document.querySelector('#notes').value});return;}if(a==='undo'){if(state.undo)await dispatch('undo',{commandId:state.undo.commandId});return;}if(a==='correct'){const value=await RPGDialogs.prompt('Nouveaux PV (0 à '+state.hp.max+')',state.hp.current);if(value===null)return;const v=Number(value);if(!Number.isSafeInteger(v)||v<0||v>state.hp.max){problem='Valeur de PV invalide.';render();return;}const reason='Correction de table';await dispatch('correct',{field:'hp',value:v,reason:reason.trim()});return;}if(a==='export'){await download(store.export(),'kobe-sauvegarde-v1.json');return;}if(a==='import'){await importFile();}});
 const load=await store.load();state=load.state;if(state.preferences.tab==='kharvek'){combatView='kharvek';}loaded=true;
 const journalApi={events:()=>state.journal,log:message=>{const toast=sessionDesk.querySelector('#sessionToast');if(toast)toast.textContent=message;}};
 document.body.append(sessionDesk);

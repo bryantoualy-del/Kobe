@@ -1,3 +1,4 @@
+import {conditionName, preventsAction} from './conditions.js';
 import {survivorMantle} from "./kharvek.js";
 import {spellById} from './spell-catalog.js';
 import {removeSpellEffects,validateSpellState} from './spell-lifecycle.js';
@@ -15,7 +16,7 @@ export function validateCombat(s){
  for(const t of b.targets){need(txt(t.id)&&txt(t.name)&&['ally','enemy'].includes(t.side),'Cible invalide.');if(t.hp){num(t.hp.max,1,10000);num(t.hp.current,0,t.hp.max);num(t.hp.temp,0,10000);}if(t.temp!==null)num(t.temp,0,10000);need([null,true,false].includes(t.reaction),'Réaction invalide.');}
  for(const c of b.conditions)need(txt(c),'État invalide.');
  need(Array.isArray(s.effects)&&s.effects.length<=200&&Array.isArray(s.pendingResolutions)&&s.pendingResolutions.length<=100,'Effets invalides.');
- for(const e of s.effects){need(txt(e.id)&&txt(e.kind)&&Array.isArray(e.targetIds)&&e.targetIds.every(txt),'Effet invalide.');num(e.expires,0,100000000);}
+ for(const e of s.effects){need(txt(e.id)&&txt(e.kind)&&Array.isArray(e.targetIds)&&e.targetIds.every(txt),'Effet invalide.');if(e.kind==='condition'&&e.untilTurn!==undefined){need(txt(e.conditionName),'État invalide.');num(e.untilTurn,1,Number.MAX_SAFE_INTEGER);}else num(e.expires,0,100000000);}
  if(s.concentration!==null)need(txt(s.concentration.id)&&txt(s.concentration.name),'Concentration invalide.');
  validateSpellState(s,spellById);
  for(const p of s.pendingResolutions)need(txt(p.id)&&['concentration','fire','command','performance','spell'].includes(p.kind),'Résolution invalide.');
@@ -65,7 +66,23 @@ export function combatCommand(s,c){
  s.pendingResolutions=s.pendingResolutions.filter(x=>x.id!==r.id);break;}
  case 'concentration':active();need(txt(p.name),'Nom requis.');need(!s.concentration||p.replace===true,'Remplacement de concentration à confirmer.');endConcentration(s);s.concentration={id:c.id,name:p.name};label=`Concentration suivie : ${p.name} (coûts du sort à gérer séparément)`;break;
  case 'concentration-end':endConcentration(s);label='Concentration terminée';break;
- case 'condition':need(txt(p.name)&&typeof p.enabled==='boolean','État invalide.');b.conditions=b.conditions.filter(x=>x!==p.name);s.effects=s.effects.filter(e=>!(e.kind==='condition'&&e.conditionName===p.name));if(p.enabled){b.conditions.push(p.name);num(p.duration??0,0,86400);if(p.duration)effect('condition',p.duration,{conditionName:p.name});}if(p.enabled&&['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(p.name))endConcentration(s);label=`État ${p.name} : ${p.enabled?'actif':'retiré'}`;break;
+ case 'condition': {
+  need(txt(p.name)&&typeof p.enabled==='boolean','État invalide.');
+  const turns=p.turns??0;
+  num(turns,0,999);
+  num(p.duration??0,0,86400);
+  need(!(turns&&p.duration),'Choisissez une seule durée.');
+  b.conditions=b.conditions.filter(x=>x!==p.name);
+  s.effects=s.effects.filter(e=>e.kind!=='condition'||e.conditionName!==p.name);
+  if(p.enabled){
+   b.conditions.push(p.name);
+   if(turns)s.effects.push({id:c.id,kind:'condition',targetIds,conditionName:p.name,untilTurn:s.turn.startRevision+turns});
+   else if(p.duration)effect('condition',p.duration,{conditionName:p.name});
+   if(preventsAction(b.conditions))endConcentration(s);
+  }
+  label=`État ${conditionName(p.name)} : ${p.enabled?'actif':'retiré'}`;
+  break;
+ }
  case 'effect-end':need(s.effects.some(e=>e.id===p.id),'Effet absent.');{const ended=s.effects.find(e=>e.id===p.id);if(ended.kind==='condition')b.conditions=b.conditions.filter(x=>x!==ended.conditionName);}if(s.concentration?.id===p.id)endConcentration(s);else removeSpellEffects(s,e=>e.id===p.id);label='Effet terminé sur décision de table';break;
  case 'move':active();need(b.phase==='active','Hors tour.');num(p.meters,1,9);need(s.economy.movementRemaining>=p.meters,'Déplacement insuffisant.');s.economy.movementRemaining-=p.meters;label=`Déplacement : ${p.meters} m`;break;
  case 'turn-end':need(b.phase==='active','Tour déjà terminé.');removeSpellEffects(s,e=>e.untilEndTurn!==undefined&&e.untilEndTurn<=s.turn.startRevision);b.phase='ended';label='Fin du tour de Kobe (réaction conservée jusqu’au prochain début de tour)';break;
@@ -79,5 +96,14 @@ export function combatCommand(s,c){
  return {label,kind,targetIds,costs,rolls,options:structuredClone(p)};
 }
 
-export function assertCanAct(s){need(s.hp.current>0&&!s.combat.death.dead&&!s.combat.conditions.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x)),'Kobe ne peut pas agir.');}
+export const canAct = s => s.hp.current>0&&!s.combat.death.dead&&!preventsAction(s.combat.conditions);
+export function assertCanAct(s){need(canAct(s),'Kobe ne peut pas agir.');}
+
+export function expireTurnEffects(s,turn){
+ const expired=s.effects.filter(e=>e.untilTurn!==undefined&&e.untilTurn<=turn);
+ s.effects=s.effects.filter(e=>!expired.includes(e));
+ const states=new Set(expired.filter(e=>e.kind==='condition').map(e=>e.conditionName));
+ s.combat.conditions=s.combat.conditions.filter(id=>!states.has(id));
+ return [...states].map(conditionName);
+}
 export function spendAction(s,key,resource,costs={}){assertCanAct(s);need(s.combat.phase==='active','Commencez le tour de Kobe.');need(s.economy[key],'Action déjà consommée.');if(resource){need(s.resources[resource]>0,'Ressource épuisée.');s.resources[resource]--;costs[resource]=1;}s.economy[key]=false;costs[key]=1;}

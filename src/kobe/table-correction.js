@@ -1,15 +1,10 @@
-// Only translate statuses with a known local meaning. Timed or unknown effects need table adjudication.
-const names={
- 'aveugle':'blinded','charme':'charmed','assourdi':'deafened','effraye':'frightened','empoigne':'grappled',
- 'neutralise':'incapacitated','invisible':'invisible','paralyse':'paralyzed','petrifie':'petrified',
- 'empoisonne':'poisoned','a terre':'prone','entrave':'restrained','etourdi':'stunned','inconscient':'unconscious','silence':'silenced'
-};
-const statuses=new Set(Object.values(names));
-const normalize=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+import {conditionId} from './conditions.js';
+
 function status(c){
  if(c&&typeof c==='object'&&c.durationType&&!['indefinite','manual'].includes(c.durationType))throw Error('Durée distante à arbitrer à la table.');
- const key=normalize(c?.name??c),name=names[key]??key;
- if(!statuses.has(name))throw Error('État non compatible : '+key+'. Utilisez la correction locale.');
+ const label=c?.name??c;
+ const name=conditionId(label);
+ if(!name)throw Error('État non compatible : '+label+'. Utilisez la correction locale.');
  return name;
 }
 export function correction(event,s) {

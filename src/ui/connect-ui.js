@@ -1,6 +1,12 @@
+import {CONDITION_NAMES, conditionId, conditionName} from '../kobe/conditions.js';
+import {conditionGlyph} from './icons.js';
 import {createConnect} from '../kobe/connect.js';
 import {connectFrame} from '../companion/connect-frame.js';
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function conditionBadge(name){
+  const id=conditionId(name), exhaustion=/^(?:épuisé|épuisement|exhaustion)$/i.test(name);
+  return `<span class="rpg-group-state">${conditionGlyph(id??(exhaustion?'exhaustion':undefined))}${escape(id?conditionName(id):name)}</span>`;
+}
 function text(tag,value,cls){const n=document.createElement(tag);n.textContent=value;if(cls)n.className=cls;return n;}
 export function mountConnect(store,quickActions,dispatch){
   const root=document.createElement('section');root.className='group-surface';root.id='rpg-connect';document.body.append(root);
@@ -46,7 +52,7 @@ export function mountConnect(store,quickActions,dispatch){
     shell.querySelector('[data-session-title]').textContent=mine?'À toi de jouer':v.session?.activeName||'Connecté à la partie';
     shell.querySelector('[data-session-detail]').textContent=v.session?.round?'Round '+v.session.round:v.gmOnline?'MJ en ligne':'En attente du MJ';
     const end=shell.querySelector('[data-end-turn-request]');end.hidden=!mine;end.disabled=self.combat.phase==='ended';
-    requests.innerHTML=(v.pending??[]).filter(x=>!['initiative:request','initiative:retry'].includes(x.event.type)).map(({event:e})=>`<article class="rpg-request"><strong>${escape(e.payload?.text||({'hp:set':'Correction des PV','tempHp:set':'Correction des PV temporaires','conditions:set':'États personnels'}[e.type]||'Demande du MJ'))}</strong>${['hp:set','tempHp:set'].includes(e.type)?'<p>Valeur proposée '+escape(e.payload.value)+'</p><button data-accept="'+escape(e.id)+'">Appliquer cette correction</button>':e.type==='conditions:set'?'<p>'+escape((e.payload.conditions||[]).map(c=>c.name??c).join(', '))+'</p><button data-accept="'+escape(e.id)+'">Appliquer ces états</button>':''}<button data-decline="${escape(e.id)}">Traité à la table</button></article>`).join('');
+    requests.innerHTML=(v.pending??[]).filter(x=>!['initiative:request','initiative:retry'].includes(x.event.type)).map(({event:e})=>`<article class="rpg-request"><strong>${escape(e.payload?.text||({'hp:set':'Correction des PV','tempHp:set':'Correction des PV temporaires','conditions:set':'États personnels'}[e.type]||'Demande du MJ'))}</strong>${['hp:set','tempHp:set'].includes(e.type)?'<p>Valeur proposée '+escape(e.payload.value)+'</p><button data-accept="'+escape(e.id)+'">Appliquer cette correction</button>':e.type==='conditions:set'?'<div class="rpg-group-states">'+(e.payload.conditions||[]).map(c=>conditionBadge(c?.name??c)).join('')+'</div><button data-accept="'+escape(e.id)+'">Appliquer ces états</button>':''}<button data-decline="${escape(e.id)}">Traité à la table</button></article>`).join('');
     if(requests.childElementCount)panel.hidden=false;
     renderInitiative(v);
     const list=root.querySelector('[data-initiative-list]');
@@ -74,7 +80,7 @@ export function mountConnect(store,quickActions,dispatch){
       states.className='rpg-group-states';
       for(const condition of actor.conditions||[]){
         const name=typeof condition==='string'?condition:condition.name;
-        if(name)states.append(text('span',name,'rpg-group-state'));
+        if(name)states.insertAdjacentHTML('beforeend',conditionBadge(name));
       }
       if(states.childElementCount)identity.append(states);
       row.append(identity);
@@ -136,8 +142,8 @@ export function mountConnect(store,quickActions,dispatch){
     }catch(error){notice=error.message;render(client.status());}
   });
   const editor=document.createElement('dialog');editor.className='rpg-self-editor';
-  const conditions={prone:'À terre',grappled:'Agrippé',deafened:'Assourdi',blinded:'Aveuglé',charmed:'Charmé',frightened:'Effrayé',poisoned:'Empoisonné',restrained:'Entravé',stunned:'Étourdi',incapacitated:'Incapable d’agir',unconscious:'Inconscient',invisible:'Invisible',paralyzed:'Paralysé',petrified:'Pétrifié',silenced:'Silence'};
-  editor.innerHTML=`<h2>Mon personnage</h2><form><label>PV <input name="hp" type="number" min="0" required></label><label>PV temporaires <input name="temp" type="number" min="0" max="10000" required></label><label>CA <input name="ac" type="number" min="0" max="100" required></label><label><input name="reaction" type="checkbox"> Réaction disponible</label><label>Concentration <input name="concentration" maxlength="120"></label><p>États personnels</p><div data-self-conditions>${Object.entries(conditions).map(([id,name])=>'<label><input type="checkbox" data-self-condition="'+id+'">'+name+'</label>').join('')}</div><p role="alert"></p><button type="submit">Appliquer</button><button type="button" data-cancel>Fermer</button></form>`;
+
+  editor.innerHTML=`<h2>Mon personnage</h2><form><label>PV <input name="hp" type="number" min="0" required></label><label>PV temporaires <input name="temp" type="number" min="0" max="10000" required></label><label>CA <input name="ac" type="number" min="0" max="100" required></label><label><input name="reaction" type="checkbox"> Réaction disponible</label><label>Concentration <input name="concentration" maxlength="120"></label><p>États personnels</p><div data-self-conditions>${Object.entries(CONDITION_NAMES).map(([id,name])=>`<label><input type="checkbox" data-self-condition="${id}">${conditionGlyph(id)}${name}</label>`).join('')}</div><p role="alert"></p><button type="submit">Appliquer</button><button type="button" data-cancel>Fermer</button></form>`;
   document.body.append(editor);
   function openSelf(){
     const s=store.getState(),f=editor.querySelector('form');

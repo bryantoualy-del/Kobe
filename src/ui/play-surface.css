@@ -166,14 +166,16 @@
 .turn-value input::-webkit-inner-spin-button{appearance:none}
 .turn-metric{display:grid;text-align:center;font-size:12px;padding:0 8px;border-left:1px solid #49434c}
 .turn-metric b{font-size:20px;color:var(--ivory)}
-.turn-more{position:relative}
-.turn-more>summary{display:grid;place-items:center;width:44px;min-height:44px;padding:0;border:1px solid #49434c;border-radius:9px;cursor:pointer;font-size:23px;list-style:none}
-.turn-more>summary::-webkit-details-marker{display:none}
-.turn-more-panel{position:absolute;z-index:55;top:100%;right:0;display:grid;gap:6px;width:max-content;max-width:85vw;padding:10px;border:1px solid #49434c;border-radius:10px;background:#19171d}
-.turn-more-panel button{text-align:left;min-height:44px}
-.turn-more-panel span{padding:4px 8px;color:var(--muted)}
+.app .turn-conditions{
+  display:grid;place-items:center;align-content:center;gap:2px;min-height:44px;min-width:72px;padding:4px 7px;
+  border:1px solid #49434c;border-radius:9px;background:#1b191e;line-height:1.15;
+}
+.app .turn-conditions span{display:flex;align-items:center;gap:4px}
+.turn-conditions[data-active=true]{color:var(--gold);border-color:#735033}
+.turn-conditions small{color:inherit;font-size:11px}
+.turn-conditions .rpg-condition-icon{width:14px;height:14px}
 .app #cc-turnbar-standard.turn-strip{
-  display:grid!important;position:static;grid-template-columns:auto 1fr 1fr 1.25fr;
+  display:grid!important;position:static;grid-template-columns:auto minmax(104px,.9fr) 1fr .9fr 1.25fr auto;
   align-items:center;gap:4px;margin:6px 0;padding:4px;box-shadow:none;
 }
 .app #cc-turnbar-standard.turn-strip>*{min-height:44px;min-width:0;padding:4px 8px;font-size:14px;line-height:1.18;white-space:normal;overflow-wrap:anywhere}
@@ -181,6 +183,13 @@
 .turn-strip button{background:transparent;border:0}
 .turn-strip button+button{border-left:1px solid #49434c;border-radius:0}
 .turn-strip small{font-size:inherit;color:var(--muted)}
+.turn-strip .turn-rests{display:flex;gap:6px;padding:0!important}
+.turn-strip .turn-rests button{
+  min-height:44px;padding:4px 12px;border:1px solid #49434c;border-radius:9px;background:#1b191e;white-space:nowrap
+}
+.turn-rests button span{color:var(--gold)}
+.turn-dying{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:4px 0}
+
 
 .support-cockpit{display:grid;grid-template-columns:minmax(0,2fr) minmax(258px,1fr);gap:12px;margin:8px 0;align-items:start}
 .turn-board,.turn-lane,.ardent-combo,.turn-last-result{min-width:0;border:1px solid #49434c;border-radius:13px;background:#17161a}
@@ -250,7 +259,7 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
  .support-cockpit{grid-template-columns:minmax(0,1fr)}
  .app .turn-header{grid-template-columns:minmax(0,1fr) auto!important}
  .turn-identity{grid-column:1}
- .turn-more{grid-column:2;grid-row:1}
+ .turn-header>.turn-conditions{grid-column:2;grid-row:1}
  .turn-vitals{grid-column:1/-1}
 }
 @media(max-width:720px){
@@ -260,14 +269,19 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
  .turn-identity img{width:46px;height:46px}
  .turn-identity h1{font-size:22px}
  .turn-identity p{font-size:11px}
- .turn-more{align-self:end;grid-row:2;grid-column:2;z-index:2;margin:0 0 1px 3px}
+ .turn-header>.turn-conditions{align-self:end;grid-row:2;grid-column:2}
  .turn-vitals{grid-column:1;grid-row:2;grid-template-columns:minmax(80px,1.3fr) minmax(68px,1fr) auto auto;gap:4px}
  .turn-value{font-size:11px}
  .turn-value input{font-size:16px!important}
  .turn-metric{padding:0 3px;font-size:10px}
  .turn-metric b{font-size:16px}
  .app .hp-actions .mini{padding:4px;font-size:11px}
+ .app #cc-turnbar-standard.turn-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
  .app #cc-turnbar-standard.turn-strip>*{font-size:11px;padding:4px}
+ .turn-strip .turn-rests{grid-column:span 2}
+ .turn-strip .turn-rests button{flex:1;padding:4px 5px;font-size:11px}
+ .app .turn-conditions{min-width:54px;padding-inline:3px;font-size:11px}
+ .turn-conditions .rpg-condition-icon{width:12px;height:12px}
  .app[data-secondary=true] #cc-turnbar-standard.turn-strip{display:none!important}
  .turn-board,.turn-lane{padding:6px}
  .turn-lanes{gap:6px}
@@ -282,25 +296,35 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
  body:has(.app[data-secondary=false]) > #ribbon{bottom:calc(118px + env(safe-area-inset-bottom))}
 }
 
-.turn-more-panel{
-  width:min(300px,calc(100vw - 24px));
-  max-height:min(60dvh,460px);
-  overflow:auto;
-  overscroll-behavior:contain;
-}
-.turn-pending-badge{
-  position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;
-  border-radius:9px;background:var(--gold);color:#17110d;text-align:center;
-  font:700 12px/18px system-ui;
-}
 .turn-followup{
   display:grid;gap:5px;padding:8px 0;border-bottom:1px solid #49434c;
 }
 .turn-followup small{color:var(--muted)}
-.turn-effects>summary,.turn-critical{
+.turn-effects>summary{
   display:flex;align-items:center;min-height:44px;gap:8px;
 }
 .turn-effects>summary{cursor:pointer}
+.turn-effects{padding-inline:10px}
+.turn-pending{border:1px solid #735033;border-radius:9px}
+.condition-dialog{
+ width:min(520px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:auto;
+ border-color:#b5804c;background:#19171d;color:var(--ivory)
+}
+.condition-dialog header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.condition-dialog header h2{margin:0;font:700 clamp(22px,4vw,30px) Georgia,serif}
+.condition-dialog button{min-height:44px}
+.condition-dialog [data-close]{min-width:44px;font-size:24px;padding:0}
+.condition-dialog ul{display:grid;gap:6px;margin:10px 0;padding:0;list-style:none}
+.condition-dialog li{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;padding:6px 9px;border:1px solid #49434c;border-radius:9px}
+.condition-dialog li>span{display:grid;gap:2px}
+.condition-dialog li small{color:var(--muted)}
+.condition-dialog .rpg-condition-icon,.rpg-group-state .rpg-condition-icon{color:var(--gold)}
+.condition-dialog form{display:grid;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid #49434c}
+.condition-dialog form label{display:grid;gap:4px}
+.condition-dialog form [hidden]{display:none}
+.condition-dialog form select,.condition-dialog form input{min-height:44px}
+.rpg-group-state{display:inline-flex;align-items:center;gap:4px}
+
 
 /* Grimoire: one tactical list and one casting surface. */
 .catalog-icon{width:32px;height:32px;object-fit:contain;flex:none}

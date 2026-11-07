@@ -31,13 +31,11 @@ export function quickActions(s,ids=null){
    return group.length?`<section class="quick-lane"><h3>${title}</h3><div class="quick-rows">${group.map(row).join('')}</div></section>`:'';
  }).join('')}</div>`;
 }
-export function combatFollowups(state){
+export function combatFollowups(state, section){
  const targets=state.combat.targets;
  const targetName=id=>targets.find(target=>target.id===id)?.name??id;
- const effects=state.effects.map(effect=>{
-   const label=effect.kind==='condition'
-     ? names[effect.conditionName]??effect.conditionName
-     : effect.name??names[effect.kind]??effect.kind;
+ const effects=section==='effects'?state.effects.filter(effect=>effect.kind!=='condition').map(effect=>{
+   const label=effect.name??names[effect.kind]??effect.kind;
    const interaction=effect.kind==='inspiration'
      ? btn('use:'+effect.id,'Utiliser le d10')
      : effect.kind==='spell'
@@ -45,8 +43,8 @@ export function combatFollowups(state){
    return `<div class="turn-followup"><strong>${esc(label)}</strong>
      <small>${esc(effect.targetIds.map(targetName).join(', '))} · ${effect.expires-state.combat.elapsed} s</small>
      ${interaction}${btn('end:'+effect.id,'Terminer cet effet')}</div>`;
- }).join('');
- const pending=state.pendingResolutions.map(result=>{
+ }).join(''):'';
+ const pending=section==='pending'?state.pendingResolutions.map(result=>{
    const spell=result.kind==='spell';
    const label=spell ? (spellById(result.spellId)?.name??result.spellId)+' · '+targetName(result.targetIds[0])
      : names[result.kind]??result.kind;
@@ -56,9 +54,9 @@ export function combatFollowups(state){
      ? `<button type="button" data-spell-resolve="${esc(result.id)}">Saisir le résultat MJ</button>`
      : btn('resolve:'+result.id,'Saisir le résultat MJ');
    return `<div class="turn-followup"><strong>${esc(label)}</strong><small>${esc(roll)}</small>${resolve}</div>`;
- }).join('');
- return (pending?`<section aria-label="Résolutions en attente"><b>Résolutions en attente</b>${pending}</section>`:'')+
-   (effects?`<details class="turn-effects"><summary>Effets actifs · ${state.effects.length}</summary>${effects}</details>`:'');
+ }).join(''):'';
+ return (pending?`<details class="turn-effects turn-pending"><summary>Résolutions en attente · ${state.pendingResolutions.length}</summary>${pending}</details>`:'')+
+   (effects?`<details class="turn-effects"><summary>Effets actifs · ${state.effects.filter(effect=>effect.kind!=='condition').length}</summary>${effects}</details>`:'');
 }
 export function socialPanel(s){return `<h3 class="power-heading">${powerGlyph('performance')}Représentation captivante</h3><p>1 minute vue et entendue · jusqu’à 5 humanoïdes à 18 m · SAG DD17 · charme 1 h. Fin si la cible est blessée, attaquée par Kobe ou voit Kobe attaquer/blesser un allié. Réussite discrète ; décisions au MJ.</p>${btn('performance','Représentation captivante · '+s.combat.performance+'/1')}`;}
 export function openCombatForm(action,s,dispatch){
@@ -76,7 +74,6 @@ export function openCombatForm(action,s,dispatch){
  if(mode==='time'){fields=input('seconds','Secondes écoulées dans la fiction','number',60)+check('confirmed','Temps confirmé à la table');description='Ne dépend pas de l’horloge réelle. Un round = 6 secondes ; le prochain début de tour fait avancer un round.';}
  if(mode==='death-save')fields=input('roll','Résultat naturel du d20','number',10);
  if(mode==='concentration')fields=input('name','Nom de l’effet','text','')+check('replace','Remplacer la concentration actuelle');
- if(mode==='condition')fields=select('name','État',[['silenced','Silence'],['incapacitated','Neutralisé'],['unconscious','Inconscient'],['stunned','Étourdi'],['paralyzed','Paralysé'],['petrified','Pétrifié'],['prone','À terre'],['frightened','Effrayé'],['charmed','Charmé']])+check('enabled','État actif (décocher pour retirer)',true)+input('duration','Durée en secondes (0 = retrait manuel)','number',0);
  if(mode==='rest'){fields=select('kind','Repos',[['short','Court (au moins 1 h)'],['long','Long (au moins 8 h)']])+input('dice','Dés de vie d8 physiques séparés par espaces, 0 pour aucun','text','0')+input('song','Chant reposant d8 (0 pour aucun)','number',0)+check('songEligible','Chant entendu pendant le repos, au moins un dé de vie dépensé')+check('confirmed','Repos achevé, conditions validées par le MJ')+check('longEligible','Repos long : au moins 1 PV au début et aucun bénéfice dans les dernières 24 h');description='Court : Inspiration et Représentation récupérées. Long : PV, emplacements, Cri, Majesté ; 5 dés de vie récupérés maximum. Khar-Vek se recharge à l’aube, pas au repos.';}
  if(mode==='combat-correct')fields=select('field','Champ',[['actionAvailable','Action'],['bonusAvailable','Action bonus'],['reactionAvailable','Réaction'],['hitDice','Dés de vie'],['maxHP','PV maximum'],['inspiration','Inspirations'],['cry','Cri'],['majesty','Majesté'],['temp','PV temporaires']])+input('value','Nouvelle valeur (action : 1 disponible, 0 consommée)','number',1)+input('reason','Motif','text','Correction MJ');
  dialog.innerHTML=`<form><h2>${esc({mantle:'Manteau d’inspiration',inspiration:'Inspiration bardique',majesty:'Manteau de majesté','fire-bolt':'Trait de feu',cry:'Cri draconique',rest:'Repos'}[mode]??'Commande de combat')}</h2><p>${description}</p>${fields}<p class="form-error" role="alert"></p><div class="actions"><button type="submit" class="primary">Confirmer</button><button type="button" data-cancel>Annuler</button></div></form>`;
