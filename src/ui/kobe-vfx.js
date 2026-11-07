@@ -43,7 +43,7 @@ export function vfxForCommand(type,payload={}){
 export function playKobeVfx(kind){
  if(!LABELS[kind]||!allowed())return false;
  if(!document.getElementById('kobe-vfx-styles')){
-   const style=document.createElement('style');style.id='kobe-vfx-styles';style.textContent=STYLE;document.head.append(style);
+   const style=document.createElement('style');style.id='kobe-vfx-styles';style.textContent=STYLE.replaceAll('./fx/kenney/',new URL('./fx/kenney/',import.meta.url).href);document.head.append(style);
  }
  if(cleanup)clearTimeout(cleanup);
  active?.remove();
