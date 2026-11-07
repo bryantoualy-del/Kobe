@@ -441,3 +441,5 @@ PR12 fusionnée en f801d5d après validation complète de 6b778f1 (CI 4234810794
 
 ### Dernier contrôle de l’emblème
 La revue des captures de clôture a repéré une règle paysage héritée qui réduisait l’emblème à 56 px après la consolidation mobile. Taille paysage rétablie à 100 px, mobile 72 px conservé ; ajout d’une assertion >=96 px en paysage. Correctif purement visuel ajouté après fusion, sans changement de moteur.
+
+Validation définitive de main cd2f54a : CI 42348457910 entièrement verte, dont taille de l’emblème et bouton Trait de feu immédiatement visibles. GitHub Pages déployé (42348458114), octets app/CSS/cache vérifiés identiques. Recette privée mise à jour (appgdep_6aeec9f855308191ab5388b1b9ade8e8). Rapport et captures finaux ajoutés dans un commit documentaire sans modifier le code testé.

@@ -1,3 +1,5 @@
+> **État courant — 7 novembre 2026 :** PR #12 fusionnée après les trois jobs verts de [CI 42348457910](https://github.com/bryantoualy-del/Kobe/actions/runs/42348457910), tête finale `cd2f54a`. 154 tests moteur, build, contrôle statique, suites Chromium/WebKit, quatre formats, sept clients et redémarrage hors ligne réussis. [Rapport final, captures comparatives, déploiements et checklist physique](KOBE_V11_DELIVERY_2026-11-07.md). Les sections datées ci-dessous sont historiques : les formulaires de ciblage et la percussion sont supprimés, les dés plein écran sont réservés au Social. Safari iPhone/iPad physique reste non vérifié.
+
 # Recette Kobe V1.1 — 5 novembre 2026
 
 Branche fix/kobe-v11-companion-parity-obsidian-dragon, PR [Kobe #7](https://github.com/bryantoualy-del/Kobe/pull/7) sur le Lot 5 [#6](https://github.com/bryantoualy-del/Kobe/pull/6). Importeur commun dans [Kentaro #13](https://github.com/bryantoualy-del/Kentaro/pull/13). Les deux PR sont soumises à revue. Aucun passage en production.
