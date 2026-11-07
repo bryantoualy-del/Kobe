@@ -41,14 +41,22 @@ jobs:
       - name: Run canonical V5 server tests
         working-directory: .v5-test
         run: npm ci && npm test
+      - name: Audited baseline for identical before/after captures
+        uses: actions/checkout@v4
+        with:
+          ref: 0cdd548f10201cbdede87a654aac1209142dc862
+          path: .before
+          persist-credentials: false
+      - name: Responsive comparisons and touch geometry
+        run: node scripts/layout-browser.mjs
       - name: Browser smoke (WebKit / Chromium, offline reload)
+        if: always()
         run: |
-          node scripts/parity-browser.mjs
-          node scripts/browser-smoke.mjs
-          node scripts/spellbook-browser.mjs
-          node scripts/kharvek-browser.mjs
-          node scripts/table-browser.mjs
-          node scripts/resume-browser.mjs
+          failed=0
+          for recipe in parity-browser browser-smoke spellbook-browser kharvek-browser table-browser resume-browser; do
+            node scripts/$recipe.mjs || failed=1
+          done
+          exit "$failed"
 
       - name: Prepare visual review
         if: always()

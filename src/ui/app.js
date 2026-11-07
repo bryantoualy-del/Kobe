@@ -58,13 +58,11 @@ function turnbar(){
 }
 function render(){const networkPanel=document.getElementById('rpg-connect');if(networkPanel&&mount.contains(networkPanel))document.body.append(networkPanel);mount.innerHTML=`<main class="shell app" data-view="${state.preferences.tab}">${header()}${!groupOpen&&['combat','kharvek'].includes(state.preferences.tab)?turnbar():''}<nav class="tabs" aria-label="Sections principales">${nav.map(([id,title])=>`<button type="button" role="tab" class="tab ${!groupOpen&&state.preferences.tab===id?'active':''}" aria-selected="${!groupOpen&&state.preferences.tab===id}" data-tab="${id}">${title}</button>`).join('')}<button type="button" role="tab" class="tab ${groupOpen?'active':''}" aria-selected="${groupOpen}" aria-label="Groupe" data-network-link>Groupe</button></nav>${problem?`<div role="alert" class="warning">${escapeHTML(problem)}</div>`:''}<div aria-live="polite" class="status">${loaded?'Sauvegardé':'Initialisation…'} · <span data-cache-status>${escapeHTML(cacheMessage)}</span></div>${body()}<footer class="footer">Kobe Companion V1.1 · Compagnie Créole</footer></main>`;filterSpells();if(!groupOpen&&state.preferences.tab==='journal'){mount.querySelector('#session-slot').replaceWith(sessionDesk);sessionDesk.hidden=false;}else sessionDesk.remove();const network=document.getElementById('rpg-connect');if(network){const slot=mount.querySelector('#group-slot');if(slot){slot.replaceWith(network);network.hidden=false;}else{document.body.append(network);network.hidden=true;}}const inventorySlot=mount.querySelector('#inventory-slot');if(inventorySlot){inventorySlot.replaceWith(inventoryDesk);inventoryDesk.hidden=false;inventoryDesk.open=true;}else inventoryDesk.remove();const lastRoll=mount.querySelector('output.ribbon');if(lastRoll)lastRoll.textContent=state.journal.slice().reverse().find(e=>e.sourceId==='private-roll').label;}
 const resultRibbon=document.getElementById('ribbon');
-let ribbonTimer;
 resultRibbon.querySelector('[data-ribbon-close]').onclick=()=>{resultRibbon.hidden=true;};
 resultRibbon.querySelector('[data-ribbon-undo]').onclick=async()=>{if(state.undo?.commandId===resultRibbon.dataset.command)await dispatch('undo',{commandId:state.undo.commandId});};
 function updateRibbon(result,type){
- clearTimeout(ribbonTimer);
- resultRibbon.hidden=true;
  if(!result.ok||result.replay||['preferences','notes','favorites','private-roll'].includes(type))return;
+ resultRibbon.hidden=true;
  const event=result.events?.at(-1);
  if(!event?.label)return;
  resultRibbon.querySelector('.rb').textContent=event.label;

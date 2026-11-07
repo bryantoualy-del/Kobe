@@ -3,7 +3,7 @@
 .compact-header strong{font:700 1.2rem Georgia,serif;color:var(--gold)}
 .compact-header span{font-size:13px}
 .app .status{font-size:12px;margin:6px 0;min-height:0;color:var(--muted)}
-.app .combat-ability-button,.app .hp-actions button{min-height:44px}
+.app .tactical-card .combat-ability-button,.app .hp-actions .mini{min-height:44px}
 .app .ability-note{font-size:12px;line-height:1.4}
 .app .hp-actions{display:flex;flex-wrap:wrap;gap:4px}
 .app .hp-actions button{flex:1;padding:6px 8px}
@@ -56,7 +56,12 @@
  .app .compact-header span{font-size:12px}
  .app .panel{padding:12px}
  .app .brack-offense{display:flex;flex-direction:column}
- .app .abilities-card{order:0}.app .signature-preview{order:1}.app .favorites-panel{order:2}
+ .app .signature-preview{order:0}.app .abilities-card{order:1}.app .favorites-panel{order:2}
+ .app .combat-abilities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .app .combat-ability{grid-template-columns:minmax(0,1fr);gap:3px}
+ .app .combat-ability .ability-note{grid-column:1}
+ .app .combat-ability .ability-cost{font-size:12px}
+ .app .tactical-card .combat-ability-button{font-size:13px;padding:8px}
  #kharvek{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:10px}
  #kharvek .kharvek-art{grid-area:auto}
  #kharvek .kharvek-art h2{font-size:24px;margin:0}
@@ -75,3 +80,23 @@
 .app #sessionDesk .journal-subtabs{position:static;top:auto}
 
 .app .drum-pad .dragon-art{background:transparent}
+
+/* Keep four favourites and support controls together in the landscape viewport. */
+@media(min-width:1000px){
+ .app .brack-offense{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);align-items:start}
+ .app .brack-offense>.tactical-card{grid-column:2;grid-row:1}
+ .app .brack-offense>.favorites-panel{grid-column:1/-1;grid-row:2}
+ .app .combat-abilities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .app .combat-ability{grid-template-columns:minmax(0,1fr);padding:0;border:0;gap:2px}
+ .app .combat-ability .ability-cost{font-size:11px}
+ .app .combat-ability .ability-note{grid-column:1;font-size:11px}
+ .app .tactical-card .combat-ability-button{font-size:12px;padding:6px}
+ .app .tactical-card .support-actions{grid-template-columns:repeat(3,minmax(0,1fr));margin:8px 0 0;gap:6px}
+ .app .tactical-card .support-actions button{padding:8px;min-height:100px;align-content:start}
+ .app .tactical-card .support-actions strong{font-size:14px}
+ .app .tactical-card .support-actions span,.app .tactical-card .support-actions small{font-size:12px}
+ .app .signature-preview .strike-prepare{flex-wrap:wrap}
+ .app .signature-preview .signature-modes{flex-basis:100%}
+ .app .tabs{margin:8px 0}
+ .app .combat-subtabs{margin:8px 0}
+}
