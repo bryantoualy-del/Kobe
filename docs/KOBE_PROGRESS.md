@@ -443,3 +443,6 @@ PR12 fusionnée en f801d5d après validation complète de 6b778f1 (CI 4234810794
 La revue des captures de clôture a repéré une règle paysage héritée qui réduisait l’emblème à 56 px après la consolidation mobile. Taille paysage rétablie à 100 px, mobile 72 px conservé ; ajout d’une assertion >=96 px en paysage. Correctif purement visuel ajouté après fusion, sans changement de moteur.
 
 Validation définitive de main cd2f54a : CI 42348457910 entièrement verte, dont taille de l’emblème et bouton Trait de feu immédiatement visibles. GitHub Pages déployé (42348458114), octets app/CSS/cache vérifiés identiques. Recette privée mise à jour (appgdep_6aeec9f855308191ab5388b1b9ade8e8). Rapport et captures finaux ajoutés dans un commit documentaire sans modifier le code testé.
+
+## 7 novembre — retour Safari iPad : header persistant
+Capture utilisateur confirmée : le header complet était remplacé hors Combat par le bandeau mobile, même sur iPad. Rétablissement du header et de la barre de tour sur tous les onglets au-dessus de 720 px, dont Groupe. Le header compact et l’absence de barre de tour hors Combat restent limités aux téléphones pour conserver les parcours mobiles validés. Aucune donnée ni règle modifiée. La recette layout vérifie désormais le bandeau, l’emblème, les PV et la barre de tour dans Sorts, Social, Journal et Groupe, sous Chromium/WebKit.

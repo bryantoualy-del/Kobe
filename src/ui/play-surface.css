@@ -1,5 +1,5 @@
 /* Responsive play surface: final layout authority over imported Companion skins. */
-.compact-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 70px 16px 4px;color:var(--ivory)}
+.compact-header{display:none;align-items:center;justify-content:space-between;gap:12px;padding:16px 70px 16px 4px;color:var(--ivory)}
 .compact-header strong{font:700 1.2rem Georgia,serif;color:var(--gold)}
 .compact-header span{font-size:13px}
 .app .status{font-size:12px;margin:6px 0;min-height:0;color:var(--muted)}
@@ -52,7 +52,8 @@
  .app #cc-turnbar-standard .cc-turn-next{background:linear-gradient(135deg,#b88036,#E5B963);color:#17110d;font-weight:800}
  .app .tabs{position:fixed!important;bottom:0;left:0;right:0;top:auto;width:100%;margin:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;z-index:40;background:#151419f8;border-top:1px solid var(--line);border-radius:0}
  .app .tabs .tab{min-width:0;min-height:52px;padding:5px 2px;font-size:11px;white-space:normal;border-radius:9px}
- .app .compact-header{padding:10px 68px 10px 3px;flex-wrap:wrap;gap:4px;min-height:64px}
+ .app[data-secondary=true] .top,.app[data-secondary=true] #cc-turnbar-standard{display:none!important}
+ .app .compact-header{display:flex;padding:10px 68px 10px 3px;flex-wrap:wrap;gap:4px;min-height:64px}
  .app .compact-header span{font-size:12px}
  .app .panel{padding:12px}
  .app .brack-offense{display:flex;flex-direction:column}
