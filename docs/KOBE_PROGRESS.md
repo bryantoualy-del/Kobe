@@ -469,3 +469,6 @@ CI 42357786301 : 164 tests/build et écosystème sept clients réussis ; sorts, 
 
 ### Lot F — lecture des captures Soins
 Le catalogue affichait trop de commandes d'emplacements avant les capacités. Résumé compact N1–N5 toujours visible, correction des emplacements dépliable ; le titre du sort ouvre maintenant sa description, supprimant une rangée dédiée. Dans Soins, Khar-Vek passe en tête pour rendre ses trois commandes accessibles rapidement. Les niveaux de lancement restent directement sur chaque carte. Aucun changement métier.
+
+### Lot F — grimoire compact
+CI 42358413457 : mise en page complète, moteur/build, sorts, Social/Journal, Khar-Vek, V5 et reprise réussis. L'assertion supplémentaire de correction d'emplacement s'est arrêtée sur un sélecteur CSS numérique non cité ; correction du script uniquement, puis nouvelle exécution complète. Les captures de cette exécution confirment le résumé d'emplacements compact.
