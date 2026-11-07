@@ -64,6 +64,7 @@ try{
    old.terminate();await until(()=>rooms.get(room).players.get('kobe')!==old&&rooms.get(room).players.get('kobe'),'reconnected');
    assert.equal(await hp(),60);
    await page.locator('[data-toggle-config]').click();await page.getByRole('button',{name:'Déconnecter',exact:true}).click();
+   await page.getByRole('tab',{name:'Combat',exact:true}).click();
    start=await count();await page.getByRole('button',{name:'Soin',exact:true}).click();await page.locator('[name=answer]').fill('5');await page.locator('[data-dialog-accept]').click();
    await page.locator('#hp[value="65"]').waitFor();
    touchCounts.heal=(await count())-start;console.log(name+' FRICTION measured DOM clicks (text entry and native prompt excluded): '+JSON.stringify(touchCounts));

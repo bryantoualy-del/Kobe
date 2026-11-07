@@ -44,9 +44,11 @@ try{
  await k.getByLabel('Invitation Kobe').fill(['RPGCONNECT',endpoint,room,'kobe',token].join('|'));
  await k.getByRole('button',{name:'Rejoindre la partie'}).click();await k.getByText(/Connecté · MJ en ligne/).waitFor();
  await gm.waitForFunction(()=>RPGConnectMJ.getStatus().players.filter(p=>p.online).length===7);
+ await k.getByRole('tab',{name:'Combat',exact:true}).click();
  await k.getByRole('button',{name:'Dégâts',exact:true}).click();await k.locator('[name=answer]').fill('8');await k.locator('[data-dialog-accept]').click();
  await gm.waitForFunction(()=>state.encounter.participants.find(p=>p.id==='cc-kobe')?.hp===75);
  assert.equal(await gm.evaluate(()=>state.encounter.participants.filter(p=>p.id==='cc-kobe').length),1);
+ await k.getByRole('tab',{name:'Groupe',exact:true}).click();
  await k.locator('#rpg-connect').getByText('Samoth',{exact:true}).waitFor();
  assert.deepEqual(errors,[]);
  console.log('SEVEN_CLIENTS: actual Encounter issued all seven invitations; six historical apps + Kobe connected; local damage 83→75 mirrored once; Kobe receives Samoth in group.');

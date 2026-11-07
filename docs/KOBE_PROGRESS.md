@@ -419,3 +419,7 @@ Les cartes du grimoire sont compactées en trois colonnes au format paysage ; ni
 - Résultat persistant avec Annuler ; notes privées autosauvegardées ; invitation RPG Connect restaurée après rechargement et oubliée sur déconnexion explicite.
 - 154 tests moteur passent. Serveur : 10 tests passent et PR7 fusionnée. Encounter : validation locale V5 et MJ 8/8 ; manifeste CI réparé pour utiliser le serveur comprenant Kobe.
 - Recette navigateur et CI de livraison en cours. iPhone/iPad physiques non disponibles ; ne pas assimiler WebKit à une recette physique.
+
+## 7 novembre — reprise PR #12
+État initial : main 0cdd548, tête d7a846a, PR ouverte ; PR10/11 fusionnées. CI 42301260778 : moteur/build réussis, navigateur et écosystème en échec. L’en-tête contextuel a supprimé le titre Combat dans Journal et les commandes PV dans Groupe ; les anciens scénarios attendaient ces commandes sans revenir sur Combat. Recettes corrigées pour respecter la navigation et vérifier la restauration de Journal. Aucun moteur remplacé.
+154 tests locaux, build et contrôle statique réussis. Render consulté : RPG Connect live 5b13cd5 (dep-dbn4p3942hec73fhjaj0) ; Encounter live ff447ea (dep-dbi58mg473hc73elt6ug), PR21 toujours ouverte. Recette navigateur complète en cours.
