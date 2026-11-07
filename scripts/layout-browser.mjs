@@ -29,7 +29,13 @@ try{for(const engine of [chromium,webkit]){
   if(width===1180){assert((await page.locator('.identity .signature').boundingBox()).width>=96,'large official emblem retained');for(const b of await page.locator('.favorites-panel [data-cast]').all()){const r=await b.boundingBox();assert(r.y+r.height<=820,'four favourites immediately accessible');}}
  }
  for(const name of ['Sorts & pouvoirs','Social','Journal','Groupe']){
-  await tab(name);await shot(name==='Sorts & pouvoirs'?'spells':name.toLowerCase());
+  await tab(name);
+  if(phase==='after'){
+   assert.equal(await page.locator('header.top').isVisible(),width>720,name+' full header follows viewport');
+   assert.equal(await page.locator('#cc-turnbar-standard').isVisible(),width>720,name+' turn bar follows viewport');
+   if(width>720){assert.equal(await page.locator('.identity .signature img').isVisible(),true,name+' official emblem');assert.equal(await page.locator('#hp').inputValue(),'83');}
+  }
+  await shot(name==='Sorts & pouvoirs'?'spells':name.toLowerCase());
   if(phase==='after')assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow '+width+' '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('main *')].filter(e=>e.getBoundingClientRect().right>innerWidth).map(e=>({tag:e.tagName,cls:e.className,width:e.getBoundingClientRect().width})).slice(0,12))));
  }
  await tab('Combat');await page.locator('[data-combat-view=kharvek]').click();
