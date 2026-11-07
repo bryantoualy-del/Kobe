@@ -1,4 +1,5 @@
 import {conditionButton, openConditions} from './condition-ui.js';
+import {playKobeVfx,vfxForCommand} from './kobe-vfx.js';
 import {canAct} from '../kobe/combat.js';
 import {supportCockpit,comboAvailability,ardentStage} from './support-ui.js';
 import {initJournal} from '../companion/journal.js';
@@ -171,7 +172,7 @@ function updateRibbon(result,type){
 }
 store.subscribe(s=>{if(s.turn.startRevision!==state.turn.startRevision||s.turn.epoch!==state.turn.epoch||s.turn.combatId!==state.turn.combatId)comboHeal=false;state=s;document.dispatchEvent(new Event('kobe-mechanical-update'));if(!busy)render();});
 const make=(type,payload={})=>({id:'local-'+crypto.randomUUID(),actorId:'kobe',origin:'player',expectedRevision:state.revision,type,payload});
-async function dispatch(type,payload){if(busy)return;busy=true;mount.inert=true;try{const r=await store.dispatch(make(type,payload));updateRibbon(r,type);if(!r.ok)problem=r.message||r.code;else problem='';return r;}finally{busy=false;mount.inert=false;render();}}
+async function dispatch(type,payload){if(busy)return;busy=true;mount.inert=true;try{const r=await store.dispatch(make(type,payload));updateRibbon(r,type);if(!r.ok)problem=r.message||r.code;else {problem='';if(!r.replay){const effect=vfxForCommand(type,payload);if(effect)playKobeVfx(effect);}}return r;}finally{busy=false;mount.inert=false;render();}}
 function quickRest(kind){
  const long=kind==='long';
  const detail=long?'8 heures · PV, emplacements et ressources restaurés. Jusqu’à 5 dés de vie récupérés.':'1 heure · Inspiration bardique et Représentation récupérées.';
