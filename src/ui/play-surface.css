@@ -151,7 +151,7 @@
 .app.shell{padding-bottom:calc(84px + env(safe-area-inset-bottom))!important}
 .app .turn-header{
   display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,1.6fr) auto!important;
-  align-items:center;gap:12px!important;padding:8px 94px 8px 12px;
+  align-items:center;gap:12px!important;padding:8px 12px;
   border:1px solid #464047;border-radius:14px;background:#141416;
 }
 .turn-identity{display:flex;gap:12px;align-items:center;min-width:0}
@@ -254,7 +254,17 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
   background:#151419fa;border-top:1px solid #49434c;overflow:visible;
 }
 .app nav.turn-dock button{min-height:44px!important;font-size:14px!important;border-radius:9px}
-.app nav.turn-dock .turn-finish{margin-left:auto;min-width:145px;background:linear-gradient(135deg,#E5B963,#c68c44);color:#17110d;font-weight:850}
+.app nav.turn-dock .turn-finish{min-width:145px;background:linear-gradient(135deg,#E5B963,#c68c44);color:#17110d;font-weight:850}
+.app nav.turn-dock .turn-rpg{
+  display:inline-flex;justify-content:center;align-items:center;gap:5px;margin-left:auto;
+  border:1px solid #49434c;background:#19171d;white-space:nowrap
+}
+.turn-rpg [data-rpg-unread]{color:var(--gold)}
+.turn-rpg [hidden]{display:none}
+.app nav.turn-dock .turn-finish:disabled{background:#211d23;color:var(--muted);border:1px solid #49434c;opacity:1}
+.kobe-connect.rpg-connect{top:auto;bottom:calc(62px + env(safe-area-inset-bottom))}
+.kobe-connect .rpg-connect-panel{top:auto;bottom:0;max-height:calc(100dvh - 84px - env(safe-area-inset-bottom))}
+.turn-number[data-shared=true]{max-width:22ch}
 @media(max-width:900px){
  .support-cockpit{grid-template-columns:minmax(0,1fr)}
  .app .turn-header{grid-template-columns:minmax(0,1fr) auto!important}
@@ -265,7 +275,6 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
 @media(max-width:720px){
  .app.shell{padding-bottom:calc(116px + env(safe-area-inset-bottom))!important}
  .app .turn-header{padding:6px 8px;gap:5px!important}
- .turn-identity{padding-right:55px}
  .turn-identity img{width:46px;height:46px}
  .turn-identity h1{font-size:22px}
  .turn-identity p{font-size:11px}
@@ -291,9 +300,13 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
  .turn-command small{font-size:11px}
  .app nav.turn-dock{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));padding-inline:6px!important}
  .app nav.turn-dock button{min-height:44px!important;padding:4px 2px!important;font-size:11px!important}
- .app nav.turn-dock .turn-finish{grid-row:1;grid-column:1/-1;justify-self:end;width:100%;max-width:190px;font-size:14px!important}
- .app[data-secondary=true] nav.turn-dock .turn-finish{display:none}
- body:has(.app[data-secondary=false]) > #ribbon{bottom:calc(118px + env(safe-area-inset-bottom))}
+ .app nav.turn-dock .turn-rpg{grid-row:1;grid-column:1;margin:0}
+ .turn-rpg-long{display:none}
+ .kobe-connect.rpg-connect{bottom:calc(111px + env(safe-area-inset-bottom))}
+ .kobe-connect .rpg-connect-panel{max-height:calc(100dvh - 135px - env(safe-area-inset-bottom))}
+ .app nav.turn-dock .turn-finish{grid-row:1;grid-column:2/-1;justify-self:end;width:100%;max-width:190px;font-size:14px!important}
+ .app[data-secondary=true] nav.turn-dock .turn-finish[data-shared=false]{display:none}
+ body:has(.app) > #ribbon{bottom:calc(118px + env(safe-area-inset-bottom))}
 }
 
 .turn-followup{

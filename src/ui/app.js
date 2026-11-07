@@ -18,7 +18,7 @@ const store=createStore({storage:localStorage,locks:navigator.locks});
 let state=store.getState(), problem='', busy=false, loaded=false;
 let cacheMessage='Cache hors ligne en préparation';
 const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let groupOpen=false, comboHeal=false;
+let groupOpen=false, comboHeal=false, table;
 const nav=[['combat','Combat'],['spells','Sorts & pouvoirs'],['social','Social'],['journal','Journal']];
 const button=(id,label,style='')=>`<button type="button" data-action="${id}" class="${style}">${escapeHTML(label)}</button>`;
 function body(){
@@ -55,6 +55,41 @@ function header(){
  </header>`;
 }
 
+function renderTableControls(v=table?.status()){
+ const shared=v?.shared===true, playing=v?.session?.phase==='fight';
+ const ready=shared&&v.connected&&v.gmOnline&&!v.sessionStale;
+ const mine=ready&&playing&&v.session.activeCharacterId==='kobe';
+ const phase=state.combat.phase;
+ let label='Tour '+(state.turn.startRevision+1),action=phase==='active'?'end-turn':'next-turn';
+ let buttonText=phase==='active'?'Fin de tour':'Début de mon tour',disabled=false;
+ if(shared){
+   action='signal-turn-end';disabled=!v.canSignal;
+   const name=v.session?.activeName;
+   const text=!ready?'Attente du MJ':v.signalled&&mine?'Fin signalée au MJ':
+     mine?'À toi de jouer':playing&&name?'Tour de '+name:'Attente du combat';
+   label=(ready&&playing&&Number.isSafeInteger(v.session?.round)?'Round '+v.session.round+' · ':'')+text;
+   buttonText=v.canSignal?'Signaler la fin du tour':text;
+ }
+ const badge=mount.querySelector('.turn-number');
+ if(badge){
+   if(badge.textContent!==label)badge.textContent=label;
+   badge.dataset.shared=String(shared);
+ }
+ const turnButton=mount.querySelector('.turn-finish');
+ if(turnButton){
+   if(turnButton.textContent!==buttonText)turnButton.textContent=buttonText;
+   turnButton.dataset.action=action;turnButton.disabled=disabled;
+   turnButton.dataset.shared=String(shared);
+ }
+ const launcher=mount.querySelector('[data-action=rpg-connect]');
+ if(launcher){
+   launcher.querySelector('.rpg-connect-dot').classList.toggle('online',Boolean(v?.connected&&v.gmOnline));
+   const pending=v?.pending?.filter(({event})=>!['initiative:request','initiative:retry'].includes(event.type)).length??0;
+   const indicator=launcher.querySelector('[data-rpg-unread]');
+   indicator.hidden=!pending;indicator.textContent=String(pending);
+ }
+}
+
 function turnbar(){
  const active=state.combat.phase==='active';
  const able=canAct(state);
@@ -77,8 +112,6 @@ function render(){
  if(networkPanel&&mount.contains(networkPanel))document.body.append(networkPanel);
  if(mount.contains(resultRibbon))document.body.append(resultRibbon);
  const secondary=secondaryView();
- const end=state.combat.phase==='active';
- const next=end?button('end-turn','Fin de tour','turn-finish'):button('next-turn','Début de mon tour','turn-finish');
  mount.innerHTML=`<main class="shell app" data-view="${state.preferences.tab}" data-secondary="${secondary}">
    ${header()}${turnbar()}
    ${state.hp.current===0&&!state.combat.death.dead
@@ -91,9 +124,11 @@ function render(){
    <nav class="tabs turn-dock" aria-label="Sections principales">
      ${nav.map(([id,title])=>`<button type="button" role="tab" class="tab ${!groupOpen&&state.preferences.tab===id?'active':''}" aria-selected="${!groupOpen&&state.preferences.tab===id}" data-tab="${id}">${title}</button>`).join('')}
      <button type="button" role="tab" class="tab ${groupOpen?'active':''}" aria-selected="${groupOpen}" aria-label="Groupe" data-network-link>Groupe</button>
-     ${next}
+     <button type="button" class="turn-rpg" data-action="rpg-connect" aria-label="RPG Connect" aria-controls="kobe-rpg-panel" aria-expanded="${document.getElementById('kobe-rpg-panel')?.hidden===false}"><span class="rpg-connect-dot" aria-hidden="true"></span> RPG<span class="turn-rpg-long"> Connect</span><small data-rpg-unread hidden></small></button>
+     <button type="button" class="turn-finish"></button>
    </nav>
  </main>`;
+ renderTableControls();
  filterSpells(state);
  const bookList=mount.querySelector('.grimoire-list');
  if(bookList)bookList.scrollTop=bookScroll;
@@ -192,7 +227,7 @@ mount.addEventListener('click',async e=>{
    }
    return;
  }
- if(e.target.closest('[data-network-link]')){e.preventDefault();groupOpen=true;render();window.scrollTo(0,0);return;}const view=e.target.closest('[data-combat-view],[data-social-view]');if(view){if(view.dataset.combatView){combatView=view.dataset.combatView;sessionStorage.setItem('combat-pane',combatView);}else socialView=view.dataset.socialView;render();return;}if(selectRollControl(e.target))return;if(e.target.closest('[data-inventory-link]'))inventoryDesk.open=true;const check=e.target.closest('[data-roll]');if(check){await roll(check.dataset.roll,dispatch);return;}const charge=e.target.closest('[data-charge-value]');if(charge){await dispatch('correct',{field:'charges',value:Number(charge.dataset.chargeValue),reason:'Ajustement des charges'});return;}const kv=e.target.closest('[data-kharvek]');if(kv){openKharvekForm(kv.dataset.kharvek,state,dispatch);return;}const cast=e.target.closest('[data-cast]');if(cast){openSpellCast(cast.dataset.cast,state,dispatch);return;}const detail=e.target.closest('[data-spell-detail]');if(detail){openSpellDetail(detail.dataset.spellDetail);return;}const fav=e.target.closest('[data-favorite]');if(fav){const id=fav.dataset.favorite,ids=state.preferences.favorites.includes(id)?state.preferences.favorites.filter(x=>x!==id):[...state.preferences.favorites,id];await dispatch('favorites',{ids});return;}const sr=e.target.closest('[data-spell-resolve]');if(sr){openSpellResolve(sr.dataset.spellResolve,state,dispatch);return;}const sc=e.target.closest('[data-spell-control]');if(sc){openSpellControl(sc.dataset.spellControl,state,dispatch);return;}const slot=e.target.closest('[data-slot]');if(slot){await dispatch('slot-correct',{level:Number(slot.dataset.slot),value:Number(slot.dataset.slotValue),reason:'Ajustement du grimoire'});return;}const combat=e.target.closest('[data-combat]');if(combat&&combat.dataset.combat==='fire-bolt'){await quickAttack(dispatch,mount.querySelector('#signature-target')?.value??'Cible annoncée',mount.querySelector('[name=signature-mode]:checked')?.value??'normal',mount.querySelector('#signature-dice')?.value??'');return;}if(combat){if(combat.dataset.restKind){quickRest(combat.dataset.restKind);return;}openCombatForm(combat.dataset.combat,state,dispatch);return;}const tab=e.target.closest('[data-tab]');if(tab){groupOpen=false;await dispatch('preferences',{tab:tab.dataset.tab});window.scrollTo(0,0);return;}const target=e.target.closest('[data-action]');if(!target)return;const a=target.dataset.action;if(a==='conditions'){openConditions(()=>state,dispatch);return;}if(a==='initiative'){const die=1+Math.floor(Math.random()*20);await dispatch('initiative-roll',{die});return;}if(['damage','heal','temp'].includes(a)){const raw=await RPGDialogs.prompt(a==='damage'?'Dégâts reçus':a==='heal'?'PV récupérés':'PV temporaires reçus','1');if(raw===null)return;const amount=Number(raw);if(!Number.isSafeInteger(amount)||amount<=0||amount>10000){await RPGDialogs.alert('Saisir un nombre entier entre 1 et 10 000.');return;}await dispatch(a==='temp'?'set-temp-hp':a,{amount,...(a==='damage'?{critical:document.querySelector('#critical')?.checked===true}:{})});return;}if(a.startsWith('spend-')){const key={ 'spend-action':'actionAvailable','spend-bonus':'bonusAvailable','spend-reaction':'reactionAvailable'}[a];await dispatch('spend',{economy:key});return;}if(a==='end-turn'){if(!table.status().gmOnline){await dispatch('turn-next',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}const r=await dispatch('turn-end',{});if(r?.ok&&!r.replay)table.sendEvent('turn:end-request',{turn:state.turn.startRevision,actionId:r.events[0].id});return;}if(a==='next-turn'){await dispatch('turn-start',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}if(a==='save-notes'){await dispatch('notes',{text:document.querySelector('#notes').value});return;}if(a==='undo'){if(state.undo)await dispatch('undo',{commandId:state.undo.commandId});return;}if(a==='correct'){const value=await RPGDialogs.prompt('Nouveaux PV (0 à '+state.hp.max+')',state.hp.current);if(value===null)return;const v=Number(value);if(!Number.isSafeInteger(v)||v<0||v>state.hp.max){problem='Valeur de PV invalide.';render();return;}const reason='Correction de table';await dispatch('correct',{field:'hp',value:v,reason:reason.trim()});return;}if(a==='export'){await download(store.export(),'kobe-sauvegarde-v1.json');return;}if(a==='import'){await importFile();}});
+ if(e.target.closest('[data-network-link]')){e.preventDefault();groupOpen=true;render();window.scrollTo(0,0);return;}const view=e.target.closest('[data-combat-view],[data-social-view]');if(view){if(view.dataset.combatView){combatView=view.dataset.combatView;sessionStorage.setItem('combat-pane',combatView);}else socialView=view.dataset.socialView;render();return;}if(selectRollControl(e.target))return;if(e.target.closest('[data-inventory-link]'))inventoryDesk.open=true;const check=e.target.closest('[data-roll]');if(check){await roll(check.dataset.roll,dispatch);return;}const charge=e.target.closest('[data-charge-value]');if(charge){await dispatch('correct',{field:'charges',value:Number(charge.dataset.chargeValue),reason:'Ajustement des charges'});return;}const kv=e.target.closest('[data-kharvek]');if(kv){openKharvekForm(kv.dataset.kharvek,state,dispatch);return;}const cast=e.target.closest('[data-cast]');if(cast){openSpellCast(cast.dataset.cast,state,dispatch);return;}const detail=e.target.closest('[data-spell-detail]');if(detail){openSpellDetail(detail.dataset.spellDetail);return;}const fav=e.target.closest('[data-favorite]');if(fav){const id=fav.dataset.favorite,ids=state.preferences.favorites.includes(id)?state.preferences.favorites.filter(x=>x!==id):[...state.preferences.favorites,id];await dispatch('favorites',{ids});return;}const sr=e.target.closest('[data-spell-resolve]');if(sr){openSpellResolve(sr.dataset.spellResolve,state,dispatch);return;}const sc=e.target.closest('[data-spell-control]');if(sc){openSpellControl(sc.dataset.spellControl,state,dispatch);return;}const slot=e.target.closest('[data-slot]');if(slot){await dispatch('slot-correct',{level:Number(slot.dataset.slot),value:Number(slot.dataset.slotValue),reason:'Ajustement du grimoire'});return;}const combat=e.target.closest('[data-combat]');if(combat&&combat.dataset.combat==='fire-bolt'){await quickAttack(dispatch,mount.querySelector('#signature-target')?.value??'Cible annoncée',mount.querySelector('[name=signature-mode]:checked')?.value??'normal',mount.querySelector('#signature-dice')?.value??'');return;}if(combat){if(combat.dataset.restKind){quickRest(combat.dataset.restKind);return;}openCombatForm(combat.dataset.combat,state,dispatch);return;}const tab=e.target.closest('[data-tab]');if(tab){groupOpen=false;await dispatch('preferences',{tab:tab.dataset.tab});window.scrollTo(0,0);return;}const target=e.target.closest('[data-action]');if(!target)return;const a=target.dataset.action;if(a==='conditions'){openConditions(()=>state,dispatch);return;}if(a==='initiative'){const die=1+Math.floor(Math.random()*20);await dispatch('initiative-roll',{die});return;}if(['damage','heal','temp'].includes(a)){const raw=await RPGDialogs.prompt(a==='damage'?'Dégâts reçus':a==='heal'?'PV récupérés':'PV temporaires reçus','1');if(raw===null)return;const amount=Number(raw);if(!Number.isSafeInteger(amount)||amount<=0||amount>10000){await RPGDialogs.alert('Saisir un nombre entier entre 1 et 10 000.');return;}await dispatch(a==='temp'?'set-temp-hp':a,{amount,...(a==='damage'?{critical:document.querySelector('#critical')?.checked===true}:{})});return;}if(a.startsWith('spend-')){const key={ 'spend-action':'actionAvailable','spend-bonus':'bonusAvailable','spend-reaction':'reactionAvailable'}[a];await dispatch('spend',{economy:key});return;}if(a==='rpg-connect'){table.togglePanel();return;}if(a==='signal-turn-end'){await table.signalTurnEnd();return;}if(a==='end-turn'){await dispatch('turn-next',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}if(a==='next-turn'){await dispatch('turn-start',{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId});return;}if(a==='save-notes'){await dispatch('notes',{text:document.querySelector('#notes').value});return;}if(a==='undo'){if(state.undo)await dispatch('undo',{commandId:state.undo.commandId});return;}if(a==='correct'){const value=await RPGDialogs.prompt('Nouveaux PV (0 à '+state.hp.max+')',state.hp.current);if(value===null)return;const v=Number(value);if(!Number.isSafeInteger(v)||v<0||v>state.hp.max){problem='Valeur de PV invalide.';render();return;}const reason='Correction de table';await dispatch('correct',{field:'hp',value:v,reason:reason.trim()});return;}if(a==='export'){await download(store.export(),'kobe-sauvegarde-v1.json');return;}if(a==='import'){await importFile();}});
 const load=await store.load();state=load.state;if(state.preferences.tab==='kharvek'){combatView='kharvek';}loaded=true;
 const journalApi={events:()=>state.journal,log:message=>{const toast=sessionDesk.querySelector('#sessionToast');if(toast)toast.textContent=message;}};
 document.body.append(sessionDesk);
@@ -210,4 +245,4 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }else cacheStatus('Cache hors ligne indisponible');
 
 
-const table=mountConnect(store,quickActions,dispatch);render();
+table=mountConnect(store,quickActions,dispatch,renderTableControls);render();

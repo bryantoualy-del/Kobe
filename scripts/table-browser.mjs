@@ -82,8 +82,32 @@ try{
    assert.equal(await bar.evaluate(el=>el.style.getPropertyValue('--hp-color')),'hsl(4 62% 62%)');
    await page.locator('.rpg-health-changes summary').click();
    assert.equal(await page.locator('.rpg-health-changes li').count(),2);
+   const turn=(revision,id,round,turnStartRevision)=>command('turn-'+revision,'state:sync',{
+    syncEpoch:'A',session:{sessionRevision:revision,phase:'fight',combatId:'fight-1',round,
+      activeCharacterId:id,activeParticipantId:'cc-'+id,activeName:id==='kobe'?'Kobe Kozzo':'Kentaro',turnStartRevision},
+   });
+   turn(1,'kobe',1,1);
+   const signal=page.getByRole('button',{name:'Signaler la fin du tour',exact:true});
+   await signal.waitFor();
+   assert.equal(await page.locator('.rpg-session-banner,.rpg-connect-launch').count(),0);
+   assert.equal(await page.locator('.turn-dock [aria-label="RPG Connect"]').count(),1);
+   await signal.click();
+   await until(()=>rx.some(m=>m.type==='event'&&m.event.type==='turn:end-request'),'one end-of-turn signal');
+   const signalled=page.getByRole('button',{name:'Fin signalée au MJ',exact:true});
+   await signalled.waitFor();assert.equal(await signalled.isDisabled(),true);
+   assert.equal(await page.locator('.turn-number').textContent(),'Round 1 · Fin signalée au MJ');
+   turn(2,'kentaro',1,1);
+   await page.getByRole('button',{name:'Tour de Kentaro',exact:true}).waitFor();
+   turn(3,'kobe',2,2);
+   await signal.waitFor();
+   assert.equal(await page.locator('.turn-number').textContent(),'Round 2 · À toi de jouer');
+   await page.screenshot({path:'screenshots/'+name+'-table-turn-dock.png'});
    const correct=()=>command('correction-1','hp:set',{manualTable:true,expectedValue:83,value:60});
-   correct();await page.getByRole('button',{name:'Appliquer cette correction'}).click();
+   correct();
+   await page.waitForFunction(()=>document.querySelector('[data-rpg-unread]')?.hidden===false);
+   assert.equal(await page.locator('#kobe-rpg-panel').isVisible(),false);
+   await page.getByRole('button',{name:'RPG Connect',exact:true}).click();
+   start=await count();await page.getByRole('button',{name:'Appliquer cette correction'}).click();
    await until(()=>rx.some(m=>m.type==='command-ack'&&m.id==='correction-1'),'accepted correction');
    touchCounts.reviewHp=(await count())-start;start=await count();
    const hp=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.hp.current);

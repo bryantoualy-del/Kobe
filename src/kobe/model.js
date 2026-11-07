@@ -27,6 +27,7 @@ export function validateState(s) {
   for (const k of ['actionAvailable', 'bonusAvailable', 'reactionAvailable']) if (typeof s.economy[k] !== 'boolean') throw new Error('Économie invalide.');
   integer(s.economy.movementRemaining, 0, 1000); integer(s.turn.startRevision);
   if (s.turn.actorId !== 'kobe' || typeof s.turn.epoch !== 'string' || typeof s.turn.combatId !== 'string') throw new Error('Tour invalide.');
+  if (s.turn.tableKey!==undefined && (typeof s.turn.tableKey!=='string'||!/^net-[a-f0-9]{64}$/.test(s.turn.tableKey))) throw new Error('Repère de tour partagé invalide.');
   validateCombat(s);
   if (!TABS.includes(s.preferences.tab) || !Array.isArray(s.preferences.favorites) || s.preferences.favorites.length > 4 || new Set(s.preferences.favorites).size!==s.preferences.favorites.length || s.preferences.favorites.some(x => !spellById(x))) throw new Error('Préférences invalides.');
   if (typeof s.notes !== 'string' || s.notes.length > 20000) throw new Error('Notes invalides.');

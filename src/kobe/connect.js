@@ -42,11 +42,19 @@ import {correction} from './table-correction.js';
 export {correction};
 export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},onActivity=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout,connectionStorage=null}) {
   let socket=null,invite=null,active=false,timer=null,attempt=0,generation=0,chain=Promise.resolve();
-  let healthChangeId=0;
+  let healthChangeId=0,turnKey=null;
   let epoch=uuid(),lastRevision=-1,lastProjection='',groupEpoch=null,groupRevision=-1,sessionRevision=-1;
   const retired=new Set(),pending=new Map(),sent=new Map();
-  let view={connected:false,status:'Local · RPG Connect déconnecté',group:[],healthChanges:[],stale:true,gmOnline:false,messages:[]};
-  const publish=()=>onChange({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]});
+  let view={connected:false,status:'Local · RPG Connect déconnecté',group:[],healthChanges:[],sessionStale:true,stale:true,gmOnline:false,messages:[]};
+  function status(){
+    const state=store.getState(), key=turnKey;
+    const shared=active&&(view.connected||Boolean(view.session));
+    const signalled=Boolean(key&&(sent.has('end-'+key)||Object.hasOwn(state.receipts,'end-'+key)));
+    const canSignal=Boolean(shared&&view.connected&&view.gmOnline&&!view.sessionStale&&key&&
+      state.turn.tableKey===key&&state.combat.phase==='active'&&!signalled);
+    return {...view,shared,canSignal,signalled,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]};
+  }
+  const publish=()=>onChange(status());
   const note=text=>{view.status=String(text).slice(0,300);publish();};
   const send=message=>{if(socket?.readyState!==1)return false;try{socket.send(JSON.stringify({v:1,...message}));return true;}catch{return false;}};
   const ack=(id,result)=>send({type:'command-ack',id,result});
@@ -68,7 +76,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
   function disconnect(clearSaved=true) {
     if(clearSaved)forget();
     active=false;generation++;cancel(timer);socket?.close();socket=null;
-    pending.clear();view.connected=false;view.stale=true;view.gmOnline=false;
+    pending.clear();turnKey=null;view.connected=false;view.stale=true;view.sessionStale=true;view.gmOnline=false;
     note('Local · RPG Connect déconnecté');
   }
   async function receive(m,g) {
@@ -100,7 +108,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
         if(retired.has(nextEpoch)){ack(e.id,'stale');return;}
         if(nextEpoch!==groupEpoch){
           if(groupEpoch!==null)retired.add(groupEpoch);
-          groupEpoch=nextEpoch;groupRevision=-1;sessionRevision=-1;view.group=[];view.healthChanges=[];view.session=null;view.stale=true;
+          groupEpoch=nextEpoch;groupRevision=-1;sessionRevision=-1;view.group=[];view.healthChanges=[];view.session=null;turnKey=null;view.sessionStale=true;view.stale=true;
         }
         const gr=p.groupRevision??p.syncRevision,sr=p.session?.sessionRevision??p.syncRevision;
         if(Array.isArray(p.conditionActors)&&Number.isSafeInteger(gr)&&(gr>groupRevision||(gr===groupRevision&&view.stale))){
@@ -118,14 +126,33 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
           }
           groupRevision=gr;view.group=nextGroup;view.stale=false;
         }
-        if(p.session&&Number.isSafeInteger(sr)&&sr>sessionRevision){
-          sessionRevision=sr;view.session={activeName:p.session.activeName,activeCharacterId:p.session.activeCharacterId,activeParticipantId:p.session.activeParticipantId,round:p.session.round};
+        if(p.session&&Number.isSafeInteger(sr)&&(sr>sessionRevision||(sr===sessionRevision&&view.sessionStale))){
+          const {activeName,activeCharacterId,activeParticipantId,round,phase,combatId,turnStartRevision,markerOnly}=p.session;
+          sessionRevision=sr;view.sessionStale=false;
+          view.session={activeName,activeCharacterId,activeParticipantId,round,phase};
+          turnKey=null;
+          if(phase==='fight'&&activeCharacterId==='kobe'&&!markerOnly&&typeof combatId==='string'&&combatId&&
+             typeof activeParticipantId==='string'&&activeParticipantId&&Number.isSafeInteger(turnStartRevision)&&turnStartRevision>=0){
+            const key=await operationId(scope(),{id:canonical([combatId,activeParticipantId,turnStartRevision])});
+            if(g!==generation)return;
+            turnKey=key;
+            const state=store.getState();
+            if(state.turn.tableKey!==key&&!Object.hasOwn(state.receipts,key)){
+              const result=await store.dispatch({id:key,actorId:'kobe',origin:'gm',expectedRevision:state.revision,
+                type:'turn-start',payload:{turn:state.turn.startRevision+1,epoch:state.turn.epoch,combatId:state.turn.combatId,tableKey:key}});
+              if(g!==generation)return;
+              if(!result.ok)note('Tour partagé reçu · ouverture locale à confirmer après synchronisation.');
+            }
+          }
         }
       }
       if(p.text)view.status=String(p.text).slice(0,300);
       ack(e.id,'received-no-local-mutation');publish();return;
     }
-    if(['hp:set','tempHp:set','conditions:set','initiative:request','initiative:retry','turn:grant','turn:close'].includes(e.type)){
+    if(['turn:grant','turn:close'].includes(e.type)){
+      ack(e.id,'received-no-local-mutation');return;
+    }
+    if(['hp:set','tempHp:set','conditions:set','initiative:request','initiative:retry'].includes(e.type)){
       const id=await operationId(scope(),e);if(g!==generation)return;
       const old=store.getState().receipts[id];
       if(old){
@@ -143,14 +170,14 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
   }
   function open() {
     const g=++generation;
-    view.connected=false;view.stale=true;pending.clear();lastProjection='';
+    view.connected=false;view.stale=true;view.sessionStale=true;pending.clear();lastProjection='';
     const ws=socket=new WebSocketImpl(invite.endpoint);
     ws.onopen=()=>{if(g===generation)send({type:'hello',protocolVersion:1,requiredCapabilities:['table-free-v5'],clientCapabilities:CAPABILITIES,role:'player',room:invite.room,characterId:'kobe',token:invite.token});};
     ws.onmessage=({data})=>{chain=chain.then(()=>receive(JSON.parse(data),g)).catch(()=>note('Message réseau invalide : état local conservé.'));};
     ws.onerror=()=>{if(g===generation)note('Connexion indisponible · jeu local disponible');};
     ws.onclose=event=>{
       if(g!==generation)return;
-      generation++;view.connected=false;view.stale=true;view.gmOnline=false;pending.clear();
+      generation++;view.connected=false;view.stale=true;view.sessionStale=true;view.gmOnline=false;pending.clear();
       // 4001 means another tab/device owns the connection. Do not fight it.
       if(event.code>=4000){forget();active=false;note('Connexion fermée · reconnectez explicitement après vérification de la salle.');return;}
       note('Connexion perdue · jeu local disponible, reconnexion en cours');
@@ -161,7 +188,20 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     connect(text){const next=parseInvite(text);disconnect(false);invite=next;try{connectionStorage?.setItem(connectionKey,text);}catch{};onActivity(scope(),[]);epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.healthChanges=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
     disconnect,sync,
     resume(){try{const text=connectionStorage?.getItem(connectionKey);if(text){this.connect(text);return true;}}catch{forget();}return false;},
-    status:()=>structuredClone({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]}),
+    status:()=>structuredClone(status()),
+    signalTurnEnd(){
+      const run=async()=>{
+        if(!status().canSignal)return false;
+        const key=turnKey,id='end-'+key,state=store.getState();
+        if(!this.sendEvent('turn:end-request',{turn:state.turn.startRevision,actionId:key},id))return false;
+        const result=await store.dispatch({id,actorId:'kobe',origin:'player',expectedRevision:state.revision,type:'turn-end',payload:{tableKey:key}});
+        if(!result.ok)note('Fin signalée au MJ · sauvegarde du tour local indisponible.');
+        return true;
+      };
+      const result=chain.then(run);
+      chain=result.catch(()=>note('Signal de fin de tour indisponible.'));
+      return result;
+    },
     async initiative(eventId,die){
       const item=pending.get(eventId),g=generation;
       if(!item||!['initiative:request','initiative:retry'].includes(item.event.type)||!view.connected||!view.gmOnline)return {ok:false,message:'Demande ou MJ indisponible.'};

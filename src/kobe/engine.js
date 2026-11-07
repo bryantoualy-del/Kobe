@@ -64,6 +64,11 @@ export function transition(state, command, context = {}) {
       case 'turn-start': {
         if(command.type==='turn-next')combatCommand(s,{...command,type:'turn-end'});
         if (p.turn !== state.turn.startRevision + 1 || p.epoch !== state.turn.epoch || p.combatId !== state.turn.combatId) fail('STALE_REVISION','Tour déjà traité ou hors séquence.');
+        if(p.tableKey!==undefined){
+          if(command.origin!=='gm'||command.type!=='turn-start'||p.tableKey!==command.id||!/^net-[a-f0-9]{64}$/.test(p.tableKey))
+            fail('INVALID_COMMAND','Repère de tour partagé invalide.');
+          s.turn.tableKey=p.tableKey;
+        }
         const expired=expireTurnEffects(s,p.turn);
         advance(s,6); s.combat.round++;s.combat.turnDamage=0;s.combat.phase='active';s.combat.bonusSpell=false;s.combat.leveledAction=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`;
         if(expired.length)label+=' · Fin : '+expired.join(', ');
@@ -105,7 +110,8 @@ export function transition(state, command, context = {}) {
       actorId: 'kobe', targetIds: detail?.targetIds ?? ['kobe'], sourceId: command.type, costs: detail?.costs ?? (command.type === 'spend' ? p : {}), rolls: detail?.rolls ?? [],
       before, after: snapshot(s), time: context.time ?? null, options:detail?.options??p, authority: command.origin, applicationStatus: 'applied-local'}] : [];
     s.journal = [...s.journal, ...events].slice(-300);
-    if (!['undo','preferences','private-roll'].includes(command.type) && !(command.type==='network-review' && p.decision==='declined')) s.undo = {commandId: command.id, before};
+    if (['turn-start','turn-end'].includes(command.type)&&p.tableKey) s.undo=null;
+    else if (!['undo','preferences','private-roll'].includes(command.type) && !(command.type==='network-review' && p.decision==='declined')) s.undo = {commandId: command.id, before};
     validateState(s);
     return {ok: true, state: s, events, replay: false};
   } catch (e) { return {ok: false, state, code: e.code ?? 'INVALID_COMMAND', message: e.message}; }
