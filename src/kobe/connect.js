@@ -18,6 +18,7 @@ export function publicGroup(rows) {
   return (Array.isArray(rows)?rows:[]).slice(0,100).map(r=>{
     const row={id:String(r.id??''),name:String(r.name??'').slice(0,100),kind:r.kind,activeTurn:r.activeTurn===true,
       conditions:(Array.isArray(r.conditions)?r.conditions:[]).map(c=>String(c?.name??c).slice(0,80))};
+    if(typeof r.companionId==='string')row.companionId=r.companionId.slice(0,80);
     if(Number.isFinite(r.initiative))row.initiative=r.initiative;
     if(['player','ally'].includes(r.kind)){
       if(Number.isFinite(r.ac))row.ac=r.ac;
@@ -25,7 +26,10 @@ export function publicGroup(rows) {
       if(typeof r.reaction==='boolean')row.reaction=r.reaction;
     }
     // No enemy health is retained, even if a malformed upstream message includes it.
-    if(['player','ally'].includes(r.kind)&&r.health)row.health={current:r.health.current,max:r.health.max,temp:r.health.temp};
+    if(['player','ally'].includes(r.kind)&&r.health){
+      const {current,max,temp=0}=r.health;
+      if([current,max,temp].every(Number.isFinite)&&max>0&&current>=0&&temp>=0)row.health={current,max,temp};
+    }
     return row;
   });
 }
@@ -38,9 +42,10 @@ import {correction} from './table-correction.js';
 export {correction};
 export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},onActivity=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout,connectionStorage=null}) {
   let socket=null,invite=null,active=false,timer=null,attempt=0,generation=0,chain=Promise.resolve();
+  let healthChangeId=0;
   let epoch=uuid(),lastRevision=-1,lastProjection='',groupEpoch=null,groupRevision=-1,sessionRevision=-1;
   const retired=new Set(),pending=new Map(),sent=new Map();
-  let view={connected:false,status:'Local · RPG Connect déconnecté',group:[],stale:true,gmOnline:false,messages:[]};
+  let view={connected:false,status:'Local · RPG Connect déconnecté',group:[],healthChanges:[],stale:true,gmOnline:false,messages:[]};
   const publish=()=>onChange({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]});
   const note=text=>{view.status=String(text).slice(0,300);publish();};
   const send=message=>{if(socket?.readyState!==1)return false;try{socket.send(JSON.stringify({v:1,...message}));return true;}catch{return false;}};
@@ -95,14 +100,26 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
         if(retired.has(nextEpoch)){ack(e.id,'stale');return;}
         if(nextEpoch!==groupEpoch){
           if(groupEpoch!==null)retired.add(groupEpoch);
-          groupEpoch=nextEpoch;groupRevision=-1;sessionRevision=-1;view.group=[];view.session=null;view.stale=true;
+          groupEpoch=nextEpoch;groupRevision=-1;sessionRevision=-1;view.group=[];view.healthChanges=[];view.session=null;view.stale=true;
         }
         const gr=p.groupRevision??p.syncRevision,sr=p.session?.sessionRevision??p.syncRevision;
         if(Array.isArray(p.conditionActors)&&Number.isSafeInteger(gr)&&(gr>groupRevision||(gr===groupRevision&&view.stale))){
-          groupRevision=gr;view.group=publicGroup(p.conditionActors);view.stale=false;
+          const nextGroup=publicGroup(p.conditionActors);
+          if(!view.stale){
+            const previous=new Map(view.group.map(actor=>[actor.id,actor.health]));
+            const changes=[];
+            for(const actor of nextGroup){
+              const before=previous.get(actor.id),after=actor.health;
+              if(!before||!after||actor.id==='kobe'||actor.companionId==='kobe')continue;
+              const delta=after.current-before.current, maximum=after.max-before.max, temporary=after.temp-before.temp;
+              if(delta||maximum||temporary)changes.push({id:++healthChangeId,name:actor.name,delta,maximum,temporary});
+            }
+            if(changes.length)view.healthChanges=[...view.healthChanges,...changes].slice(-20);
+          }
+          groupRevision=gr;view.group=nextGroup;view.stale=false;
         }
         if(p.session&&Number.isSafeInteger(sr)&&sr>sessionRevision){
-          sessionRevision=sr;view.session={activeName:p.session.activeName,activeCharacterId:p.session.activeCharacterId,round:p.session.round};
+          sessionRevision=sr;view.session={activeName:p.session.activeName,activeCharacterId:p.session.activeCharacterId,activeParticipantId:p.session.activeParticipantId,round:p.session.round};
         }
       }
       if(p.text)view.status=String(p.text).slice(0,300);
@@ -141,7 +158,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     };
   }
   return {
-    connect(text){const next=parseInvite(text);disconnect(false);invite=next;try{connectionStorage?.setItem(connectionKey,text);}catch{};onActivity(scope(),[]);epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
+    connect(text){const next=parseInvite(text);disconnect(false);invite=next;try{connectionStorage?.setItem(connectionKey,text);}catch{};onActivity(scope(),[]);epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.healthChanges=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
     disconnect,sync,
     resume(){try{const text=connectionStorage?.getItem(connectionKey);if(text){this.connect(text);return true;}}catch{forget();}return false;},
     status:()=>structuredClone({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]}),

@@ -157,3 +157,32 @@ test('invalid persisted connection is discarded without affecting game data',()=
  assert.equal(app.client.resume(),false);assert.equal(data.has('kobe.rpg-connect.invitation.v1'),false);
  assert.equal(app.store.getState().hp.current,83);app.client.dispose();
 });
+
+test('Group health notifications compare fresh revisions, hide enemy and self HP changes, and never replay',async()=>{
+  const t=setup();await t.join();
+  const sync=(revision,current,temp=0,max=60)=>t.command({id:'sync-'+revision,type:'state:sync',payload:{
+    syncEpoch:'combat',groupRevision:revision,conditionActors:[
+      {id:'cc-kobe',companionId:'kobe',kind:'player',name:'Kobe',health:{current:83-revision,max:83}},
+      {id:'cc-samoth',companionId:'samoth',kind:'player',name:'Samoth',health:{current,max,temp}},
+      {id:'wolf',kind:'enemy',name:'Loup',health:{current:30-revision,max:30}},
+    ],
+  }});
+  await sync(1,45);
+  assert.deepEqual(t.client.status().healthChanges,[]);
+  await sync(2,30);
+  await sync(3,35,4,65);
+  await sync(3,20);
+  assert.deepEqual(t.client.status().healthChanges,[
+    {id:1,name:'Samoth',delta:-15,maximum:0,temporary:0},
+    {id:2,name:'Samoth',delta:5,maximum:5,temporary:4},
+  ]);
+  assert.equal(t.client.status().group.find(row=>row.id==='wolf').health,undefined);
+  t.sockets[0].onclose({code:1006});
+  t.scheduled[0]();t.sockets.at(-1).onopen();
+  await t.receive({type:'welcome',protocolVersion:1,capabilities:['table-free-v5'],payload:{sessionMode:'table-free'}});
+  await sync(4,20);
+  assert.equal(t.client.status().healthChanges.length,2);
+  assert.equal(t.client.status().group.find(row=>row.id==='cc-samoth').health.current,20);
+  await sync(5,22);
+  assert.equal(t.client.status().healthChanges.at(-1).delta,2);
+});

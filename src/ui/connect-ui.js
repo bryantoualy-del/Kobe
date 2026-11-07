@@ -8,6 +8,11 @@ function conditionBadge(name){
   return `<span class="rpg-group-state">${conditionGlyph(id??(exhaustion?'exhaustion':undefined))}${escape(id?conditionName(id):name)}</span>`;
 }
 function text(tag,value,cls){const n=document.createElement(tag);n.textContent=value;if(cls)n.className=cls;return n;}
+function healthChangeLabel(change){
+  const signed=value=>(value<0?'−':'+')+Math.abs(value);
+  return change.name+' · '+[[change.delta,'PV'],[change.maximum,'PV max'],[change.temporary,'PV temp.']]
+    .filter(([value])=>value).map(([value,unit])=>signed(value)+' '+unit).join(' · ');
+}
 export function mountConnect(store,quickActions,dispatch){
   const root=document.createElement('section');root.className='group-surface';root.id='rpg-connect';document.body.append(root);
   const shell=document.createElement('div');shell.className='rpg-connect';shell.innerHTML=connectFrame;document.body.append(shell);
@@ -24,19 +29,30 @@ export function mountConnect(store,quickActions,dispatch){
   panel.querySelector('[data-close]').onclick=close;
   document.addEventListener('pointerdown',e=>{if(!shell.contains(e.target))close();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
-  let current,notice='';
+  const live=text('div','','sr-only');
+  live.setAttribute('aria-live','polite');
+  live.setAttribute('aria-atomic','true');
+  document.body.append(live);
+  let current,notice='',lastHealthChange=0;
   function render(v){
     current=v;
     shell.classList.toggle('rpg-connected',v.connected);
     const self=store.getState();
     const rows=[...v.group].sort((a,b)=>(b.initiative??-100)-(a.initiative??-100));
+    const changes=v.healthChanges??[];
+    const recent=changes.at(-1);
+    const feedOpen=root.querySelector('.rpg-health-changes')?.open;
+    const listScroll=root.querySelector('[data-initiative-list]')?.scrollTop??0;
     const status=v.stale&&rows.length?'Tour partagé non confirmé':v.session?.round?'Round '+v.session.round:'';
     const presence=v.connected?(v.gmOnline?'MJ en ligne':'MJ absent'):'Mode local';
     root.innerHTML=`<section class="rpg-group-view" id="rpgGroupView" data-has-roster="${rows.length>0}">
       <section class="card rpg-initiative"><header>
         <div><h2>Groupe</h2><small>${presence}${rows.length?' · Initiative partagée':''}</small></div>
         <small data-group-status>${status}</small>
-      </header><div data-initiative-list></div></section>
+      </header>${recent?`<details class="rpg-health-changes" ${feedOpen?'open':''}>
+        <summary>${escape(healthChangeLabel(recent))}<small>Variations de PV</small></summary>
+        <ol aria-label="Variations récentes des PV">${changes.slice().reverse().map(change=>`<li>${escape(healthChangeLabel(change))}</li>`).join('')}</ol>
+      </details>`:''}<div data-initiative-list></div></section>
       <aside class="card rpg-quick-column"><h2>Actions rapides</h2>
         <div data-group-quick>${quickActions(self)}</div>
         <button type="button" data-edit-self class="ability">Modifier mon état</button>
@@ -55,13 +71,18 @@ export function mountConnect(store,quickActions,dispatch){
     requests.innerHTML=(v.pending??[]).filter(x=>!['initiative:request','initiative:retry'].includes(x.event.type)).map(({event:e})=>`<article class="rpg-request"><strong>${escape(e.payload?.text||({'hp:set':'Correction des PV','tempHp:set':'Correction des PV temporaires','conditions:set':'États personnels'}[e.type]||'Demande du MJ'))}</strong>${['hp:set','tempHp:set'].includes(e.type)?'<p>Valeur proposée '+escape(e.payload.value)+'</p><button data-accept="'+escape(e.id)+'">Appliquer cette correction</button>':e.type==='conditions:set'?'<div class="rpg-group-states">'+(e.payload.conditions||[]).map(c=>conditionBadge(c?.name??c)).join('')+'</div><button data-accept="'+escape(e.id)+'">Appliquer ces états</button>':''}<button data-decline="${escape(e.id)}">Traité à la table</button></article>`).join('');
     if(requests.childElementCount)panel.hidden=false;
     renderInitiative(v);
+    if(recent&&recent.id>lastHealthChange){
+      if(!root.hidden)live.textContent=changes.filter(change=>change.id>lastHealthChange).map(healthChangeLabel).join('. ');
+      lastHealthChange=recent.id;
+    }
     const list=root.querySelector('[data-initiative-list]');
     for(const actor of rows){
       const row=document.createElement('article');
       row.className='rpg-initiative-row';
       row.dataset.groupActor=actor.id;
-      const activeId=v.session?.activeCharacterId;
+      const activeId=v.session?.activeParticipantId;
       const active=!v.stale&&(activeId?activeId===actor.id:actor.activeTurn===true);
+      const own=actor.id==='kobe'||actor.companionId==='kobe';
       row.classList.toggle('is-current-turn',active);
       row.append(text('strong',Number.isFinite(actor.initiative)?actor.initiative:'—','rpg-initiative-value'));
       const monogram=text('span',Array.from(actor.name.trim())[0]?.toLocaleUpperCase('fr')??'·','rpg-monogram');
@@ -70,7 +91,7 @@ export function mountConnect(store,quickActions,dispatch){
       const identity=document.createElement('div');
       identity.className='rpg-actor-name';
       identity.append(text('strong',actor.name));
-      if(active)identity.append(text('small',actor.id==='kobe'?'À toi de jouer':'Tour actif','rpg-active-label'));
+      if(active)identity.append(text('small',own?'À toi de jouer':'Tour actif','rpg-active-label'));
       const meta=[];
       if(Number.isFinite(actor.ac))meta.push('CA '+actor.ac);
       if(actor.kind!=='enemy'&&actor.reaction!=null)meta.push(actor.reaction?'Réaction disponible':'Réaction utilisée');
@@ -90,14 +111,19 @@ export function mountConnect(store,quickActions,dispatch){
         health.className='rpg-actor-health';
         health.append(text('span',`${current} / ${max} PV${temp?' · +'+temp+' temp.':''}`));
         const bar=document.createElement('progress');
-        bar.max=Math.max(1,max);
+        bar.max=max;
         bar.value=current;
+        const ratio=Math.min(1,current/max);
+        const hue=ratio<=.5?4+ratio*88:48+(ratio-.5)*194;
+        bar.style.setProperty('--hp-color',`hsl(${hue} 62% 62%)`);
+        bar.classList.toggle('is-empty',current===0);
         bar.setAttribute('aria-label','PV de '+actor.name);
         health.append(bar);
         row.append(health);
       }
       list.append(row);
     }
+    list.scrollTop=listScroll;
     if(!rows.length){
       const empty=document.createElement('div');
       empty.className='rpg-local';

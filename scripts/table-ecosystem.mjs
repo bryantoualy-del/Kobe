@@ -33,8 +33,10 @@ try{
   document.querySelector('#rpgMjKey').value=key;document.querySelector('#rpgMjConnect').click();
  },{endpoint,room,key:process.env.RPG_CONNECT_GM_KEY});
  await gm.waitForFunction(()=>RPGConnectMJ.getStatus().connected);
+ let brack;
  for(const name of ['Kentaro','Brackmard','Samoth','Rufus','Nans','Zephyr']){
   const p=await app(name);await p.waitForFunction(()=>window.RPGConnect);
+  if(name==='Brackmard')brack=p;
   const token=backend.rooms.get(room).tokens.get(name.toLowerCase());assert.ok(token,'MJ issued invitation for '+name);
   await p.evaluate(({endpoint,room,token})=>{document.querySelector('[name=endpoint]').value=endpoint;document.querySelector('[name=room]').value=room;document.querySelector('[name=token]').value=token;RPGConnect.connect();},{endpoint,room,token});
   await p.waitForFunction(()=>RPGConnect.getStatus().connected&&RPGTable.active());
@@ -63,6 +65,13 @@ try{
  assert.equal(await gm.evaluate(()=>state.encounter.participants.filter(p=>p.id==='cc-kobe').length),1);
  await k.getByRole('tab',{name:'Groupe',exact:true}).click();
  await k.locator('#rpg-connect').getByText('Samoth',{exact:true}).waitFor();
+ await brack.locator('#rpgGroupView [data-edit-self]').click();
+ const brackEditor=brack.locator('dialog.rpg-self-editor');
+ const brackHp=brackEditor.locator('[name=hp]');
+ const before=Number(await brackHp.inputValue());
+ await brackHp.fill(String(before-7));
+ await brackEditor.getByRole('button',{name:'Appliquer',exact:true}).click();
+ await k.locator('.rpg-health-changes summary').filter({hasText:/Brack Mard · −7 PV/}).waitFor();
  assert.deepEqual(errors,[]);
  console.log('SEVEN_CLIENTS: actual Encounter issued all seven invitations; six historical apps + Kobe connected; local damage 83→75 mirrored once; Kobe receives Samoth in group.');
 }finally{await browser.close();for(const ws of backend.wss.clients)ws.terminate();backend.wss.close();backend.server.close();http.close();}

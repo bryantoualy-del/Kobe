@@ -428,7 +428,19 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
 .rpg-actor-name strong{font-size:14px}
 .rpg-actor-meta,.rpg-actor-health{font-size:12px;color:var(--muted)}
 .rpg-actor-health{text-align:right}
-.rpg-actor-health progress{accent-color:#78c695;margin:3px 0 0}
+.rpg-actor-health progress{
+  appearance:none;border:0;border-radius:8px;background:#302b34;overflow:hidden;
+  accent-color:var(--hp-color);margin:3px 0 0
+}
+.rpg-actor-health progress::-webkit-progress-bar{background:#302b34}
+.rpg-actor-health progress::-webkit-progress-value{background:var(--hp-color);border-radius:8px}
+.rpg-actor-health progress::-moz-progress-bar{background:var(--hp-color);border-radius:8px}
+.rpg-actor-health progress.is-empty{outline:1px solid var(--hp-color)}
+.rpg-health-changes{margin:0 0 8px;padding:5px 8px;border:1px solid #594632;border-radius:8px;color:var(--ivory);font-size:12px}
+.rpg-health-changes summary{cursor:pointer;min-height:34px;padding:6px 0;overflow-wrap:anywhere}
+.rpg-health-changes summary small{margin-inline-start:8px;color:var(--muted)}
+.rpg-health-changes ol{margin:4px 0 4px;padding-inline-start:20px;max-height:8rem;overflow:auto}
+.rpg-health-changes li{padding-block:2px}
 .rpg-active-label{display:inline-block!important;color:var(--gold);font-weight:700}
 .quick-lanes,.quick-rows{display:grid;gap:5px;min-width:0}
 .quick-lane{min-width:0}
