@@ -68,6 +68,20 @@ try{
    const prone=page.locator('[data-group-actor=s] .rpg-group-state');
    assert.equal(await prone.textContent(),'À terre');
    await page.waitForFunction(()=>document.querySelector('[data-group-actor=s] .rpg-group-state img')?.naturalWidth>0);
+   assert.equal(await page.locator('.rpg-health-changes').count(),0,'initial roster is silent');
+   const bar=page.locator('[data-group-actor=s] progress');
+   assert.equal(await bar.evaluate(el=>el.style.getPropertyValue('--hp-color')),'hsl(96.5 62% 62%)');
+   const syncHealth=(revision,current)=>command('health-'+revision,'state:sync',{
+    syncEpoch:'A',groupRevision:revision,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current,max:60,temp:3}}],
+   });
+   syncHealth(2,30);
+   await page.locator('.rpg-health-changes summary').filter({hasText:/Samoth · −15 PV/}).waitFor();
+   assert.equal(await bar.evaluate(el=>el.style.getPropertyValue('--hp-color')),'hsl(48 62% 62%)');
+   syncHealth(3,0);
+   await page.locator('.rpg-health-changes summary').filter({hasText:/Samoth · −30 PV/}).waitFor();
+   assert.equal(await bar.evaluate(el=>el.style.getPropertyValue('--hp-color')),'hsl(4 62% 62%)');
+   await page.locator('.rpg-health-changes summary').click();
+   assert.equal(await page.locator('.rpg-health-changes li').count(),2);
    const correct=()=>command('correction-1','hp:set',{manualTable:true,expectedValue:83,value:60});
    correct();await page.getByRole('button',{name:'Appliquer cette correction'}).click();
    await until(()=>rx.some(m=>m.type==='command-ack'&&m.id==='correction-1'),'accepted correction');
@@ -94,7 +108,7 @@ try{
    await until(()=>rx.some(m=>m.type==='state'&&m.state.hp.current===65),'current snapshot only');
    correct();await until(()=>rx.filter(m=>m.id==='correction-1'&&m.result==='already-reviewed').length>=2,'persisted duplicate receipt');
    assert.equal(await hp(),65);assert.ok(!rx.some(m=>m.type==='event'&&/heal|damage/.test(m.event.type)));
-   command('group2','state:sync',{syncEpoch:'A',groupRevision:2,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current:45,max:60,temp:3}}]});
+   command('group2','state:sync',{syncEpoch:'A',groupRevision:4,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current:45,max:60,temp:3}}]});
    await page.getByText(/45 \/ 60 PV/).waitFor();await page.locator('#rpg-connect').scrollIntoViewIfNeeded();
    await page.screenshot({path:'screenshots/'+name+'-lot5-table.png'});assert.deepEqual(errors,[]);
    console.log(name+': real V5 invite, private projection, group, correction/replay, initiative 12+4, reconnect, closed tab, latest HP snapshot and persistent receipt PASS');
