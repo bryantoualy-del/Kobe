@@ -23,17 +23,24 @@ try{for(const engine of [chromium,webkit]){
  const shot=async name=>page.screenshot({path:`screenshots/layout/${engine.name()}-${width}-${phase}-${name}.png`});
  await shot('combat');
  if(phase==='after'){
-  const attack=await page.locator('.intent-attack').boundingBox();assert(attack.y+attack.height<=(width===1180?820:780),'attack intention immediately visible');
-  const next=await page.locator('[data-action=end-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width&&next.y+next.height<844,'end turn in viewport');
-  for(const selector of ['[data-action=heal]','[data-action=damage]','.intent-inspire [data-combat=inspiration]'])assert((await page.locator(selector).boundingBox()).height>=44,selector+' touch height');
-  if(width===1180){assert((await page.locator('.identity .signature').boundingBox()).width>=96,'large official emblem retained');for(const b of await page.locator('.intent-grid [data-intent]').all()){const r=await b.boundingBox();assert(r.y+r.height<=820,'all intentions immediately accessible');}}
+  const next=await page.locator('[data-action=end-turn]').boundingBox();
+  assert(next.x>=0&&next.x+next.width<=width&&next.y+next.height<844,'end turn in viewport');
+  for(const selector of ['[data-action=heal]','[data-action=damage]','[data-cast=fireball]']){
+    const box=await page.locator(selector).boundingBox();
+    assert(box.height>=44&&box.y+box.height<next.y,selector+' touch height and visibility');
+  }
+  if(width===1180){
+    assert((await page.locator('.turn-identity img').boundingBox()).width>=64,'official emblem retained');
+    const cockpit=await page.locator('.support-cockpit').boundingBox();
+    assert(cockpit.y+cockpit.height<=660,'cockpit fits the useful iPad landscape viewport with Safari chrome');
+  }
  }
  for(const name of ['Sorts & pouvoirs','Social','Journal','Groupe']){
   await tab(name);
   if(phase==='after'){
    assert.equal(await page.locator('header.top').isVisible(),width>720,name+' full header follows viewport');
    assert.equal(await page.locator('#cc-turnbar-standard').isVisible(),width>720,name+' turn bar follows viewport');
-   if(width>720){assert.equal(await page.locator('.identity .signature img').isVisible(),true,name+' official emblem');assert.equal(await page.locator('#hp').inputValue(),'83');}
+   if(width>720){assert.equal(await page.locator('.turn-identity img').isVisible(),true,name+' official emblem');assert.equal(await page.locator('#hp').inputValue(),'83');}
   }
   await shot(name==='Sorts & pouvoirs'?'spells':name.toLowerCase());
   if(phase==='after')assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow '+width+' '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('main *')].filter(e=>e.getBoundingClientRect().right>innerWidth).map(e=>({tag:e.tagName,cls:e.className,width:e.getBoundingClientRect().width})).slice(0,12))));

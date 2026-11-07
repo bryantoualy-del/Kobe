@@ -186,9 +186,9 @@ function hitDialog(r,state,dispatch){
  dialog.querySelector('.hit-yes').onclick=()=>apply(r.natural===20?'critical':'hit');
  dialog.querySelector('.hit-options').onclick=()=>{dialog.close();openSpellResolve(r.id,state,dispatch);};
 }
-export async function openSpellCast(id,s,dispatch){
+export async function openSpellCast(id,s,dispatch,selectedLevel){
  const spell=spellById(id);
- const chosen=document.querySelector(`[data-spell-card="${id}"] [data-cast-level]`)?.value;
+ const chosen=selectedLevel??document.querySelector(`[data-spell-card="${id}"] [data-cast-level]`)?.value;
  const ritual=chosen==='ritual';
  const level=spell.level ? Number(ritual?spell.level:chosen??availableLevels(s,spell)[0]??spell.level):0;
  if(spell.attack)return quickAttack(dispatch,'Cible annoncée',document.querySelector('[name=signature-mode]:checked')?.value??'normal',document.querySelector('#signature-dice')?.value??'');
