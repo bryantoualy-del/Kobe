@@ -98,7 +98,7 @@ async function saveNotes(){
 mount.addEventListener('input',e=>{filterSpells();if(e.target.id==='notes'){clearTimeout(noteTimer);noteTimer=setTimeout(saveNotes,350);}});
 mount.addEventListener('focusout',e=>{if(e.target.id==='notes')saveNotes();});
 
-mount.addEventListener('click',e=>{const b=e.target.closest('[data-spell-filter]');if(b)filterSpells(b.dataset.spellFilter);});
+mount.addEventListener('click',e=>{const b=e.target.closest('[data-spell-filter]');if(b)filterSpells(b.dataset.spellFilter);const sub=e.target.closest('[data-offensive-filter]');if(sub)filterSpells(undefined,sub.dataset.offensiveFilter);});
 mount.addEventListener('change',async event=>{
  const input=event.target;if(!['hp','tempHpInput'].includes(input.id))return;
  if(!input.value||!input.checkValidity()){render();return;}

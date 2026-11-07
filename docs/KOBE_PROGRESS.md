@@ -454,3 +454,6 @@ Base propre `a8269e2` (main) : PR12 fusionnée, puis PR13 header persistant fusi
 
 ### Lot B — cockpit
 Quatre intentions, Inspiration/Manteau/variante soin directs, ressources dérivées de l'état existant. Accès rapide général conservé uniquement dans Groupe. Favoris personnels conservés dans un panneau repliable. Sous-vue Khar-Vek intacte. Bandeau Battement Ardent séquentiel : étape 1 vérifie aussi la disponibilité de Boule de feu ; étape 2 ouvre le catalogue pour choisir son niveau et lancer. Aucun moteur ni déplacement allié ajouté.
+
+### Lots C et D — catalogue et vestige
+Navigation intention → catalogue avec filtre préactivé et recherche réinitialisée. Tous/Soins/Offensif/Contrôle & Défense dérivent du catalogue validé ; sous-filtres offensifs, Boule de feu en tête. Khar-Vek dans Soins/Tous, commande partagée avec le dragon ; Manteau des survivants explicitement conditionnel. Majesté et Injonction dans Contrôle & Défense. Niveaux, emplacements, portée et action conservés. Aucun changement des contrats, des calculs, des coûts ou du stockage.

@@ -49,3 +49,12 @@ html[data-still=true] .kharvek-panel *,html[data-still=true] .kharvek-panel *::b
 .combat-favorites {margin-top:12px}
 .combat-favorites>summary {min-height:44px;cursor:pointer;padding:12px}
 @media(max-width:720px){.intent-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.intent-card{padding:10px}.intent-card>strong{font-size:18px}.intent-card h2{font-size:16px}.intent-card small{font-size:11px}.ardent-combo{grid-template-columns:1fr}.combo-actions button{flex:1 1 120px}.intent-inspire{grid-row:span 2}.intent-control{grid-column:2}.support-cockpit{margin-top:6px}}
+.catalog-sections {display:flex;flex-direction:column;gap:10px}
+.spell-subfilters {display:flex;flex-wrap:wrap;gap:6px}
+.spell-subfilters button {min-height:44px}
+.spell-subfilters button.active {border-color:#E5B963;color:#E5B963}
+.catalog-kharvek {border-color:#B86637}
+.catalog-kharvek p {font-size:13px;margin:6px 0 10px}
+.catalog-bardic .combat-abilities {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.score [hidden] {display:none!important}
+@media(max-width:720px){.catalog-bardic .combat-abilities{grid-template-columns:repeat(2,minmax(0,1fr))}.score .spell-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.score .spell-legend button{white-space:normal;min-height:44px}}

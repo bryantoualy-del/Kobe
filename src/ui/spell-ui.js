@@ -1,3 +1,5 @@
+import {kharvekActions} from './kharvek-ui.js';
+import {quickActions} from './combat-ui.js';
 import {
   SPELLS,
   spellById,
@@ -32,7 +34,8 @@ function availability(s, spell) {
   );
 }
 const roles = {Contrôle:'controle', Protection:'defense', Soins:'soin', Dégâts:'flamme', Utilitaire:'arcane'};
-let spellFilter='Tous';
+let spellFilter='Tous', offensiveFilter='Tous';
+const matchesIntent=(sp,filter)=>filter==='Tous'||(filter==='Offensif'?sp.categories.includes('Dégâts'):filter==='Contrôle & Défense'?sp.categories.some(c=>['Contrôle','Protection'].includes(c)):sp.categories.includes(filter));
 function source(spell){
   const slug=spell.id==='tiny-hut'?'petite-hutte-de-leomund':spell.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
   return 'https://www.aidedd.org/dnd/sorts.php?vf='+slug;
@@ -46,7 +49,7 @@ function card(s, spell, compact = false) {
   const av = availability(s, spell),
     favorite = s.preferences.favorites.includes(spell.id);
   const role=spell.categories[0];
-  if(!compact)return `<article class="spell role-${roles[role]}" data-spell-card="${spell.id}"><div class="eyebrow">${esc(spell.castTime)} · ${role}</div><h3>${esc(spell.name)}</h3><div class="meta">${esc(spell.range)}${spell.concentration?' · concentration':''}</div><details class="spell-doc"><summary>Description du sort</summary><div class="spell-doc-body">${esc(spell.components)} · ${esc(durationLabel(spell))}<p>${esc(spell.summary)}</p><a class="spell-doc-source" target="_blank" rel="noopener noreferrer" href="${source(spell)}">Fiche AideDD ↗</a></div></details><div class="actions spell-cast-actions">${levelPicker(s,spell)}${btn("data-cast",spell.id,"Lancer",`class="primary" ${av.ok?'':'disabled'} title="${esc(av.label)}"`)}${btn("data-favorite",spell.id,favorite?'★':'☆',`aria-label="Favori · ${esc(spell.name)}" aria-pressed="${favorite}" ${!favorite&&s.preferences.favorites.length===4?'disabled':''}`)}</div></article>`;
+  if(!compact)return `<article class="spell role-${roles[role]}" data-spell-card="${spell.id}"><div class="eyebrow">${spell.level?'N'+spell.level:'Tour de magie'} · ${esc(spell.castTime)} · ${role}</div><h3>${esc(spell.name)}</h3><div class="meta">${esc(spell.range)}${spell.concentration?' · concentration':''}</div><details class="spell-doc"><summary>Description du sort</summary><div class="spell-doc-body">${esc(spell.components)} · ${esc(durationLabel(spell))}<p>${esc(spell.summary)}</p><a class="spell-doc-source" target="_blank" rel="noopener noreferrer" href="${source(spell)}">Fiche AideDD ↗</a></div></details><div class="actions spell-cast-actions">${levelPicker(s,spell)}${btn("data-cast",spell.id,"Lancer",`class="primary" ${av.ok?'':'disabled'} title="${esc(av.label)}"`)}${btn("data-favorite",spell.id,favorite?'★':'☆',`aria-label="Favori · ${esc(spell.name)}" aria-pressed="${favorite}" ${!favorite&&s.preferences.favorites.length===4?'disabled':''}`)}</div></article>`;
   return `<article class="spell-card ${compact ? "compact" : ""}" data-spell-card="${spell.id}"><div class="spell-title"><h3>${esc(spell.name)}</h3><span class="spell-level">${spell.level ? "N" + spell.level : "Tour de magie"}${spell.secret ? " · Secret" : ""}</span></div><p class="spell-meta">${esc(spell.castTime)}${compact?"":" · "+esc(spell.range)}<br>${esc(durationLabel(spell))} · ${spell.level ? "Emplacement N" + spell.level + "–5" : "Sans emplacement"}</p>${compact ? "" : `<p class="spell-summary">${esc(spell.summary)}</p>`}<div class="spell-status ${av.ok ? "ready" : ""}">${esc(av.label)}</div><div class="actions spell-cast-actions">${levelPicker(s,spell)}${btn("data-cast", spell.id, "Lancer", `class="primary" ${av.ok ? "" : "disabled"}`)}${compact ? "" : btn("data-favorite", spell.id, favorite ? "★ Favori" : "☆ Favori", `aria-pressed="${favorite}" ${!favorite && s.preferences.favorites.length === 4 ? "disabled" : ""}`)}<a class="spell-doc-source" href="${source(spell)}" target="_blank" rel="noopener noreferrer">AideDD ↗</a></div></article>`;
 }
 export function favoritesPanel(s) {
@@ -57,25 +60,42 @@ export function spellbookPanel(s) {
     const max=[4,3,3,3,2][i];
     return `<div class="slot-group"><b>N${i+1}</b><div class="dots">${Array.from({length:max},(_,j)=>`<button class="dot ${j<n?'on':''}" data-slot="${i+1}" data-slot-value="${j<n?j:j+1}" aria-label="Niveau ${i+1}, emplacement ${j+1} ${j<n?'disponible':'utilisé'}"></button>`).join('')}</div><small>${n}/${max}</small></div>`;
   }).join('');
-  const filters=['Tous',...Object.keys(roles)].map(role=>`<button class="role-${roles[role]||'all'} ${spellFilter===role?'active':''}" data-spell-filter="${role}" aria-pressed="${spellFilter===role}">${role} <small>${SPELLS.filter(sp=>role==='Tous'||sp.categories.includes(role)).length}</small></button>`).join('');
-  const sections=[0,1,2,3,4,5].map(level=>`<section class="panel spell-section"><h2>${level?'Niveau '+level:'Tours de magie'}</h2><div class="spell-grid">${SPELLS.filter(sp=>sp.level===level).map(sp=>card(s,sp)).join('')}</div></section>`).join('');
-  return `<div class="score"><section class="panel spell-slots"><h2>Emplacements</h2><div class="slot-groups">${slots}</div></section><div class="spell-legend" role="group" aria-label="Filtrer les sorts par type">${filters}</div><div class="actions"><input id="spell-search" aria-label="Rechercher un sort" type="search" placeholder="Rechercher un sort"></div>${sections}<p id="spell-empty" hidden>Aucun sort pour ces filtres.</p></div>`;
+  const filters=['Tous','Soins','Offensif','Contrôle & Défense'].map(role=>`<button class="${spellFilter===role?'active':''}" data-spell-filter="${role}" aria-pressed="${spellFilter===role}">${role}</button>`).join('');
+  const sections=[0,1,2,3,4,5].map(level=>`<section class="panel spell-section" data-level="${level}"><h2>${level?'Niveau '+level:'Tours de magie'}</h2><div class="spell-grid">${SPELLS.filter(sp=>sp.level===level).sort((a,b)=>(b.id==='fireball')-(a.id==='fireball')).map(sp=>card(s,sp)).join('')}</div></section>`).join('');
+  return `<div class="score"><section class="panel spell-slots"><h2>Emplacements</h2><div class="slot-groups">${slots}</div></section><div class="spell-legend" role="group" aria-label="Filtrer les sorts par type">${filters}</div><div class="spell-subfilters" role="group" aria-label="Types offensifs">${['Tous','Sorts','Tours de magie','Zone'].map(f=>`<button data-offensive-filter="${f}" aria-pressed="${offensiveFilter===f}">${f}</button>`).join('')}</div><div class="actions"><input id="spell-search" aria-label="Rechercher un sort" type="search" placeholder="Rechercher un sort ou pouvoir"></div><div class="catalog-sections">${sections}<section class="panel catalog-kharvek"><h2>Khar-Vek · ${s.resources.charges}/6 charges</h2><p>Sans emplacement · à 18 m. Manteau des survivants : soin conditionnel intégré au Manteau d’inspiration, jamais autonome.</p>${kharvekActions(s)}</section><section class="panel catalog-bardic">${quickActions(s,['inspiration','mantle','majesty','majesty-command','cry'])}</section></div><p id="spell-empty" hidden>Aucune capacité pour ces filtres.</p></div>`;
 }
-export function filterSpells(role){
-  if(typeof role==='string')spellFilter=role;
+export function filterSpells(role,subtype){
+  if(typeof role==='string'){spellFilter=role;offensiveFilter='Tous';const search=document.querySelector('#spell-search');if(search)search.value='';}
+  if(typeof subtype==='string')offensiveFilter=subtype;
   const normalize=v=>v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const q=normalize(document.querySelector('#spell-search')?.value||'');
   for(const b of document.querySelectorAll('[data-spell-filter]')){
     const active=b.dataset.spellFilter===spellFilter;
     b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
   }
+  const sub=document.querySelector('.spell-subfilters');if(sub)sub.hidden=spellFilter!=='Offensif';
+  for(const b of document.querySelectorAll('[data-offensive-filter]')){const active=b.dataset.offensiveFilter===offensiveFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));}
   for(const card of document.querySelectorAll('.score [data-spell-card]')){
     const sp=spellById(card.dataset.spellCard);
-    card.hidden=!(normalize(sp.name+' '+sp.summary).includes(q)&&(spellFilter==='Tous'||sp.categories.includes(spellFilter)));
+    const subtype=spellFilter!=='Offensif'||offensiveFilter==='Tous'||(offensiveFilter==='Sorts'&&sp.level>0)||(offensiveFilter==='Tours de magie'&&sp.level===0)||(offensiveFilter==='Zone'&&sp.maxTargets>1);
+    card.hidden=!(normalize(sp.name+' '+sp.summary).includes(q)&&matchesIntent(sp,spellFilter)&&subtype);
   }
-  for(const section of document.querySelectorAll('.spell-section'))section.hidden=!section.querySelector('[data-spell-card]:not([hidden])');
-  const empty=document.querySelector('#spell-empty');if(empty)empty.hidden=!!document.querySelector('.spell-section:not([hidden])');
+  for(const section of document.querySelectorAll('.spell-section')){section.hidden=!section.querySelector('[data-spell-card]:not([hidden])');section.style.order=spellFilter==='Offensif'&&section.dataset.level==='3'?-1:0;}
+  const kv=document.querySelector('.catalog-kharvek');if(kv){
+    for(const b of kv.querySelectorAll('[data-kharvek]'))b.hidden=!normalize(b.textContent+(b.dataset.kharvek==='survivors'?' Manteau des survivants':'')).includes(q);
+    kv.hidden=!['Tous','Soins'].includes(spellFilter)||!kv.querySelector('[data-kharvek]:not([hidden])');
+  }
+  const bard=document.querySelector('.catalog-bardic');if(bard){
+    for(const card of bard.querySelectorAll('.combat-ability')){
+      const id=card.dataset.powerTone;
+      const match=spellFilter==='Tous'||(spellFilter==='Contrôle & Défense'&&['majesty','majesty-command'].includes(id))||(spellFilter==='Offensif'&&offensiveFilter==='Tous'&&id==='cry');
+      card.hidden=!match||!normalize(card.textContent).includes(q);
+    }
+    bard.hidden=!bard.querySelector('.combat-ability:not([hidden])');
+  }
+  const empty=document.querySelector('#spell-empty');if(empty)empty.hidden=!!document.querySelector('.catalog-sections>section:not([hidden])');
 }
+
 function show(title, body, onSubmit, anchor) {
   const d = document.createElement(anchor ? "section" : "dialog");
   d.className = "combat-dialog spell-dialog";
