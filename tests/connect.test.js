@@ -186,3 +186,47 @@ test('Group health notifications compare fresh revisions, hide enemy and self HP
   await sync(5,22);
   assert.equal(t.client.status().healthChanges.at(-1).delta,2);
 });
+
+test('Table Libre opens each canonical Kobe turn once and only signals the MJ',async()=>{
+  const t=setup();await t.join();
+  await t.receive({type:'table-presence',payload:{gmOnline:true}});
+  const sync=(rev,id='kobe',turn=1,extra={})=>t.command({id:'turn-'+rev,type:'state:sync',payload:{
+    syncEpoch:'encounter',session:{sessionRevision:rev,phase:'fight',combatId:'fight',round:turn,
+      activeName:id==='kobe'?'Kobe Kozzo':'Kentaro',activeCharacterId:id,
+      activeParticipantId:'cc-'+id,turnStartRevision:turn,...extra},
+  }});
+  await sync(1,'kentaro');
+  assert.equal(await t.client.signalTurnEnd(),false);
+  await sync(2);
+  assert.equal(t.client.status().canSignal,true);
+  const initial=t.store.getState().turn.startRevision;
+  const spend=(id)=>t.store.dispatch({id,actorId:'kobe',origin:'player',expectedRevision:t.store.getState().revision,type:'spend',payload:{economy:'actionAvailable'}});
+  assert.equal((await spend('spend-action')).ok,true);
+  await sync(3);
+  assert.equal(t.store.getState().economy.actionAvailable,false);
+  assert.equal(await t.client.signalTurnEnd(),true);
+  assert.equal(await t.client.signalTurnEnd(),false);
+  assert.equal(t.client.status().signalled,true);
+  assert.equal(t.store.getState().turn.startRevision,initial);
+  assert.equal(t.store.getState().undo,null);
+  await t.command({id:'grant',type:'turn:grant'});
+  await t.command({id:'close',type:'turn:close'});
+  assert.equal(t.client.status().pending.length,0);
+  await sync(4,'kentaro');
+  assert.equal(t.client.status().canSignal,false);
+  await sync(5,'kobe',2,{markerOnly:true});
+  assert.equal(t.store.getState().turn.startRevision,initial);
+  assert.equal(t.client.status().canSignal,false);
+  await sync(6,'kobe',2);
+  assert.equal(t.store.getState().turn.startRevision,initial+1);
+  assert.equal(t.store.getState().economy.actionAvailable,true);
+  assert.equal(t.client.status().canSignal,true);
+  const restored=setup(t.storage);await restored.store.load();await restored.join();
+  await restored.receive({type:'table-presence',payload:{gmOnline:true}});
+  await restored.command({id:'reload',type:'state:sync',payload:{syncEpoch:'encounter',session:{
+    sessionRevision:6,phase:'fight',combatId:'fight',round:2,activeCharacterId:'kobe',
+    activeParticipantId:'cc-kobe',turnStartRevision:2,
+  }}});
+  assert.equal(restored.store.getState().turn.startRevision,initial+1);
+  assert.equal(restored.client.status().canSignal,true);
+});

@@ -13,21 +13,26 @@ function healthChangeLabel(change){
   return change.name+' · '+[[change.delta,'PV'],[change.maximum,'PV max'],[change.temporary,'PV temp.']]
     .filter(([value])=>value).map(([value,unit])=>signed(value)+' '+unit).join(' · ');
 }
-export function mountConnect(store,quickActions,dispatch){
+export function mountConnect(store,quickActions,dispatch,onStatus){
   const root=document.createElement('section');root.className='group-surface';root.id='rpg-connect';document.body.append(root);
-  const shell=document.createElement('div');shell.className='rpg-connect';shell.innerHTML=connectFrame;document.body.append(shell);
+  const shell=document.createElement('div');shell.className='rpg-connect kobe-connect';shell.innerHTML=connectFrame;document.body.append(shell);
   const panel=shell.querySelector('.rpg-connect-panel');
-  for(const selector of ['.rpg-self-conditions','.rpg-targets-block','.rpg-target-active','.rpg-resolution-toast'])shell.querySelector(selector)?.remove();
+  panel.id='kobe-rpg-panel';
+  for(const selector of ['.rpg-connect-launch','.rpg-session-banner','.rpg-self-conditions','.rpg-targets-block','.rpg-target-active','.rpg-resolution-toast'])shell.querySelector(selector)?.remove();
   const invitation=panel.querySelector('[name=invite]');invitation.setAttribute('aria-label','Invitation Kobe');invitation.dataset.invite='';
   const requests=document.createElement('div');requests.className='rpg-request-list';panel.append(requests);
   const config=panel.querySelector('.rpg-connect-config');
   config.hidden=true;
   panel.querySelector('[data-toggle-config]').onclick=()=>{config.hidden=!config.hidden;shell.classList.toggle('rpg-show-config',!config.hidden);};
   panel.querySelector('[data-forget]').onclick=()=>{client.disconnect();invitation.value='';for(const input of config.querySelectorAll('input'))input.value='';};
-  const close=()=>{panel.hidden=true;};
-  shell.querySelector('.rpg-connect-launch').onclick=()=>{panel.hidden=!panel.hidden;};
-  panel.querySelector('[data-close]').onclick=close;
-  document.addEventListener('pointerdown',e=>{if(!shell.contains(e.target))close();});
+  const setPanel=open=>{
+    panel.hidden=!open;
+    document.querySelector('.turn-rpg')?.setAttribute('aria-expanded',String(open));
+    if(open)(current?.connected?panel.querySelector('[data-close]'):invitation).focus();
+  };
+  const close=()=>setPanel(false);
+  panel.querySelector('[data-close]').onclick=()=>{close();document.querySelector('.turn-rpg')?.focus();};
+  document.addEventListener('pointerdown',e=>{if(!shell.contains(e.target)&&!e.target.closest('.turn-rpg'))close();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
   const live=text('div','','sr-only');
   live.setAttribute('aria-live','polite');
@@ -36,6 +41,8 @@ export function mountConnect(store,quickActions,dispatch){
   let current,notice='',lastHealthChange=0;
   function render(v){
     current=v;
+    onStatus(v);
+    shell.querySelector('.rpg-quick-connect')?.toggleAttribute('hidden',v.connected);
     shell.classList.toggle('rpg-connected',v.connected);
     const self=store.getState();
     const rows=[...v.group].sort((a,b)=>(b.initiative??-100)-(a.initiative??-100));
@@ -59,17 +66,9 @@ export function mountConnect(store,quickActions,dispatch){
       </aside>
     </section>`;
     root.querySelector('[data-edit-self]').onclick=()=>openSelf();
-    shell.querySelector('.rpg-connect-dot').classList.toggle('online',v.connected&&v.gmOnline);
     shell.querySelector('.rpg-connect-status').textContent=v.connected?(v.gmOnline?'Connecté · MJ en ligne':'Connecté · MJ absent'):'Hors ligne · compagnon autonome';
     shell.querySelector('.rpg-connect-message').textContent=notice;
-    const banner=shell.querySelector('[data-session-banner]');
-    const mine=v.session?.activeCharacterId==='kobe'&&!v.stale;
-    banner.dataset.tone=!v.connected?'offline':mine?'myturn':v.session?.phase==='fight'?'turn':'connected';
-    shell.querySelector('[data-session-title]').textContent=mine?'À toi de jouer':v.session?.activeName||'Connecté à la partie';
-    shell.querySelector('[data-session-detail]').textContent=v.session?.round?'Round '+v.session.round:v.gmOnline?'MJ en ligne':'En attente du MJ';
-    const end=shell.querySelector('[data-end-turn-request]');end.hidden=!mine;end.disabled=self.combat.phase==='ended';
     requests.innerHTML=(v.pending??[]).filter(x=>!['initiative:request','initiative:retry'].includes(x.event.type)).map(({event:e})=>`<article class="rpg-request"><strong>${escape(e.payload?.text||({'hp:set':'Correction des PV','tempHp:set':'Correction des PV temporaires','conditions:set':'États personnels'}[e.type]||'Demande du MJ'))}</strong>${['hp:set','tempHp:set'].includes(e.type)?'<p>Valeur proposée '+escape(e.payload.value)+'</p><button data-accept="'+escape(e.id)+'">Appliquer cette correction</button>':e.type==='conditions:set'?'<div class="rpg-group-states">'+(e.payload.conditions||[]).map(c=>conditionBadge(c?.name??c)).join('')+'</div><button data-accept="'+escape(e.id)+'">Appliquer ces états</button>':''}<button data-decline="${escape(e.id)}">Traité à la table</button></article>`).join('');
-    if(requests.childElementCount)panel.hidden=false;
     renderInitiative(v);
     if(recent&&recent.id>lastHealthChange){
       if(!root.hidden)live.textContent=changes.filter(change=>change.id>lastHealthChange).map(healthChangeLabel).join('. ');
@@ -130,7 +129,7 @@ export function mountConnect(store,quickActions,dispatch){
       empty.append(text('p',v.connected?'En attente de l’ordre d’initiative partagé par Encounter.':'Les actions rapides restent disponibles en local.'));
       const open=text('button','Ouvrir RPG Connect');
       open.type='button';
-      open.onclick=()=>{panel.hidden=false;invitation.focus();};
+      open.onclick=()=>setPanel(true);
       empty.append(open);
       list.append(empty);
     }
@@ -164,7 +163,6 @@ export function mountConnect(store,quickActions,dispatch){
       }
       if(b.hasAttribute('data-disconnect'))client.disconnect();
       if(b.dataset.accept||b.dataset.decline){b.disabled=true;const r=await client.review(b.dataset.accept||b.dataset.decline,!!b.dataset.accept);notice=r.ok?'Décision enregistrée.':r.message;render(client.status());}
-      if(b.hasAttribute('data-end-turn-request'))document.querySelector('[data-action=end-turn]')?.click();
     }catch(error){notice=error.message;render(client.status());}
   });
   const editor=document.createElement('dialog');editor.className='rpg-self-editor';
@@ -186,6 +184,7 @@ export function mountConnect(store,quickActions,dispatch){
       if(r?.ok)editor.close();else editor.querySelector('[role=alert]').textContent=r?.message||'Correction refusée';
     }finally{b.disabled=false;}
   };
+  client.togglePanel=()=>setPanel(panel.hidden);
   store.subscribe(()=>render(client.status()));render(client.status());client.resume();
   return client;
 }
