@@ -108,6 +108,16 @@ try{
    const archive=page.waitForEvent('download');
    await page.locator('[data-export-archive]').click();
    await (await archive).saveAs('screenshots/'+engine.name()+'-kobe-session.zip');
+   for(const width of [375,390,430]){
+    await page.setViewportSize({width,height:844});await tab('Combat');
+    const next=await page.locator('[data-action=end-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width,'end turn visible');
+    const heal=await page.locator('[data-action=heal]').boundingBox(),temp=await page.locator('.tempstat').boundingBox();assert(heal.x+heal.width<=temp.x,'heal must not overlap temporary HP');
+    await page.locator('[data-combat-view=kharvek]').click();
+    const marks=await page.locator('.charge-mark').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().y));assert.equal(new Set(marks).size,1,'seven charges on one row');
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile horizontal overflow');
+    await capture('mobile-'+width);
+    await tab('Journal');assert((await page.locator('#entryText').boundingBox()).y<600,'capture reachable without long header');
+   }
    assert.deepEqual(errors,[]);
    console.log(engine.name()+': inventaire, 31 jets, expertise, avantage, sauvegarde physique, distribution, édition, suppression, portrait, reprise et ZIP archivé PASS');
   }finally{await browser.close();}

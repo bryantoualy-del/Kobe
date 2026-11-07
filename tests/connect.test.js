@@ -15,7 +15,7 @@ function setup(storage=new Map(),onActivity=()=>{}){
     send(raw){this.messages.push(JSON.parse(raw));}
     close(){this.readyState=3;}
   }
-  const client=createConnect({store,onActivity,WebSocketImpl:WS,uuid:()=> 'id-'+(++id),schedule:fn=>{scheduled.push(fn);return 1;},cancel:()=>{}});
+  const client=createConnect({store,connectionStorage:local,onActivity,WebSocketImpl:WS,uuid:()=> 'id-'+(++id),schedule:fn=>{scheduled.push(fn);return 1;},cancel:()=>{}});
   const receive=async(m)=>{sockets.at(-1).onmessage({data:JSON.stringify({v:1,...m})});await client.settled();};
   const join=async()=>{client.connect('RPGCONNECT|wss://example.org|ROOM01|kobe|test');sockets.at(-1).onopen();await receive({type:'welcome',protocolVersion:1,capabilities:['table-free-v5'],payload:{sessionMode:'table-free'}});};
   const command=(event)=>receive({type:'command',room:'ROOM01',characterId:'kobe',event:{characterId:'kobe',...event}});
@@ -143,4 +143,17 @@ test('collective journal accepts only the current room and never republishes rec
  await f.receive({type:'activity',room:'ROOM01',payload:entry});
  assert.deepEqual(received.map(r=>r.rows),[[],[entry],[entry]]);
  assert.equal(f.sockets[0].messages.length,before);
+});
+
+test('connection survives page disposal; explicit disconnect forgets the invitation',async()=>{
+ const data=new Map();const first=setup(data);await first.join();first.client.dispose();
+ const second=setup(data);assert.equal(second.client.resume(),true);assert.equal(second.sockets.length,1);
+ second.sockets[0].onopen();assert.equal(second.sockets[0].messages[0].characterId,'kobe');
+ second.client.disconnect();const third=setup(data);assert.equal(third.client.resume(),false);
+ first.client.dispose();second.client.dispose();third.client.dispose();
+});
+test('invalid persisted connection is discarded without affecting game data',()=>{
+ const data=new Map([['kobe.rpg-connect.invitation.v1','invalid']]);const app=setup(data);
+ assert.equal(app.client.resume(),false);assert.equal(data.has('kobe.rpg-connect.invitation.v1'),false);
+ assert.equal(app.store.getState().hp.current,83);app.client.dispose();
 });

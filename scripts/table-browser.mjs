@@ -41,6 +41,20 @@ try{
      await page.getByText(/Connecté · MJ en ligne/).waitFor();
    };
    await joinRoom();
+   const priorSocket=rooms.get(room).players.get('kobe');
+   await page.reload();
+   await until(()=>rooms.get(room).players.get('kobe')&&rooms.get(room).players.get('kobe')!==priorSocket,'automatic invitation resume after reload');
+   await page.getByRole('tab',{name:'Groupe',exact:true}).click();
+   await page.getByRole('button',{name:'RPG Connect',exact:true}).click();
+   await page.getByText(/Connecté · MJ en ligne/).waitFor();
+   await page.getByRole('button',{name:'RPG Connect',exact:true}).click();
+   await page.getByRole('tab',{name:'Social',exact:true}).click();
+   await page.locator('#physical').check();
+   await page.locator('[data-roll=Persuasion]').click();
+   await page.locator('[name=answer]').fill('12');await page.locator('[data-dialog-accept]').click();
+   await page.waitForFunction(()=>document.querySelector('output.ribbon')?.textContent.includes('Persuasion'));
+   assert.ok(!rx.some(m=>m.type==='event'),'private Social roll never broadcast');
+   await page.getByRole('tab',{name:'Groupe',exact:true}).click();
    const touchCounts={};await page.evaluate(()=>{window.__taps=0;document.addEventListener('click',()=>window.__taps++,true);});
    const count=()=>page.evaluate(()=>window.__taps);let start=await count();
    const first=await until(()=>rx.find(m=>m.type==='state'),'HP state');
@@ -64,6 +78,7 @@ try{
    old.terminate();await until(()=>rooms.get(room).players.get('kobe')!==old&&rooms.get(room).players.get('kobe'),'reconnected');
    assert.equal(await hp(),60);
    await page.locator('[data-toggle-config]').click();await page.getByRole('button',{name:'Déconnecter',exact:true}).click();
+   await page.getByRole('tab',{name:'Combat',exact:true}).click();
    start=await count();await page.getByRole('button',{name:'Soin',exact:true}).click();await page.locator('[name=answer]').fill('5');await page.locator('[data-dialog-accept]').click();
    await page.locator('#hp[value="65"]').waitFor();
    touchCounts.heal=(await count())-start;console.log(name+' FRICTION measured DOM clicks (text entry and native prompt excluded): '+JSON.stringify(touchCounts));

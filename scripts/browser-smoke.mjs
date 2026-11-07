@@ -41,7 +41,6 @@ try{
    await page.locator('#hp[value="73"]').waitFor();
    await page.getByRole('tab',{name:'Social'}).click();
    await page.getByLabel('Notes de Kobe').fill('Roark à retrouver.');
-   await page.getByRole('button',{name:'Enregistrer les notes'}).click();
    await page.waitForFunction(() => JSON.parse(localStorage.getItem('kobe-companion:v1') || '{}').state?.notes === 'Roark à retrouver.');
    await page.reload();
    assert.equal(await page.getByLabel('Notes de Kobe').inputValue(),'Roark à retrouver.');
@@ -53,16 +52,20 @@ try{
    if(label==='chromium'){
     await context.setOffline(true);
     await page.reload();
-    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
-    await page.getByRole('tab',{name:'Combat'}).click();
+    await page.getByRole('tab',{name:'Journal',exact:true}).waitFor();
+    assert.equal(await page.getByRole('tab',{name:'Journal',exact:true}).getAttribute('aria-selected'),'true');
+    await page.getByRole('tab',{name:'Combat',exact:true}).click();
+    await page.getByRole('heading',{name:'Kobe Kozzo',exact:true}).waitFor();
     await page.locator('#hp[value="73"]').waitFor();
     await context.setOffline(false);
    } else {
     // Playwright WebKit on Linux fails internally on offline page.reload().
     // Keep online persistence coverage; real offline Safari remains an explicit manual acceptance.
     await page.reload();
-    await page.getByRole('heading',{name:'Kobe Kozzo'}).waitFor();
-    await page.getByRole('tab',{name:'Combat'}).click();
+    await page.getByRole('tab',{name:'Journal',exact:true}).waitFor();
+    assert.equal(await page.getByRole('tab',{name:'Journal',exact:true}).getAttribute('aria-selected'),'true');
+    await page.getByRole('tab',{name:'Combat',exact:true}).click();
+    await page.getByRole('heading',{name:'Kobe Kozzo',exact:true}).waitFor();
     await page.locator('#hp[value="73"]').waitFor();
    }
    await page.locator('[data-combat-view=offense]').click();

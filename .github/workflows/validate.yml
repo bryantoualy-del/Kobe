@@ -35,20 +35,28 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: bryantoualy-del/RPG-Connect
-          ref: f1c441dbe9bc097e94677b6e98abc9cf66d8fb9d
+          ref: 5b13cd5f28e483088550cad3b2b893dde4ae2d3a
           path: .v5-test
           persist-credentials: false
       - name: Run canonical V5 server tests
         working-directory: .v5-test
         run: npm ci && npm test
+      - name: Audited baseline for identical before/after captures
+        uses: actions/checkout@v4
+        with:
+          ref: 0cdd548f10201cbdede87a654aac1209142dc862
+          path: .before
+          persist-credentials: false
+      - name: Responsive comparisons and touch geometry
+        run: node scripts/layout-browser.mjs
       - name: Browser smoke (WebKit / Chromium, offline reload)
+        if: always()
         run: |
-          node scripts/parity-browser.mjs
-          node scripts/browser-smoke.mjs
-          node scripts/spellbook-browser.mjs
-          node scripts/kharvek-browser.mjs
-          node scripts/table-browser.mjs
-          node scripts/resume-browser.mjs
+          failed=0
+          for recipe in parity-browser browser-smoke spellbook-browser kharvek-browser table-browser resume-browser; do
+            node scripts/$recipe.mjs || failed=1
+          done
+          exit "$failed"
 
       - name: Prepare visual review
         if: always()

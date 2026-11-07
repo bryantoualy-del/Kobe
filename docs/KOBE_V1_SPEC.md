@@ -1,5 +1,8 @@
 # Kobe Companion V1 — spécification persistante
 
+> Mise à jour normative V1.1, 7 novembre 2026 : les choix de table validés remplacent les prototypes historiques ci-dessous. Les sorts et capacités s’exécutent directement, sans questionnaire de cible, nombre ou contexte. Les bénéficiaires sont annoncés oralement. Le moteur de dés plein écran est réservé au Social. Combat ne contient que les sous-vues Attaques et Khar-Vek ; Suivi & ajustements regroupe les opérations secondaires. La percussion rythmique et ses temporisations ne sont pas proposées. Khar-Vek utilise sept corrections directes 0–6 et trois commandes, dont Manteau + soin en une seule transaction (bonus + inspiration + charge). Les paragraphes de prototype décrivent l’historique du Lot 0 et ne sont plus des critères UX de V1.1.
+
+
 Version documentaire 1, 4 novembre 2026. Destination : bryantoualy-del/Kobe.
 Personnage fixé : Kobe Kozzo, kobold, barde 10, Collège du Glamour / Séduction, Compagnie Créole.
 Référentiel D&D 5e 2014, extensions explicites et règles maison identifiées ; aucune mécanique 2024 implicite.

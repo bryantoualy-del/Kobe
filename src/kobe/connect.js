@@ -36,7 +36,7 @@ export async function operationId(scope,event) {
 }
 import {correction} from './table-correction.js';
 export {correction};
-export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},onActivity=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout}) {
+export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange=()=>{},onActivity=()=>{},uuid=()=>crypto.randomUUID(),schedule=setTimeout,cancel=clearTimeout,connectionStorage=null}) {
   let socket=null,invite=null,active=false,timer=null,attempt=0,generation=0,chain=Promise.resolve();
   let epoch=uuid(),lastRevision=-1,lastProjection='',groupEpoch=null,groupRevision=-1,sessionRevision=-1;
   const retired=new Set(),pending=new Map(),sent=new Map();
@@ -58,7 +58,10 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     if(fingerprint!==lastProjection&&send({type:'state',state:value}))lastProjection=fingerprint;
   }
   const unsubscribe=store.subscribe(sync);
-  function disconnect() {
+  const connectionKey="kobe.rpg-connect.invitation.v1";
+  function forget(){try{connectionStorage?.removeItem(connectionKey);}catch{}}
+  function disconnect(clearSaved=true) {
+    if(clearSaved)forget();
     active=false;generation++;cancel(timer);socket?.close();socket=null;
     pending.clear();view.connected=false;view.stale=true;view.gmOnline=false;
     note('Local · RPG Connect déconnecté');
@@ -132,14 +135,15 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
       if(g!==generation)return;
       generation++;view.connected=false;view.stale=true;view.gmOnline=false;pending.clear();
       // 4001 means another tab/device owns the connection. Do not fight it.
-      if(event.code>=4000){active=false;note('Connexion fermée · reconnectez explicitement après vérification de la salle.');return;}
+      if(event.code>=4000){forget();active=false;note('Connexion fermée · reconnectez explicitement après vérification de la salle.');return;}
       note('Connexion perdue · jeu local disponible, reconnexion en cours');
       if(active)timer=schedule(open,Math.min(30000,1000*2**Math.min(attempt++,5)));
     };
   }
   return {
-    connect(text){const next=parseInvite(text);disconnect();invite=next;onActivity(scope(),[]);epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
+    connect(text){const next=parseInvite(text);disconnect(false);invite=next;try{connectionStorage?.setItem(connectionKey,text);}catch{};onActivity(scope(),[]);epoch=uuid();groupEpoch=null;groupRevision=-1;sessionRevision=-1;retired.clear();view.group=[];view.session=null;sent.clear();active=true;open();note('Connexion…');},
     disconnect,sync,
+    resume(){try{const text=connectionStorage?.getItem(connectionKey);if(text){this.connect(text);return true;}}catch{forget();}return false;},
     status:()=>structuredClone({...view,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]}),
     async initiative(eventId,die){
       const item=pending.get(eventId),g=generation;
@@ -181,6 +185,6 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
       publish();return true;
     },
     settled:()=>chain,
-    dispose(){disconnect();unsubscribe();}
+    dispose(){disconnect(false);unsubscribe();}
   };
 }

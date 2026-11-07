@@ -411,3 +411,27 @@ Les animations du moteur de dés ne se déclenchent que depuis les jets du Socia
 Combat comporte Attaques et Khar-Vek. Les anciens onglets Ressources et Capacités sont retirés ; un ancien onglet mémorisé revient sur Attaques. Les capacités restent dans l’accès rapide, les effets/résolutions et corrections restent accessibles dans Suivi & ajustements. Khar-Vek propose des boutons 0 à 6 pour régler directement les charges via la commande de correction existante (sauvegarde et Undo inchangés). Les commandes gestuelles de percussion et leur temporisation ne sont plus exposées. Le dragon et ses pouvoirs sont conservés.
 
 Les cartes du grimoire sont compactées en trois colonnes au format paysage ; niveau et lancement sont sur la même ligne, descriptions et liens AideDD restent dépliables. Contrôles tactiles d’au moins 44 px conservés. Tests moteur : 152 réussis ; compilation et contrôles statiques réussis. Les scénarios navigateur vérifient absence d’animation en attaque, présence en Social, charges cliquables 0–6 et reprise, ainsi que hauteur des cartes. Validation Safari sur iPad physique non réalisée.
+
+
+## 6 novembre — suite de l’audit UX iPhone
+- En-tête contextuel, barre de tour mobile en grille, navigation basse et commandes PV sans chevauchement.
+- Console Khar-Vek : trois soins dans Combat, coûts combinés explicites, charges 0–6 sur une ligne et masque serpentin de la queue à la tête.
+- Résultat persistant avec Annuler ; notes privées autosauvegardées ; invitation RPG Connect restaurée après rechargement et oubliée sur déconnexion explicite.
+- 154 tests moteur passent. Serveur : 10 tests passent et PR7 fusionnée. Encounter : validation locale V5 et MJ 8/8 ; manifeste CI réparé pour utiliser le serveur comprenant Kobe.
+- Recette navigateur et CI de livraison en cours. iPhone/iPad physiques non disponibles ; ne pas assimiler WebKit à une recette physique.
+
+## 7 novembre — reprise PR #12
+État initial : main 0cdd548, tête d7a846a, PR ouverte ; PR10/11 fusionnées. CI 42301260778 : moteur/build réussis, navigateur et écosystème en échec. L’en-tête contextuel a supprimé le titre Combat dans Journal et les commandes PV dans Groupe ; les anciens scénarios attendaient ces commandes sans revenir sur Combat. Recettes corrigées pour respecter la navigation et vérifier la restauration de Journal. Aucun moteur remplacé.
+154 tests locaux, build et contrôle statique réussis. Render consulté : RPG Connect live 5b13cd5 (dep-dbn4p3942hec73fhjaj0) ; Encounter live ff447ea (dep-dbi58mg473hc73elt6ug), PR21 toujours ouverte. Recette navigateur complète en cours.
+
+### 7 novembre — densité paysage et retour annulable
+Les captures de la PR confirment que les raccourcis de soutien repoussent les favoris sous 820 px. Réorganisation ciblée : capacités en grille, soutien sur une rangée à droite, favoris pleine largeur. Les boutons PV et capacités ont une règle 44 px suffisamment spécifique. Sur téléphone, Trait de feu précède désormais les capacités compactées sur deux colonnes. Résultat/Undo conservé lors des changements d’onglet et de l’autosauvegarde. Nouvelle recette comparative 375/390/430/1180 et test Undo après navigation. Chromium local ne peut pas démarrer (socket système refusée) ; tests de navigateur exécutés en CI, sans revendication de recette locale.
+
+### 7 novembre — recette fonctionnelle complète
+CI 42347308348 : 154 tests, build, contrôle statique, six suites Chromium/WebKit (combat, sorts, Social/Journal, Khar-Vek, Table Libre, redémarrage hors ligne) réussis. Les sept clients et Encounter passent également. La nouvelle comparaison exhaustive détecte un débordement à 375 px ; son parcours doit attendre la fin effective des changements d’onglet. Vérification des cibles PV paysage : ancienne règle !important de 20 px supprimée. Ajout de cas navigateur double clic/Undo du vestige, reprise automatique de l’invitation et jet Social privé en session connectée.
+
+### 7 novembre — débordement Social confirmé et corrigé
+La grille héritée de Brack conservait trois colonnes sur iPhone et des boutons flex dont la largeur minimale dépendait du libellé : les compétences dépassaient à 375 px. Grille mobile de deux colonnes, retour à la ligne et bonus séparé. Le test de reconnexion confirme la nouvelle socket mais doit ouvrir le panneau RPG pour lire son statut (fermé normalement après reload). Favoris paysage placés avant les commandes, niveau inline compact ; fiches détaillées conservées dans le grimoire. Encounter #21 fusionnée en 76aa2b6 ; le déploiement Render correspondant est live (ce service Docker est un ancien serveur, distinct de la page statique du MJ).
+
+### 7 novembre — validation visuelle finale
+CI 42347776797 entièrement verte sur 30ae6f0 : trois jobs réussis, comparaisons Chromium/WebKit aux quatre formats comprises. Lecture des captures : le bouton principal de Trait de feu restait après les réglages facultatifs, au bas du premier écran iPhone. Il est placé juste après les caractéristiques de l’attaque, avant les réglages ; en-tête mobile de 80 px effectifs après retrait de deux priorités CSS héritées. Nouvelle assertion de visibilité immédiate du bouton aux quatre formats. Aucune règle ou donnée modifiée. Version de recette privée séparée créée ; actualisation prévue sur la tête finale.

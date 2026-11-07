@@ -1,0 +1,117 @@
+/* Responsive play surface: final layout authority over imported Companion skins. */
+.compact-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 70px 16px 4px;color:var(--ivory)}
+.compact-header strong{font:700 1.2rem Georgia,serif;color:var(--gold)}
+.compact-header span{font-size:13px}
+.app .status{font-size:12px;margin:6px 0;min-height:0;color:var(--muted)}
+.app .tactical-card .combat-ability-button,.app .hp-actions .mini{min-height:44px}
+.app .ability-note{font-size:12px;line-height:1.4}
+.app .hp-actions{display:flex;flex-wrap:wrap;gap:4px}
+.app .hp-actions button{flex:1;padding:6px 8px}
+#ribbon{pointer-events:auto;max-height:35vh;overflow:auto}
+#ribbon[hidden]{display:none!important}
+#ribbon .ribbon-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+#ribbon button{min-height:44px;padding:6px 14px}
+#kharvek{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);text-align:left;gap:24px}
+#kharvek .kharvek-art{grid-area:auto}
+#kharvek .kharvek-controls{display:block}
+#kharvek .power-list,.support-actions{display:grid;gap:8px}
+#kharvek [data-kharvek]{grid-area:auto;text-align:left}
+.support-actions button{display:grid;gap:4px;min-height:76px;padding:12px;border-left:3px solid var(--copper);background:linear-gradient(110deg,#342027,#201c22);text-align:left}
+.support-actions strong{color:var(--ivory);font-size:16px}
+.support-actions span{color:var(--gold);font-size:13px}
+.support-actions small{font-size:12px;line-height:1.4;color:var(--muted)}
+#kharvek h2 small{font:600 16px system-ui;color:var(--muted);white-space:nowrap}
+#kharvek .charge-marks{display:grid;grid-template-columns:repeat(7,44px);gap:4px;justify-content:center;margin:12px 0}
+#kharvek details summary{min-height:44px;padding:12px 0;cursor:pointer}
+#kharvek .charge-mark[aria-pressed=true]{outline-offset:0}
+#kharvek .drum-pad{background:transparent!important}
+.app .spell-caster{--combat-glow:#B86637;--combat-secondary:#E5B963;background:linear-gradient(145deg,#2b2024,#151419)!important}
+.app .spell{background:linear-gradient(145deg,#242027,#17151a)}
+@media(max-width:720px){
+ .app.shell{padding:8px 8px calc(90px + env(safe-area-inset-bottom));overflow:visible}
+ .app .top{padding:8px;display:block}
+ .app .identity{min-height:80px;padding:0 0 8px;gap:8px}
+ .app .identity h1{font-size:24px}
+ .app .identity p{font-size:11px;margin:4px 0}
+ .app .identity .eyebrow{font-size:10px}
+ .app .identity .signature{width:72px;height:72px;min-width:72px;margin-right:45px}
+ .app .signature img{width:100%;height:100%;object-fit:contain}
+ .app .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .app .stat{padding:7px;min-width:0;border-radius:9px}
+ .app .stat small{font-size:10px;display:block}
+ .app .stat b{font-size:16px}
+ .app .hpstat{grid-column:span 2}
+ .app .hp-main-row{display:flex;align-items:center;gap:8px}
+ .app .hp-main-row label{min-width:0;flex:1}
+ .app .hp-main-row input{width:100%;min-height:40px}
+ .app .tempstat input{width:100%;min-width:0;padding:6px}
+ .app #cc-turnbar-standard{position:sticky;top:0;z-index:20;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible;gap:4px;padding:5px;margin:8px 0;background:#151419f5}
+ .app #cc-turnbar-standard>*{min-width:0!important;min-height:44px;padding:4px;white-space:normal;font-size:10px}
+ .app #cc-turnbar-standard .cc-turn-icon{display:none}
+ .app #cc-turnbar-standard .cc-turn-state{font-size:10px;overflow-wrap:anywhere}
+ .app #cc-turnbar-standard .cc-turn-next{background:linear-gradient(135deg,#b88036,#E5B963);color:#17110d;font-weight:800}
+ .app .tabs{position:fixed!important;bottom:0;left:0;right:0;top:auto;width:100%;margin:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;z-index:40;background:#151419f8;border-top:1px solid var(--line);border-radius:0}
+ .app .tabs .tab{min-width:0;min-height:52px;padding:5px 2px;font-size:11px;white-space:normal;border-radius:9px}
+ .app .compact-header{padding:10px 68px 10px 3px;flex-wrap:wrap;gap:4px;min-height:64px}
+ .app .compact-header span{font-size:12px}
+ .app .panel{padding:12px}
+ .app .brack-offense{display:flex;flex-direction:column}
+ .app .signature-preview{order:0}.app .abilities-card{order:1}.app .favorites-panel{order:2}
+ .app .combat-abilities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .app .combat-ability{grid-template-columns:minmax(0,1fr);gap:3px}
+ .app .combat-ability .ability-note{grid-column:1}
+ .app .combat-ability .ability-cost{font-size:12px}
+ .app .tactical-card .combat-ability-button{font-size:13px;padding:8px}
+ #kharvek{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:10px}
+ #kharvek .kharvek-art{grid-area:auto}
+ #kharvek .kharvek-art h2{font-size:24px;margin:0}
+ #kharvek .subtitle{font-size:12px;margin:4px 0}
+ #kharvek .drum-pad svg{height:112px;max-height:112px}
+ #kharvek .power-list{margin:4px 0 8px}
+ #kharvek .power-list button{min-height:76px;padding:10px}
+ #kharvek .charge-marks{gap:4px;margin:8px 0}
+ .app .score .spell-section{padding:8px}
+ .app .score .spell{padding:8px}
+ #ribbon{bottom:calc(76px + env(safe-area-inset-bottom));padding:10px}
+ .app input,.app textarea,.app select{font-size:16px}
+ .app .combat-subtabs{margin:8px 0}
+ #v3-root .v3-roll-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #v3-root .v3-roll-grid button{display:grid;grid-template-columns:minmax(0,1fr) auto;min-width:0;font-size:14px;align-items:center}
+ #v3-root .v3-roll-grid button span{min-width:0;overflow-wrap:anywhere}
+ #v3-root .v3-roll-grid button small{grid-column:1/-1}
+ #v3-root .v3-sheet-tabs button{flex:1 1 0;min-width:0;min-height:44px}
+}
+/* The imported journal offset assumed the old permanent combat header. */
+.app #sessionDesk .journal-subtabs{position:static;top:auto}
+
+.app .drum-pad .dragon-art{background:transparent}
+
+/* Keep four favourites and support controls together in the landscape viewport. */
+@media(min-width:1000px){
+ .app .brack-offense{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);align-items:start}
+ .app .brack-offense>.pyro-card{grid-column:1;grid-row:2}
+ .app .brack-offense>.tactical-card{grid-column:2;grid-row:2}
+ .app .brack-offense>.favorites-panel{grid-column:1/-1;grid-row:1}
+ .app .favorites-panel .spell-cast-actions{flex-wrap:nowrap}
+ .app .favorites-panel .spell-cast-actions .cast-level{flex-basis:auto}
+ .app .favorites-panel .spell-cast-actions .spell-doc-source{display:none}
+ .app .favorites-panel .spell-status.ready{display:none}
+ .app .combat-abilities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .app .combat-ability{grid-template-columns:minmax(0,1fr);padding:0;border:0;gap:2px}
+ .app .combat-ability .ability-cost{font-size:11px}
+ .app .combat-ability .ability-note{grid-column:1;font-size:11px}
+ .app .tactical-card .combat-ability-button{font-size:12px;padding:6px}
+ .app .tactical-card .support-actions{grid-template-columns:repeat(3,minmax(0,1fr));margin:8px 0 0;gap:6px}
+ .app .tactical-card .support-actions button{padding:8px;min-height:100px;align-content:start}
+ .app .tactical-card .support-actions strong{font-size:14px}
+ .app .tactical-card .support-actions span,.app .tactical-card .support-actions small{font-size:12px}
+ .app .signature-preview .strike-prepare{flex-wrap:wrap}
+ .app .signature-preview .signature-modes{flex-basis:100%}
+ .app .tabs{margin:8px 0}
+ .app .combat-subtabs{margin:8px 0}
+ #v3-root .v3-roll-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #v3-root .v3-roll-grid button{display:grid;grid-template-columns:minmax(0,1fr) auto;min-width:0;font-size:14px;align-items:center}
+ #v3-root .v3-roll-grid button span{min-width:0;overflow-wrap:anywhere}
+ #v3-root .v3-roll-grid button small{grid-column:1/-1}
+ #v3-root .v3-sheet-tabs button{flex:1 1 0;min-width:0;min-height:44px}
+}
