@@ -45,13 +45,16 @@ export async function playSpriteSheet(s,{container=document.body,intensity='norm
  const ctx=canvas.getContext('2d',{alpha:true});
  if(!ctx){layer.remove();return false;}
  ctx.setTransform(ratio,0,0,ratio,0,0);ctx.imageSmoothingEnabled=s.smoothing!==false;
- let raf,done=false,start;
+ let raf,done=false,start,visibilityPause=null;
+ const onVisibility=()=>{if(document.hidden){visibilityPause=performance.now();}else if(visibilityPause!==null){if(start!==undefined)start+=performance.now()-visibilityPause;visibilityPause=null;}};
+ document.addEventListener('visibilitychange',onVisibility);
  const duration=sheetDuration(s);
  const abort=()=>stop();
- const stop=()=>{if(done)return;done=true;cancelAnimationFrame(raf);layer.remove();signal?.removeEventListener('abort',abort);};
+ const stop=()=>{if(done)return;done=true;cancelAnimationFrame(raf);layer.remove();document.removeEventListener('visibilitychange',onVisibility);signal?.removeEventListener('abort',abort);};
  signal?.addEventListener('abort',abort,{once:true});
  const draw=time=>{
   if(done)return;
+  if(document.hidden){raf=requestAnimationFrame(draw);return;}
   if(start===undefined)start=time;
   const elapsed=time-start;
   if(!s.loop&&elapsed>=duration){stop();return;}
