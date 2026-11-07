@@ -44,7 +44,7 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  assert((await state()).journal.some(e=>e.label.includes('Manteau des survivants')));assert((await state()).journal.some(e=>e.label.includes('Boule de feu')));
  await tab('Combat');assert(await page.locator('[data-combo=mantle]').isDisabled());
  await page.locator('[data-ribbon-undo]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===3);assert.equal((await state()).resources.inspiration,3);
- await next();await page.locator('.intent-inspire [data-combat=mantle]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===2);
+ await tab('Combat');await next();await page.locator('.intent-inspire [data-combat=mantle]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===2);
  await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
  if(engine.name()==='chromium'){await context.setOffline(true);await page.reload();await page.locator('.support-cockpit').waitFor();await page.locator('.intent-heal').click();await page.locator('.catalog-kharvek:not([hidden])').waitFor();assert.equal((await state()).resources.charges,4);}
  assert.deepEqual(errors,[]);await context.close();console.log(engine.name()+' support '+width+' PASS');

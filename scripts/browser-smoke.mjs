@@ -80,7 +80,7 @@ try{
    if(label==='chromium')await context.setOffline(true);
    await page.reload();
    await page.locator('.support-cockpit').waitFor();
-   const actionBox=await page.locator('[data-intent=Offensif]').boundingBox();
+   const actionBox=await page.locator('.intent-attack').boundingBox();
    assert.ok(actionBox.y+actionBox.height<=820,'primary action visible on iPad viewport');
    await mkdir('screenshots',{recursive:true});
    await page.screenshot({path:'screenshots/'+label+'-combat.png',fullPage:true});

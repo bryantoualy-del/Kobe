@@ -460,3 +460,9 @@ Navigation intention → catalogue avec filtre préactivé et recherche réiniti
 
 ### Lot E — Groupe responsive
 Cause identifiée : la grille mobile de `[data-group-quick]` plaçait l'unique grille de capacités dans une demi-colonne, elle-même subdivisée. Conteneur remis en bloc ; grille de capacités deux colonnes téléphone / une colonne rail iPad, libellés multilignes et compteurs sans rétrécissement. Boutons ≥44 px, notes en dessous, état personnel pleine largeur. Raccourcis et événements conservés.
+
+### Lot F — validation initiale
+164 tests Node, build et contrôle statique/cache réussis. PR14 brouillon ouverte, cinq commits fonctionnels publiés via API GitHub (Git HTTPS local sans identité de push). Nouveau parcours Chromium/WebKit aux quatre formats ; recettes existantes adaptées, contrats V5 inchangés. CI 42357786301 en cours. Navigateur local indisponible (socket refusée) ; aucune recette locale ou physique revendiquée. Détail : KOBE_V12_VALIDATION.md.
+
+### Lot F — première recette et corrections
+CI 42357786301 : 164 tests/build et écosystème sept clients réussis ; sorts, Khar-Vek, réseau et reprise à froid Chromium/WebKit réussis. Captures examinées : Groupe corrigé ; cockpit trop haut à 375 px. Réduction des intentions, effets du combo repliables ; correction des radios Trait de feu qui se recouvraient dans leur nouvelle carte. Deux assertions de parcours corrigées : sélecteur Offensif ambigu et retour explicite à Combat après Undo (qui restaure aussi l'onglet précédent selon le moteur existant). Nouvelle recette requise.

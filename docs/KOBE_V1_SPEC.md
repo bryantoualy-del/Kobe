@@ -1,5 +1,8 @@
 # Kobe Companion V1 — spécification persistante
 
+> **V1.2 — 7 novembre 2026 :** Combat devient le cockpit Inspirer / Soigner / Attaquer / Contrôler. Les trois dernières intentions ouvrent Sorts & pouvoirs avec leur filtre. Accès rapide général reste dans Groupe ; favoris personnels repliables dans Combat. Khar-Vek garde sa sous-vue et ses commandes partagées avec Soins. Le Battement Ardent est un raccourci séquentiel, chaque étape validée par le moteur existant. Header iPad persistant conservé. Cette décision remplace les dispositions de navigation V1.1 ci-dessous ; les règles mécaniques restent inchangées. Recette : [KOBE_V12_VALIDATION.md](KOBE_V12_VALIDATION.md).
+
+
 > Mise à jour normative V1.1, 7 novembre 2026 : les choix de table validés remplacent les prototypes historiques ci-dessous. Les sorts et capacités s’exécutent directement, sans questionnaire de cible, nombre ou contexte. Les bénéficiaires sont annoncés oralement. Le moteur de dés plein écran est réservé au Social. Combat ne contient que les sous-vues Attaques et Khar-Vek ; Suivi & ajustements regroupe les opérations secondaires. La percussion rythmique et ses temporisations ne sont pas proposées. Khar-Vek utilise sept corrections directes 0–6 et trois commandes, dont Manteau + soin en une seule transaction (bonus + inspiration + charge). Les paragraphes de prototype décrivent l’historique du Lot 0 et ne sont plus des critères UX de V1.1.
 
 

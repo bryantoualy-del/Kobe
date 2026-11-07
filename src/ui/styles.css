@@ -48,7 +48,7 @@ html[data-still=true] .kharvek-panel *,html[data-still=true] .kharvek-panel *::b
 .combo-actions {display:flex;flex-wrap:wrap;gap:6px;align-content:center}
 .combat-favorites {margin-top:12px}
 .combat-favorites>summary {min-height:44px;cursor:pointer;padding:12px}
-@media(max-width:720px){.intent-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.intent-card{padding:10px}.intent-card>strong{font-size:18px}.intent-card h2{font-size:16px}.intent-card small{font-size:11px}.ardent-combo{grid-template-columns:1fr}.combo-actions button{flex:1 1 120px}.intent-inspire{grid-row:span 2}.intent-control{grid-column:2}.support-cockpit{margin-top:6px}}
+@media(max-width:720px){.intent-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.intent-card{padding:10px}.intent-card>strong{font-size:18px}.intent-card h2{font-size:16px}.intent-card small{font-size:11px}.ardent-combo{grid-template-columns:1fr}.combo-actions button{flex:1 1 120px}.intent-inspire{grid-row:span 3}.intent-control{grid-column:2}.support-cockpit{margin-top:6px}}
 .catalog-sections {display:flex;flex-direction:column;gap:10px}
 .spell-subfilters {display:flex;flex-wrap:wrap;gap:6px}
 .spell-subfilters button {min-height:44px}
@@ -58,3 +58,8 @@ html[data-still=true] .kharvek-panel *,html[data-still=true] .kharvek-panel *::b
 .catalog-bardic .combat-abilities {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .score [hidden] {display:none!important}
 @media(max-width:720px){.catalog-bardic .combat-abilities{grid-template-columns:repeat(2,minmax(0,1fr))}.score .spell-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.score .spell-legend button{white-space:normal;min-height:44px}}
+
+.combo-rules{grid-column:1/-1;font-size:12px}
+.combo-rules summary{padding:6px 0;min-height:44px;display:flex;align-items:center}
+.combo-rules p{font-size:12px;line-height:1.5}
+@media(max-width:720px){.intent-card{gap:5px}.intent-grid>button{justify-content:center}.intent-grid>button span{font-size:12px;line-height:1.35}.inspire-actions button{font-size:13px;padding:6px}.intent-card h2 small{font-size:11px}.intent-inspire>small{font-size:10px}.intent-control{grid-column:2}.ardent-combo{padding:10px}.combo-actions button{font-size:12px;padding:6px}.combo-rules summary{min-height:44px}}
