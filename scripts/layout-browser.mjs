@@ -23,10 +23,10 @@ try{for(const engine of [chromium,webkit]){
  const shot=async name=>page.screenshot({path:`screenshots/layout/${engine.name()}-${width}-${phase}-${name}.png`});
  await shot('combat');
  if(phase==='after'){
-  const attack=await page.locator('[data-signature]').boundingBox();assert(attack.y+attack.height<=(width===1180?820:780),'signature attack immediately visible');
+  const attack=await page.locator('.intent-attack').boundingBox();assert(attack.y+attack.height<=(width===1180?820:780),'attack intention immediately visible');
   const next=await page.locator('[data-action=end-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width&&next.y+next.height<844,'end turn in viewport');
-  for(const selector of ['[data-action=heal]','[data-action=damage]','.tactical-card [data-combat=inspiration]'])assert((await page.locator(selector).boundingBox()).height>=44,selector+' touch height');
-  if(width===1180){assert((await page.locator('.identity .signature').boundingBox()).width>=96,'large official emblem retained');for(const b of await page.locator('.favorites-panel [data-cast]').all()){const r=await b.boundingBox();assert(r.y+r.height<=820,'four favourites immediately accessible');}}
+  for(const selector of ['[data-action=heal]','[data-action=damage]','.intent-inspire [data-combat=inspiration]'])assert((await page.locator(selector).boundingBox()).height>=44,selector+' touch height');
+  if(width===1180){assert((await page.locator('.identity .signature').boundingBox()).width>=96,'large official emblem retained');for(const b of await page.locator('.intent-grid [data-intent]').all()){const r=await b.boundingBox();assert(r.y+r.height<=820,'all intentions immediately accessible');}}
  }
  for(const name of ['Sorts & pouvoirs','Social','Journal','Groupe']){
   await tab(name);

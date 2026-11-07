@@ -18,7 +18,7 @@ const store=createStore({storage:localStorage,locks:navigator.locks});
 let state=store.getState(), problem='', busy=false, loaded=false;
 let cacheMessage='Cache hors ligne en préparation';
 const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let groupOpen=false;
+let groupOpen=false, favoritesOpen=sessionStorage.getItem('combat-favorites')==='open';
 const nav=[['combat','Combat'],['spells','Sorts & pouvoirs'],['social','Social'],['journal','Journal']];
 const button=(id,label,style='')=>`<button type="button" data-action="${id}" class="${style}">${escapeHTML(label)}</button>`;
 function body(){
@@ -28,7 +28,7 @@ if(['combat','kharvek'].includes(state.preferences.tab)){
  const sections={offense:'Soutien',kharvek:'Khar-Vek'};
  const bar=sectionButtons(sections,combatView,'combat-view');
  const defense=`<article class="panel"><h2>Défense</h2><div class="actions"><button data-combat="condition">États</button><button data-combat="death-save">Jet de mort</button>${button('temp','Appliquer les PV temporaires')}${button('undo','Annuler la dernière action')}${button('correct','Corriger les PV')}</div><label><input id="critical" type="checkbox"> Dégâts d’un critique à 0 PV</label></article>`;
- const attack=supportCockpit(state)+`<details class="combat-favorites"><summary>Mes quatre favoris</summary>${favoritesPanel(state)}</details>`;
+ const attack=supportCockpit(state)+`<details class="combat-favorites" ${favoritesOpen?'open':''}><summary>Mes quatre favoris</summary>${favoritesPanel(state)}</details>`;
  return bar+({offense:attack,kharvek:kharvekPanel(state)}[combatView])+`<details class="combat-tools"><summary>Suivi & ajustements${state.pendingResolutions.length?' · '+state.pendingResolutions.length+' résultat(s) en attente':''}</summary>${combatPanel(state)}${defense}</details>`;
 }
 if(state.preferences.tab==='spells')return spellbookPanel(state);
@@ -95,6 +95,7 @@ async function saveNotes(){
  await dispatch('notes',{text});
  const next=mount.querySelector('#notes');if(focused&&next){next.focus({preventScroll:true});next.setSelectionRange(start,end);}
 }
+mount.addEventListener('toggle',e=>{if(e.target.matches('.combat-favorites')){favoritesOpen=e.target.open;sessionStorage.setItem('combat-favorites',favoritesOpen?'open':'closed');}},true);
 mount.addEventListener('input',e=>{filterSpells();if(e.target.id==='notes'){clearTimeout(noteTimer);noteTimer=setTimeout(saveNotes,350);}});
 mount.addEventListener('focusout',e=>{if(e.target.id==='notes')saveNotes();});
 

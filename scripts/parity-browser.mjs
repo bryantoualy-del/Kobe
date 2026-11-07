@@ -29,13 +29,15 @@ try{
    await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
    await capture('combat');
    assert.equal(await page.locator('.dragon-art').count(),0);
+   assert.equal(await page.locator('[data-combat-view]').count(),2);
+   assert.equal(await page.locator('[data-combat-view=resources],[data-combat-view=powers]').count(),0);
+   await page.locator('.intent-attack').click();
+   await page.locator('[data-spell-card=fire-bolt] .attack-options summary').click();
    await page.locator('[name=signature-mode][value=advantage]').check();
    await page.locator('#signature-dice').fill('4 17');
    await page.emulateMedia({reducedMotion:'no-preference'});
-   await page.locator('[data-signature]').click();
+   await page.locator('[data-cast=fire-bolt]').click();
    assert.equal(await page.locator('#ccDiceOverlay.open').count(),0);
-   assert.equal(await page.locator('[data-combat-view]').count(),2);
-   assert.equal(await page.locator('[data-combat-view=resources],[data-combat-view=powers]').count(),0);
    await page.emulateMedia({reducedMotion:'reduce'});
    assert.equal(await page.locator('.hit-roll').innerText(),'26');
    await capture('confirmation-jet');
