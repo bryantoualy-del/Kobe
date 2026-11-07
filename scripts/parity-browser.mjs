@@ -33,7 +33,7 @@ try{
    assert.equal(await page.locator('[data-combat-view=resources],[data-combat-view=powers]').count(),0);
    assert.equal(await page.locator('.turn-more').count(),0);
    await page.getByRole('button',{name:'Lancer l’initiative'}).click();
-   await page.locator('output.ribbon').getByText(/Initiative/).waitFor();
+   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.journal.at(-1)?.sourceId==='initiative-roll');
    await page.getByRole('button',{name:'Repos court',exact:true}).click();
    await page.getByRole('button',{name:'Annuler',exact:true}).click();
    const openStates=()=>page.locator('.turn-header [data-action=conditions]').click();
