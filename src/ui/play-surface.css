@@ -273,7 +273,7 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
  .turn-lanes{gap:6px}
  .turn-command{grid-template-columns:23px minmax(0,1fr);gap:5px;padding:6px;min-height:68px}
  .turn-command>span:last-child{display:none}
- .turn-command .turn-icon{width:23px;height:29px}
+ .turn-command :is(.turn-icon,.catalog-icon){width:23px;height:29px}
  .turn-command small{font-size:11px}
  .app nav.turn-dock{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));padding-inline:6px!important}
  .app nav.turn-dock button{min-height:44px!important;padding:4px 2px!important;font-size:11px!important}
@@ -301,3 +301,159 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
   display:flex;align-items:center;min-height:44px;gap:8px;
 }
 .turn-effects>summary{cursor:pointer}
+
+/* Grimoire: one tactical list and one casting surface. */
+.catalog-icon{width:32px;height:32px;object-fit:contain;flex:none}
+.grimoire{margin:10px 0 0;min-width:0}
+.grimoire>h2,.grimoire-sheet h3,.app #rpgGroupView h2{
+  margin:0;color:var(--ivory);font:700 clamp(22px,2.7vw,32px)/1.12 Georgia,serif;
+}
+.grimoire>h2{padding-bottom:7px;border-bottom:1px solid #735033}
+.grimoire-tools,.grimoire-filters{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;
+}
+.grimoire-tools input{flex:1 1 220px;width:auto;min-width:0;max-width:none;min-height:44px;padding:8px 12px}
+.grimoire-tools button,.grimoire-filters button,.grimoire-filters select,.grimoire .spell-subfilters button{min-height:44px}
+.grimoire-tools [aria-pressed=true],.grimoire-filters [aria-pressed=true],.grimoire .spell-subfilters [aria-pressed=true]{
+  border-color:var(--gold);background:#3a2d22;color:#ffe0a0;
+}
+.grimoire-filters .spell-legend{display:flex;gap:6px;flex-wrap:wrap;margin:0}
+.grimoire-filters select{margin-left:auto}
+.app .grimoire .spell-slots{
+  position:relative;flex:0 1 auto;margin:0;padding:0 7px;border:1px solid #524548;
+  border-radius:9px;background:#19171b;
+}
+.app .grimoire .spell-slots>summary{display:flex;gap:5px;cursor:pointer;padding:0}
+.app .grimoire .spell-slots>summary span:not(.sr-only){padding:4px 6px;white-space:nowrap}
+.app .grimoire .spell-slots .slot-groups{
+  position:absolute;right:0;top:100%;z-index:8;display:grid;gap:5px;width:max-content;max-width:80vw;
+  background:#201b22;border:1px solid #5e4b50;border-radius:10px;padding:8px;
+}
+.app .grimoire .spell-slots:not([open]) .slot-groups{display:none}
+.grimoire [hidden]{display:none!important}
+.grimoire .spell-subfilters{margin:0 0 7px}
+.grimoire-grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,1fr);align-items:start;gap:10px}
+.grimoire-list,.grimoire-detail{
+  min-width:0;padding:8px;border:1px solid #49434c;border-radius:13px;background:#17161a;
+}
+.grimoire-list{max-height:max(260px,calc(100dvh - 325px));overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.grimoire-spells{display:grid;gap:6px}
+.grimoire-row{
+  display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:4px;align-items:center;
+  padding:3px 6px 3px 3px;border:1px solid #433b43;border-radius:9px;background:#1d1b20;
+}
+.grimoire-row.selected{border-color:var(--copper);background:linear-gradient(110deg,#4b2f22,#262026)}
+.grimoire-select{
+  display:grid;grid-template-columns:42px minmax(0,1.8fr) minmax(58px,.9fr) minmax(48px,.65fr);
+  align-items:center;gap:6px;padding:4px;min-height:51px;min-width:0;width:100%;
+  color:var(--ivory);border:0;border-radius:6px;background:transparent;text-align:left;
+}
+.grimoire-glyph{
+  display:grid;place-items:center;width:40px;height:40px;border-radius:8px;
+  background:#2e211a;border:1px solid #604330;
+}
+.grimoire-name,.grimoire-cost,.grimoire-range{min-width:0;overflow-wrap:anywhere;line-height:1.22}
+.grimoire-name strong,.grimoire-name small,.grimoire-cost small{display:block}
+.grimoire-name strong{font-size:15px}
+.grimoire-name small,.grimoire-cost small,.grimoire-range,.grimoire-cost{font-size:12px;color:var(--muted)}
+.grimoire-row [data-favorite]{height:44px;width:44px;padding:0;font-size:20px;color:var(--gold)}
+.grimoire-row [data-favorite][aria-pressed=true]{background:#4a3521;border-color:#bd9859}
+.grimoire-detail{padding:13px}
+.grimoire-sheet header{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.grimoire-sheet header .grimoire-glyph{width:60px;height:60px;flex:none}
+.grimoire-sheet header .catalog-icon{width:46px;height:46px}
+.grimoire-sheet header p,.grimoire-empty-detail{color:var(--muted);margin:4px 0;font-size:13px}
+.grimoire-tags,.grimoire-reference,.grimoire-cast{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.grimoire-tags span{padding:4px 8px;border-radius:20px;border:1px solid #5d4a45;color:var(--gold);font-size:12px}
+.grimoire-summary{margin:10px 0;color:var(--ivory);font-size:14px;line-height:1.5}
+.grimoire-reference button,.grimoire-reference a{min-height:44px;padding:7px 10px;font-size:13px}
+.grimoire-reference a{display:flex;align-items:center}
+.grimoire-ready{margin:10px 0 6px;font-size:13px;color:#e5bd9d}
+.grimoire-ready[data-ready=true]{color:#c4e2c9}
+.grimoire-cast .cast-level{flex:1 1 140px}
+.grimoire-cast select,.grimoire-cast button{min-height:44px}
+.grimoire-cast button{flex:1 1 90px}
+.grimoire .catalog-kharvek,.grimoire .catalog-bardic{margin-top:10px;padding:9px;border-top:1px solid #49434c}
+.grimoire .catalog-kharvek h3{margin:0;color:var(--gold)}
+.grimoire .catalog-kharvek .support-actions{grid-template-columns:1fr}
+.app .support-actions button:has(.power-copy){display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center}
+.power-copy>*{display:block;line-height:1.3}
+.power-heading{display:flex;align-items:center;gap:8px}
+
+/* Party initiative and the compact quick-action lanes share the first view. */
+.app #rpgGroupView{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start;margin:9px 0}
+.app #rpgGroupView>.rpg-initiative{grid-column:1!important}
+.app #rpgGroupView>.rpg-quick-column{grid-column:2!important}
+.app #rpgGroupView>.card{padding:12px}
+.app #rpgGroupView h2{font-size:clamp(19px,2.3vw,28px);margin:0 0 3px;color:#dc9a69}
+.app #rpgGroupView [data-group-status]{padding:5px 9px;border:1px solid #6d583a;border-radius:8px;color:var(--gold);text-align:right}
+.app #rpgGroupView [data-group-status]:empty{display:none}
+.app #rpgGroupView [data-initiative-list]{min-height:0;max-height:max(210px,calc(100dvh - 316px));display:grid;gap:6px}
+.app #rpgGroupView .rpg-initiative-row{
+  display:grid;grid-template-columns:38px 36px minmax(0,1fr) minmax(70px,.8fr);
+  gap:8px;align-items:center;padding:7px;min-height:61px;
+  border:1px solid #47414a;border-radius:9px;background:#1b191e;
+}
+.app #rpgGroupView .rpg-initiative-row.is-current-turn{border-color:var(--copper);background:#34271f}
+.rpg-initiative-value,.rpg-monogram{
+  display:grid!important;place-items:center;height:32px;border:1px solid #7f633e;border-radius:7px;
+  font-size:15px;color:var(--gold);font-variant-numeric:tabular-nums;
+}
+.rpg-monogram{border-radius:50%;width:34px;background:#2e241c;font:700 17px Georgia,serif}
+.rpg-actor-name,.rpg-actor-health{min-width:0;overflow-wrap:anywhere}
+.rpg-actor-name strong{font-size:14px}
+.rpg-actor-meta,.rpg-actor-health{font-size:12px;color:var(--muted)}
+.rpg-actor-health{text-align:right}
+.rpg-actor-health progress{accent-color:#78c695;margin:3px 0 0}
+.rpg-active-label{display:inline-block!important;color:var(--gold);font-weight:700}
+.quick-lanes,.quick-rows{display:grid;gap:5px;min-width:0}
+.quick-lane{min-width:0}
+.quick-lane h3{margin:5px 0 4px;color:var(--muted);font:700 13px/1.2 system-ui}
+.app .quick-lane .quick-row{display:block;margin:0;padding:0;border:0}
+.app .quick-lane .combat-ability-button{
+  width:100%;min-height:45px;display:flex;align-items:center;gap:8px;
+  padding:5px 8px;white-space:normal;
+}
+.quick-row .catalog-icon{width:27px;height:27px}
+.quick-row .ability-name{flex:1;min-width:0;text-align:left;font-size:13px}
+.quick-row .ability-name small{display:block;margin-top:2px;color:var(--muted);font-size:11px;font-weight:400;overflow-wrap:anywhere}
+.app .quick-row .combat-ability-button:disabled{opacity:.73}
+.app #rpgGroupView[data-has-roster=false]>.rpg-initiative,.app #rpgGroupView[data-has-roster=false]>.rpg-quick-column{grid-column:1/-1!important}
+.app #rpgGroupView[data-has-roster=false] .quick-lanes{grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:14px}
+.app #rpgGroupView[data-has-roster=false] .quick-lane:nth-child(2) .quick-rows{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rpg-local{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.rpg-local p{margin:0;font-size:13px;color:var(--muted)}
+.rpg-local button{min-height:44px;padding:5px 10px}
+@media(max-width:900px){
+  .grimoire-select{grid-template-columns:36px minmax(0,1fr) minmax(62px,.7fr)}
+  .grimoire-select .grimoire-range{display:none}
+  .grimoire-select .grimoire-glyph{width:34px;height:34px}
+}
+@media(max-width:767px){
+  .app #rpgGroupView{grid-template-columns:minmax(0,1fr)}
+  .app #rpgGroupView>.rpg-quick-column{grid-column:1!important}
+}
+@media(max-width:720px){
+  .grimoire-tools input{flex-basis:145px}
+  .app .grimoire .spell-slots{flex:1 1 100%}
+  .app .grimoire .spell-slots>summary{justify-content:space-between}
+  .grimoire-grid{grid-template-columns:minmax(0,1fr)}
+  .grimoire-detail{grid-row:1;scroll-margin-top:10px}
+  .grimoire-list{max-height:none;overflow:visible}
+  .grimoire-tools button,.grimoire-filters button,.grimoire-filters select{font-size:13px;padding-inline:9px}
+  .app #rpgGroupView[data-has-roster=false] .quick-lanes{grid-template-columns:1fr;gap:5px}
+}
+@media(max-width:390px){
+  .app #rpgGroupView .rpg-initiative-row{grid-template-columns:32px 32px minmax(0,1fr) minmax(54px,.7fr);gap:5px}
+  .quick-row .ability-charge{font-size:11px!important}
+  .quick-row .catalog-icon{width:23px;height:23px}
+}
+.utility-icon{width:17px;height:17px;display:inline-block;vertical-align:middle;flex:none}
+.grimoire-search{position:relative;flex:1 1 200px;min-width:0}
+.grimoire-search>.utility-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.grimoire-tools .grimoire-search input{width:100%;padding-left:36px}
+.grimoire-cost{display:flex;gap:4px;align-items:center}
+.grimoire-cost>.utility-icon{color:var(--gold);width:14px;height:14px}
+.grimoire-tags .utility-icon{margin-right:3px}
+.grimoire-row [data-favorite][aria-pressed=true] .utility-icon,.grimoire-tools [aria-pressed=true] .utility-icon{fill:currentColor}
+@media(max-width:480px){.grimoire-cost>.utility-icon{display:none}}

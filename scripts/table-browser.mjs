@@ -62,6 +62,9 @@ try{
    const command=(id,type,payload)=>send({type:'command',room,characterId:'kobe',event:{id,type,payload,characterId:'kobe'}});
    command('group','state:sync',{syncEpoch:'A',groupRevision:1,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current:45,max:60,temp:3}},{id:'e',kind:'enemy',name:'Garde',health:{current:90,max:90}}]});
    await page.getByText(/45 \/ 60 PV/).waitFor();
+   assert.equal(await page.locator('#rpgGroupView').getAttribute('data-has-roster'),'true');
+   assert.equal(await page.locator('[data-group-actor=s] .rpg-monogram').textContent(),'S');
+   assert.equal(await page.locator('[data-group-actor=s] progress').getAttribute('value'),'45');
    const correct=()=>command('correction-1','hp:set',{manualTable:true,expectedValue:83,value:60});
    correct();await page.getByRole('button',{name:'Appliquer cette correction'}).click();
    await until(()=>rx.some(m=>m.type==='command-ack'&&m.id==='correction-1'),'accepted correction');

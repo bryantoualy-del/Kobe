@@ -27,6 +27,11 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  await tab('Groupe');
  const geometry=await page.locator('[data-group-quick] .combat-ability-button').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect(),p=e.closest('.rpg-quick-column').getBoundingClientRect();return {height:r.height,left:r.left,right:r.right,pLeft:p.left,pRight:p.right,scroll:e.scrollWidth,width:e.clientWidth};}));
  assert.equal(geometry.length,6);for(const r of geometry){assert(r.height>=44);assert(r.left>=r.pLeft&&r.right<=r.pRight);assert(r.scroll<=r.width);}
+ assert.equal(await page.locator('#rpgGroupView').getAttribute('data-has-roster'),'false');
+ assert.equal(await page.locator('[data-group-quick] .quick-lane').count(),2);
+ await page.getByRole('button',{name:'Ouvrir RPG Connect'}).click();
+ assert(await page.locator('[data-invite]').isVisible());
+ await page.keyboard.press('Escape');
  await shot('groupe');await tab('Combat');
  await page.locator('[data-intent=Soins]').click();await page.locator('.catalog-kharvek:not([hidden])').waitFor();
  assert.equal(await page.locator('[data-spell-filter=Soins]').getAttribute('aria-pressed'),'true');
@@ -42,7 +47,7 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  await page.reload();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===5);await tab('Combat');await next();
  await page.locator('[data-intent=Offensif]').click();await page.locator('[data-spell-filter=Offensif][aria-pressed=true]').waitFor();
  const first=await page.locator('[data-spell-card]:visible').evaluateAll(els=>els.sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top)[0].dataset.spellCard);assert.equal(first,'fireball');
- await page.locator('[data-offensive-filter="Tours de magie"]').click();assert.deepEqual(await page.locator('[data-spell-card]:visible').evaluateAll(es=>es.map(e=>e.dataset.spellCard)),['vicious-mockery','fire-bolt']);
+ await page.locator('[data-offensive-filter="Tours de magie"]').click();assert.deepEqual(await page.locator('[data-spell-card]:visible').evaluateAll(es=>es.map(e=>e.dataset.spellCard)),['fire-bolt','vicious-mockery']);
  await page.locator('[data-offensive-filter=Zone]').click();assert.equal(await page.locator('[data-spell-card]:visible').count(),1);
  await shot('offensif');await tab('Combat');await page.locator('[data-intent="Contrôle & Défense"]').click();await page.locator('.catalog-bardic [data-combat=majesty]').waitFor();assert(await page.locator('[data-spell-card=circle-of-power]').isVisible());
  await tab('Combat');await page.locator('.turn-commands [data-combat=inspiration]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);await next();

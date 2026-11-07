@@ -5,7 +5,7 @@ import {initInventory} from '../companion/inventory.js';
 import {rollPanel,roll,selectRollControl} from './social.js';
 import {mountConnect} from './connect-ui.js';
 import {kharvekPanel,openKharvekForm} from "./kharvek-ui.js";
-import {quickAttack,spellbookPanel,filterSpells,openSpellCast,openSpellDetail,openSpellResolve,openSpellControl} from './spell-ui.js';
+import {quickAttack,spellbookPanel,filterSpells,handleBookClick,handleBookControl,openSpellCast,openSpellDetail,openSpellResolve,openSpellControl} from './spell-ui.js';
 import {combatFollowups, quickActions, socialPanel, openCombatForm} from './combat-ui.js';
 import {createStore} from '../kobe/storage.js';
 const sessionDesk=document.getElementById('sessionDesk');
@@ -80,6 +80,7 @@ function turnbar(){
 }
 
 function render(){
+ const bookScroll=mount.querySelector('.grimoire-list')?.scrollTop??0;
  const networkPanel=document.getElementById('rpg-connect');
  if(networkPanel&&mount.contains(networkPanel))document.body.append(networkPanel);
  if(mount.contains(resultRibbon))document.body.append(resultRibbon);
@@ -91,14 +92,16 @@ function render(){
    ${problem?`<div role="alert" class="warning">${escapeHTML(problem)}</div>`:''}
    <div aria-live="polite" class="status">${loaded?'Sauvegardé':'Initialisation…'} · <span data-cache-status>${escapeHTML(cacheMessage)}</span></div>
    ${body()}
-   <footer class="footer">Kobe Companion V1.3 · Compagnie Créole</footer>
+   <footer class="footer">Kobe Companion V1.4 · Compagnie Créole</footer>
    <nav class="tabs turn-dock" aria-label="Sections principales">
      ${nav.map(([id,title])=>`<button type="button" role="tab" class="tab ${!groupOpen&&state.preferences.tab===id?'active':''}" aria-selected="${!groupOpen&&state.preferences.tab===id}" data-tab="${id}">${title}</button>`).join('')}
      <button type="button" role="tab" class="tab ${groupOpen?'active':''}" aria-selected="${groupOpen}" aria-label="Groupe" data-network-link>Groupe</button>
      ${next}
    </nav>
  </main>`;
- filterSpells();
+ filterSpells(state);
+ const bookList=mount.querySelector('.grimoire-list');
+ if(bookList)bookList.scrollTop=bookScroll;
  const resultSlot=mount.querySelector('#turn-result-slot');
  if(resultSlot){
    const last=state.journal.findLast(event=>!['notes','private-roll','favorites'].includes(event.sourceId));
@@ -159,10 +162,9 @@ async function saveNotes(){
  await dispatch('notes',{text});
  const next=mount.querySelector('#notes');if(focused&&next){next.focus({preventScroll:true});next.setSelectionRange(start,end);}
 }
-mount.addEventListener('input',e=>{filterSpells();if(e.target.id==='notes'){clearTimeout(noteTimer);noteTimer=setTimeout(saveNotes,350);}});
+mount.addEventListener('input',e=>{if(e.target.id==='spell-search')handleBookControl(state,e.target);if(e.target.id==='notes'){clearTimeout(noteTimer);noteTimer=setTimeout(saveNotes,350);}});
 mount.addEventListener('focusout',e=>{if(e.target.id==='notes')saveNotes();});
 
-mount.addEventListener('click',e=>{const b=e.target.closest('[data-spell-filter]');if(b)filterSpells(b.dataset.spellFilter);const sub=e.target.closest('[data-offensive-filter]');if(sub)filterSpells(undefined,sub.dataset.offensiveFilter);});
 mount.addEventListener('change',async event=>{
  const input=event.target;
  if(input.matches('[data-combo-heal]')){comboHeal=input.checked;render();return;}
@@ -170,12 +172,13 @@ mount.addEventListener('change',async event=>{
  if(!input.value||!input.checkValidity()){render();return;}
  await dispatch('correct',{field:input.id==='hp'?'hp':'temp',value:Number(input.value),reason:'Ajustement de la fiche'});
 });
-mount.addEventListener('change',filterSpells);
+mount.addEventListener('change',e=>{if(e.target.id!=='spell-search')handleBookControl(state,e.target);});
 
 mount.addEventListener('click',async e=>{
+ if(handleBookClick(state,e.target))return;
  const intention=e.target.closest('[data-intent]');
  if(intention){
-   filterSpells(intention.dataset.intent);
+   filterSpells(state,{role:intention.dataset.intent});
    groupOpen=false;
    await dispatch('preferences',{tab:'spells'});
    window.scrollTo(0,0);
