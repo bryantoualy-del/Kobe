@@ -466,3 +466,6 @@ Cause identifiée : la grille mobile de `[data-group-quick]` plaçait l'unique g
 
 ### Lot F — première recette et corrections
 CI 42357786301 : 164 tests/build et écosystème sept clients réussis ; sorts, Khar-Vek, réseau et reprise à froid Chromium/WebKit réussis. Captures examinées : Groupe corrigé ; cockpit trop haut à 375 px. Réduction des intentions, effets du combo repliables ; correction des radios Trait de feu qui se recouvraient dans leur nouvelle carte. Deux assertions de parcours corrigées : sélecteur Offensif ambigu et retour explicite à Combat après Undo (qui restaure aussi l'onglet précédent selon le moteur existant). Nouvelle recette requise.
+
+### Lot F — lecture des captures Soins
+Le catalogue affichait trop de commandes d'emplacements avant les capacités. Résumé compact N1–N5 toujours visible, correction des emplacements dépliable ; le titre du sort ouvre maintenant sa description, supprimant une rangée dédiée. Dans Soins, Khar-Vek passe en tête pour rendre ses trois commandes accessibles rapidement. Les niveaux de lancement restent directement sur chaque carte. Aucun changement métier.

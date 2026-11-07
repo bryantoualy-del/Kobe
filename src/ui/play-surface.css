@@ -138,3 +138,11 @@
 .app .attack-options .signature-modes input{position:static;inset:auto;width:18px;height:18px;opacity:1;flex:none;margin:0}
 .app .catalog-kharvek .support-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:720px){.app .catalog-kharvek .support-actions{grid-template-columns:1fr}}
+/* Compact corrections stay available; each spell already exposes its slot level. */
+.app .spell-slots{padding:6px 12px}
+.app .spell-slots>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:5px 0;min-height:44px}
+.app .spell-slots>summary h2{margin:0;font-size:15px}
+.app .spell-slots>summary span{font-size:12px;color:var(--gold)}
+.app .spell-slots:not([open])>.slot-groups{display:none}
+.app .score .spell .spell-doc summary{justify-content:flex-start}
+.app .score .spell .spell-doc summary h3{color:var(--ivory);font-size:16px}
