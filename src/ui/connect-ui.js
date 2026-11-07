@@ -54,7 +54,8 @@ export function mountConnect(store,quickActions,dispatch){
       const row=document.createElement('article');
       row.className='rpg-initiative-row';
       row.dataset.groupActor=actor.id;
-      const active=!v.stale&&(actor.activeTurn===true||v.session?.activeCharacterId===actor.id);
+      const activeId=v.session?.activeCharacterId;
+      const active=!v.stale&&(activeId?activeId===actor.id:actor.activeTurn===true);
       row.classList.toggle('is-current-turn',active);
       row.append(text('strong',Number.isFinite(actor.initiative)?actor.initiative:'—','rpg-initiative-value'));
       const monogram=text('span',Array.from(actor.name.trim())[0]?.toLocaleUpperCase('fr')??'·','rpg-monogram');
