@@ -435,3 +435,9 @@ La grille héritée de Brack conservait trois colonnes sur iPhone et des boutons
 
 ### 7 novembre — validation visuelle finale
 CI 42347776797 entièrement verte sur 30ae6f0 : trois jobs réussis, comparaisons Chromium/WebKit aux quatre formats comprises. Lecture des captures : le bouton principal de Trait de feu restait après les réglages facultatifs, au bas du premier écran iPhone. Il est placé juste après les caractéristiques de l’attaque, avant les réglages ; en-tête mobile de 80 px effectifs après retrait de deux priorités CSS héritées. Nouvelle assertion de visibilité immédiate du bouton aux quatre formats. Aucune règle ou donnée modifiée. Version de recette privée séparée créée ; actualisation prévue sur la tête finale.
+
+## Clôture — 7 novembre 2026
+PR12 fusionnée en f801d5d après validation complète de 6b778f1 (CI 42348107943 : trois jobs verts). 154 tests ; Chromium/WebKit : quatre formats, tous les parcours fonctionnels, sept clients, corrections uniques, privé, reprise automatique et redémarrage hors ligne réussis. Captures finales inspectées et conservées dans docs/recette-v11-20261107. Encounter21 fusionnée et adaptateur publié vérifié ; RPG-Connect7 déployée. Recette privée séparée publiée. Voir KOBE_V11_DELIVERY_2026-11-07.md pour état initial, preuves, déploiements et checklist matérielle. Aucune validation Safari iOS physique ni salle réelle avec clé MJ revendiquée.
+
+### Dernier contrôle de l’emblème
+La revue des captures de clôture a repéré une règle paysage héritée qui réduisait l’emblème à 56 px après la consolidation mobile. Taille paysage rétablie à 100 px, mobile 72 px conservé ; ajout d’une assertion >=96 px en paysage. Correctif purement visuel ajouté après fusion, sans changement de moteur.

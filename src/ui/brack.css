@@ -113,7 +113,7 @@ nav.tabs{flex-wrap:wrap}
 .identity .eyebrow{font-size:8px!important}
 .identity .tags{margin-top:5px!important;gap:4px!important}
 .identity .tag{font-size:8px!important;padding:3px 5px!important}
-.identity .signature{width:56px!important;height:56px!important;right:7px!important;bottom:15px!important;border-radius:14px!important}
+.identity .signature{width:100px!important;height:100px!important;right:7px!important;bottom:15px!important;border-radius:14px!important}
 .identity .signature img{width:52px!important;height:52px!important;object-fit:contain!important}
 .vitals{display:grid!important;grid-template-columns:1.65fr 1.1fr .65fr .8fr .8fr .85fr 1fr!important;gap:4px!important;padding:8px!important;align-items:stretch!important}
 .vitals .stat{grid-column:auto!important;padding:6px 4px!important;text-align:center!important;min-width:0!important}
