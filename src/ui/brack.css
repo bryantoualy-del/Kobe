@@ -196,8 +196,8 @@ body{background:radial-gradient(circle at 84% -12%,#822f3525,transparent 31rem),
 .combat-ability-button:active:not(:disabled){background:#373025}.combat-ability-button:disabled{opacity:.4;cursor:not-allowed}
 .ability-name{font-size:.76rem;font-weight:850;line-height:1.25;overflow-wrap:normal}.ability-charge{flex:0 0 auto;white-space:nowrap;font-size:.62rem;font-weight:800;color:var(--ability-accent);font-variant-numeric:tabular-nums}
 .ability-note{grid-column:2;color:#979ca0;font-size:.61rem;line-height:1.4}
-.app .identity{padding-right:112px!important;min-height:105px!important}
-.app .identity .signature{width:100px!important;height:100px!important;top:50%;transform:translateY(-50%);right:4px!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0}
+.app .identity{padding-right:112px!important;min-height:105px}
+.app .identity .signature{width:100px;height:100px;top:50%;transform:translateY(-50%);right:4px!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0}
 .identity .signature:before{display:none}.app .identity .signature svg{width:100%!important;height:100%!important;filter:none}
 .app .combat-ability{grid-template-columns:48px minmax(0,1fr);padding:2px 0;gap:0 6px}
 .app .combat-ability-button{min-height:35px;width:100%}.combat-ability .ability-note{grid-column:2}.ability-cost,.ability-note,.ability-charge{font-size:10px}

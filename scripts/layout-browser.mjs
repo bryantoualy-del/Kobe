@@ -23,6 +23,7 @@ try{for(const engine of [chromium,webkit]){
  const shot=async name=>page.screenshot({path:`screenshots/layout/${engine.name()}-${width}-${phase}-${name}.png`});
  await shot('combat');
  if(phase==='after'){
+  const attack=await page.locator('[data-signature]').boundingBox();assert(attack.y+attack.height<=(width===1180?820:780),'signature attack immediately visible');
   const next=await page.locator('[data-action=end-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width&&next.y+next.height<844,'end turn in viewport');
   for(const selector of ['[data-action=heal]','[data-action=damage]','.tactical-card [data-combat=inspiration]'])assert((await page.locator(selector).boundingBox()).height>=44,selector+' touch height');
   if(width===1180){for(const b of await page.locator('.favorites-panel [data-cast]').all()){const r=await b.boundingBox();assert(r.y+r.height<=820,'four favourites immediately accessible');}}
