@@ -5,7 +5,7 @@ import {join,extname,normalize,sep} from 'node:path';
 import {chromium,webkit} from 'playwright';
 
 const root=join(process.cwd(),'dist');
-const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'};
+const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.json':'application/json'};
 const server=createServer(async(req,res)=>{
  try{
   const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);

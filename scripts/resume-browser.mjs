@@ -10,7 +10,7 @@ const http=createServer(async(req,res)=>{
  const path=new URL(req.url,'http://localhost').pathname;
  try{let bytes=await readFile(join('dist',path==='/'?'index.html':path));
   if(path==='/sw.js'&&version===2)bytes=Buffer.from(bytes.toString().replace("'kobe-v11-'+self.KobeShellRevision","'kobe-v11-recipe'"));
-  res.setHeader('cache-control','no-cache');res.setHeader('content-type',({'.js':'text/javascript','.css':'text/css'})[extname(path)]||'text/html');res.end(bytes);
+  res.setHeader('cache-control','no-cache');res.setHeader('content-type',({'.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml"})[extname(path)]||'text/html');res.end(bytes);
  }catch{res.writeHead(404).end();}
 });
 await new Promise(r=>http.listen(0,'127.0.0.1',r));const url='http://127.0.0.1:'+http.address().port+'/';

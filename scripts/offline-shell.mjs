@@ -5,7 +5,7 @@ import {readFile,readdir,writeFile} from 'node:fs/promises';
 import {extname} from 'node:path';
 import {gzipSync} from 'node:zlib';
 
-const mime={'.html':'text/html;charset=utf-8','.js':'text/javascript','.css':'text/css','.jpg':'image/jpeg','.webp':'image/webp'};
+const mime={'.html':'text/html;charset=utf-8','.js':'text/javascript','.css':'text/css','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml'};
 const paths=['index.html',...(await readdir('src',{recursive:true})).filter(p=>mime[extname(p)]).map(p=>'src/'+p).sort()];
 const digest=createHash('sha256'),assets={};
 for(const path of paths){

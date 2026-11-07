@@ -13,7 +13,7 @@ const server = createServer(async (req, res) => {
     );
     res.setHeader(
       "Content-Type",
-      { ".html": "text/html", ".js": "text/javascript", ".css": "text/css" }[
+      { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml"  }[
         extname(file)
       ] ?? "application/octet-stream",
     );

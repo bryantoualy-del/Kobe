@@ -21,7 +21,35 @@ export function quickActions(s,ids=null){
    return `<div class="combat-ability" data-power-tone="${id}"><span class="ability-cost">${cost}</span><button class="combat-ability-button" data-combat="${id}" ${availability.ok?'':'disabled'} title="${esc(availability.label)}"><span class="ability-name">${label}</span><span class="ability-charge">${charge}</span></button><small class="ability-note">${note}</small></div>`;
  }).join('')}</div>`;
 }
-export function combatPanel(s){const b=s.combat;return `<section class="panel span"><h2>Suivi du combat</h2><div class="actions">${btn('move','Déplacement')}${btn('condition','États')}${ '<button data-combat="rest" data-rest-kind="short">Repos court</button><button data-combat="rest" data-rest-kind="long">Repos long</button>' }${btn('death-save','Jet de mort')}${btn('time','Temps écoulé')}${btn('combat-correct','Correction MJ')}</div><p class="muted">Round ${b.round} · ${b.phase==='active'?'Tour actif':'Tour terminé'} · Dés de vie ${b.hitDice}/10 d8 · Mort : ${b.death.success} succès / ${b.death.failure} échecs ${b.death.dead?'· Mort':b.death.stable?'· Stabilisé':''}</p><p>${b.conditions.map(x=>esc(names[x]??x)).join(' · ')||'Aucun état déclaré'}</p><h3>Effets actifs</h3>${s.effects.map(e=>`<div class="entry">${esc(e.kind==='condition'?(names[e.conditionName]??e.conditionName):(e.name??names[e.kind]??e.kind))} · ${e.targetIds.map(id=>esc(b.targets.find(t=>t.id===id)?.name??id)).join(', ')} · ${e.expires-b.elapsed} s ${e.kind==='inspiration'?btn('use:'+e.id,'Utiliser le d10'):''}${e.kind==='spell'?`<button type="button" data-spell-control="${esc(e.id)}">Interaction</button>`:''}${btn('end:'+e.id,'Terminer cet effet')}</div>`).join('')||'<p class="muted">Aucun effet actif.</p>'}<h3>Décisions attendues</h3>${s.pendingResolutions.map(r=>`<div class="entry">${esc(r.kind==='spell'?((spellById(r.spellId)?.name??r.spellId)+' · '+(b.targets.find(t=>t.id===r.targetIds[0])?.name??r.targetIds[0])):(names[r.kind]??r.kind))} · ${r.kind==='spell'&&r.attackTotal!==null&&r.attackTotal!==undefined?'Attaque '+r.attackTotal:r.dc?'DD '+r.dc:'Attaque +9, 2d10 feu'} ${r.kind==='spell'?`<button type="button" data-spell-resolve="${esc(r.id)}">Saisir le résultat MJ</button>`:btn('resolve:'+r.id,'Saisir le résultat MJ')}</div>`).join('')||'<p class="muted">Aucune résolution en attente.</p>'}</section>`;}
+export function combatFollowups(state){
+ const targets=state.combat.targets;
+ const targetName=id=>targets.find(target=>target.id===id)?.name??id;
+ const effects=state.effects.map(effect=>{
+   const label=effect.kind==='condition'
+     ? names[effect.conditionName]??effect.conditionName
+     : effect.name??names[effect.kind]??effect.kind;
+   const interaction=effect.kind==='inspiration'
+     ? btn('use:'+effect.id,'Utiliser le d10')
+     : effect.kind==='spell'
+       ? `<button type="button" data-spell-control="${esc(effect.id)}">Interaction</button>` : '';
+   return `<div class="turn-followup"><strong>${esc(label)}</strong>
+     <small>${esc(effect.targetIds.map(targetName).join(', '))} · ${effect.expires-state.combat.elapsed} s</small>
+     ${interaction}${btn('end:'+effect.id,'Terminer cet effet')}</div>`;
+ }).join('');
+ const pending=state.pendingResolutions.map(result=>{
+   const spell=result.kind==='spell';
+   const label=spell ? (spellById(result.spellId)?.name??result.spellId)+' · '+targetName(result.targetIds[0])
+     : names[result.kind]??result.kind;
+   const roll=spell&&result.attackTotal!=null ? 'Attaque '+result.attackTotal
+     : result.dc ? 'DD '+result.dc : 'Attaque +9, 2d10 feu';
+   const resolve=spell
+     ? `<button type="button" data-spell-resolve="${esc(result.id)}">Saisir le résultat MJ</button>`
+     : btn('resolve:'+result.id,'Saisir le résultat MJ');
+   return `<div class="turn-followup"><strong>${esc(label)}</strong><small>${esc(roll)}</small>${resolve}</div>`;
+ }).join('');
+ return (pending?`<section aria-label="Résolutions en attente"><b>Résolutions en attente</b>${pending}</section>`:'')+
+   (effects?`<details class="turn-effects"><summary>Effets actifs · ${state.effects.length}</summary>${effects}</details>`:'');
+}
 export function socialPanel(s){return `<h3>Représentation captivante</h3><p>1 minute vue et entendue · jusqu’à 5 humanoïdes à 18 m · SAG DD17 · charme 1 h. Fin si la cible est blessée, attaquée par Kobe ou voit Kobe attaquer/blesser un allié. Réussite discrète ; décisions au MJ.</p>${btn('performance','Représentation captivante · '+s.combat.performance+'/1')}`;}
 export function openCombatForm(action,s,dispatch){
  if(action==='move')return dispatch('move',{meters:s.economy.movementRemaining});

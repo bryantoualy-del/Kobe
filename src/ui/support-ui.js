@@ -6,7 +6,7 @@ import {spellById} from '../kobe/spell-catalog.js';
 const escape = value => String(value).replace(/[&<>"']/g, char =>
   ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[char]);
 
-const icon = name => `<img class="turn-icon" src="./src/ui/icons/${name}.webp" alt="" width="36" height="36">`;
+const icon = name => `<img class="turn-icon" src="./src/ui/icons/${name}.svg" alt="" width="36" height="36">`;
 
 function usableSpell(state, spell) {
   const levels = availableLevels(state, spell);
@@ -105,7 +105,7 @@ export function supportCockpit(state, addHeal = false) {
   const actionDefaults = ['fire-bolt','fireball'].filter(id => !actionFavorites.some(spell => spell.id === id))
     .map(id => spellCommand(state, spellById(id)));
   actionDefaults.push(command('data-kharvek="pulse"', 'Pulsation réparatrice', 'Khar-Vek · 1 charge',
-    kharvekAvailability(state, 'pulse'), '', 'heal'));
+    kharvekAvailability(state, 'pulse'), 'heal', 'heal'));
   const bonusDefaults = [
     command('data-combat="inspiration"', 'Inspiration', '1 inspiration · d10', bardicAvailability(state, 'inspiration'), 'music', 'music'),
     command('data-combat="mantle"', 'Manteau', '1 inspiration · 11 PV temp.', bardicAvailability(state, 'mantle'), 'mantle', 'music'),

@@ -14,7 +14,7 @@ const endpoint='ws://127.0.0.1:'+server.address().port;
 const http=createServer(async(req,res)=>{
   const path=new URL(req.url,'http://localhost').pathname;
   try{const data=await readFile(join('dist',path==='/'?'index.html':path));
-    res.setHeader('content-type',({'.js':'text/javascript','.css':'text/css','.html':'text/html'})[extname(path)]||'text/html');res.end(data);
+    res.setHeader('content-type',({'.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.html':'text/html'})[extname(path)]||'text/html');res.end(data);
   }catch{res.writeHead(404).end();}
 });
 await new Promise(r=>http.listen(0,'127.0.0.1',r));

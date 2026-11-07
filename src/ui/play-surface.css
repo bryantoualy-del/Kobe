@@ -281,3 +281,23 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
  .app[data-secondary=true] nav.turn-dock .turn-finish{display:none}
  body:has(.app[data-secondary=false]) > #ribbon{bottom:calc(118px + env(safe-area-inset-bottom))}
 }
+
+.turn-more-panel{
+  width:min(300px,calc(100vw - 24px));
+  max-height:min(60dvh,460px);
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+.turn-pending-badge{
+  position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;
+  border-radius:9px;background:var(--gold);color:#17110d;text-align:center;
+  font:700 12px/18px system-ui;
+}
+.turn-followup{
+  display:grid;gap:5px;padding:8px 0;border-bottom:1px solid #49434c;
+}
+.turn-followup small{color:var(--muted)}
+.turn-effects>summary,.turn-critical{
+  display:flex;align-items:center;min-height:44px;gap:8px;
+}
+.turn-effects>summary{cursor:pointer}
