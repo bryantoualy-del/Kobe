@@ -71,6 +71,7 @@ try{
    await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
    await page.locator('.turn-header [data-action=conditions]').getByText('Aucun').waitFor();
    assert.equal(await attack.isEnabled(),true);
+   await page.locator('[data-ribbon-close]').click();
    await page.locator('[data-intent=Offensif]').click();
    await page.locator('[data-book-select=fire-bolt]').click();
    await page.locator('[data-spell-detail-id=fire-bolt] .attack-options summary').click();

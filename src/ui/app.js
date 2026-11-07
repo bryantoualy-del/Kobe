@@ -125,6 +125,7 @@ resultRibbon.querySelector('[data-ribbon-undo]').onclick=async()=>{if(state.undo
 function updateRibbon(result,type){
  if(!result.ok||result.replay||['preferences','notes','favorites','private-roll'].includes(type))return;
  resultRibbon.hidden=true;
+ if(type==='condition')return; // The panel and header already show the result.
  const event=result.events?.at(-1);
  if(!event?.label)return;
  resultRibbon.querySelector('.rb').textContent=type==='undo'?'Dernière action annulée.':event.label;
