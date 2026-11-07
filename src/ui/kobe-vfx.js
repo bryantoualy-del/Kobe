@@ -1,6 +1,14 @@
 // Kobe FX pilot — presentation only. Never changes combat state or sends network events.
-// CSS + DOM particles: no remote assets, no runtime dependencies and no audio.
+// Kenney CC0 local PNG textures + DOM animation: no remote assets, no runtime dependencies and no audio.
 const STYLE = `
+/* Genuine Kenney Particle Pack CC0 textures, vendored locally. */
+.kobe-vfx__particle{background-image:url('./fx/kenney/spark_04.png');background-size:contain;background-position:center;background-repeat:no-repeat;background-color:transparent!important;border-radius:0!important;filter:drop-shadow(0 0 5px var(--c))}
+.kobe-vfx__ring{border:0!important;box-shadow:none!important;background:url('./fx/kenney/circle_05.png') center/contain no-repeat;filter:drop-shadow(0 0 18px #e5b963)}
+.kobe-vfx--fireball .kobe-vfx__core{background-image:url('./fx/kenney/flame_02.png')!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;filter:drop-shadow(0 0 28px #b86637)}
+.kobe-vfx--mantle .kobe-vfx__core,.kobe-vfx--kharvek .kobe-vfx__core{background-image:url('./fx/kenney/magic_03.png')!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;filter:drop-shadow(0 0 20px #e5b963)}
+.kobe-vfx--mantle .kobe-vfx__ring{filter:drop-shadow(0 0 20px #e5b963)}
+.kobe-vfx--kharvek .kobe-vfx__ring{filter:drop-shadow(0 0 22px #b86637)}
+
 .kobe-vfx{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden;contain:layout style paint}
 .kobe-vfx__veil{position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,#b8663730,transparent 52%);animation:kfx-veil .9s ease-out both}
 .kobe-vfx__core{position:absolute;left:50%;top:48%;width:110px;height:110px;margin:-55px;border-radius:50%;filter:blur(2px);animation:kfx-core 1.1s cubic-bezier(.16,.8,.2,1) both}
