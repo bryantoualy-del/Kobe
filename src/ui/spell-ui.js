@@ -1,4 +1,4 @@
-import {spellGlyph} from './icons.js';
+import {glyph,spellGlyph,utilityGlyph} from './icons.js';
 import {kharvekActions} from './kharvek-ui.js';
 import {quickActions} from './combat-ui.js';
 import {
@@ -59,11 +59,11 @@ function spellRow(state, spell) {
     <button type="button" class="grimoire-select" data-book-select="${spell.id}" aria-pressed="${book.selected===spell.id}">
       <span class="grimoire-glyph">${spellGlyph(spell.id)}</span>
       <span class="grimoire-name"><strong>${esc(spell.name)}</strong><small>${spell.level?'Niveau '+spell.level:'Tour de magie'}</small></span>
-      <span class="grimoire-cost">${esc(spell.castTime)}${spell.concentration?'<small>Concentration</small>':''}</span>
+      <span class="grimoire-cost">${spell.concentration?glyph('grimoire-slow','utility-icon'):utilityGlyph('action')}<span>${esc(spell.castTime)}${spell.concentration?'<small>Concentration</small>':''}</span></span>
       <span class="grimoire-range">${esc(spell.range.split(' · ')[0])}</span>
     </button>
-    ${btn('data-favorite',spell.id,favorite?'★':'☆',
-      `aria-label="Favori · ${esc(spell.name)}" aria-pressed="${favorite}" ${!favorite&&state.preferences.favorites.length===4?'disabled':''}`)}
+    <button type="button" data-favorite="${spell.id}" aria-label="Favori · ${esc(spell.name)}"
+      aria-pressed="${favorite}" ${!favorite&&state.preferences.favorites.length===4?'disabled':''}>${utilityGlyph('star')}</button>
   </article>`;
 }
 
@@ -74,7 +74,7 @@ function spellSheet(state, spell) {
     <header><span class="grimoire-glyph">${spellGlyph(spell.id)}</span>
       <div><h3>${esc(spell.name)}</h3><p>${spell.level?'Niveau '+spell.level:'Tour de magie'} · ${esc(spell.school)}</p></div>
     </header>
-    <div class="grimoire-tags"><span>${esc(spell.castTime)}</span><span>${esc(spell.range)}</span>
+    <div class="grimoire-tags"><span>${utilityGlyph('action')}${esc(spell.castTime)}</span><span>${utilityGlyph('pin')}${esc(spell.range)}</span>
       ${spell.concentration?'<span>Concentration</span>':''}${spell.ritual?'<span>Rituel</span>':''}
     </div>
     <p class="grimoire-summary">${esc(spell.summary)}</p>
@@ -84,7 +84,7 @@ function spellSheet(state, spell) {
     ${attackOptions(spell)}
     <p class="grimoire-ready" data-book-availability data-ready="${av.ok}">${esc(av.label)}</p>
     <div class="grimoire-cast">${levelPicker(state,spell)}
-      ${btn('data-cast',spell.id,'Lancer',`class="primary" ${av.ok?'':'disabled'}`)}
+      <button type="button" data-cast="${spell.id}" class="primary" ${av.ok?'':'disabled'}>${utilityGlyph('bolt')} Lancer</button>
     </div>
   </article>`;
 }
@@ -99,8 +99,8 @@ export function spellbookPanel(state) {
   return `<section class="grimoire" aria-label="Sorts et pouvoirs">
     <h2>Grimoire</h2>
     <div class="grimoire-tools">
-      <input id="spell-search" aria-label="Rechercher un sort ou pouvoir" type="search" placeholder="Rechercher un sort ou pouvoir" value="${esc(book.query)}">
-      <button type="button" data-book-favorites aria-pressed="${book.favorites}">★ Favoris</button>
+      <label class="grimoire-search">${utilityGlyph('search')}<input id="spell-search" aria-label="Rechercher un sort ou pouvoir" type="search" placeholder="Rechercher un sort ou pouvoir" value="${esc(book.query)}"></label>
+      <button type="button" data-book-favorites aria-pressed="${book.favorites}">${utilityGlyph('star')} Favoris</button>
       <details class="spell-slots">
         <summary><span class="sr-only">Emplacements</span>${state.slots.slice(1).map((n,i)=>`<span>N${i+1} · ${n}</span>`).join('')}</summary>
         <div class="slot-groups">${slots}</div>

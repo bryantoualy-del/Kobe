@@ -448,3 +448,12 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
   .quick-row .ability-charge{font-size:11px!important}
   .quick-row .catalog-icon{width:23px;height:23px}
 }
+.utility-icon{width:17px;height:17px;display:inline-block;vertical-align:middle;flex:none}
+.grimoire-search{position:relative;flex:1 1 200px;min-width:0}
+.grimoire-search>.utility-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.grimoire-tools .grimoire-search input{width:100%;padding-left:36px}
+.grimoire-cost{display:flex;gap:4px;align-items:center}
+.grimoire-cost>.utility-icon{color:var(--gold);width:14px;height:14px}
+.grimoire-tags .utility-icon{margin-right:3px}
+.grimoire-row [data-favorite][aria-pressed=true] .utility-icon,.grimoire-tools [aria-pressed=true] .utility-icon{fill:currentColor}
+@media(max-width:480px){.grimoire-cost>.utility-icon{display:none}}
