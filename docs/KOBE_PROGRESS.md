@@ -451,3 +451,6 @@ Première CI : contrôles layout Chromium/WebKit et écosystème verts. La recet
 
 ## V1.2 — Lot A · 7 novembre 2026
 Base propre `a8269e2` (main) : PR12 fusionnée, puis PR13 header persistant fusionnée. Aucune PR ouverte à la reprise ; branches historiques conservées. Branche dédiée `feat/kobe-v12-support-cockpit`. Fiche PDF trois pages relue : 19 sorts, dont Mot de guérison et Aide ; trois soins Khar-Vek et Manteau conditionnel confirmés. Moteurs, commandes directes, Undo, stockage, dragon et adaptateur V5 conservés. Choix : raccourci séquentiel pour le combo, deux commandes existantes, sans déplacement automatique ni questionnaire.
+
+### Lot B — cockpit
+Quatre intentions, Inspiration/Manteau/variante soin directs, ressources dérivées de l'état existant. Accès rapide général conservé uniquement dans Groupe. Favoris personnels conservés dans un panneau repliable. Sous-vue Khar-Vek intacte. Bandeau Battement Ardent séquentiel : étape 1 vérifie aussi la disponibilité de Boule de feu ; étape 2 ouvre le catalogue pour choisir son niveau et lancer. Aucun moteur ni déplacement allié ajouté.
