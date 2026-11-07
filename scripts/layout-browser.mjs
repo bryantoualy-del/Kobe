@@ -32,7 +32,22 @@ try{for(const engine of [chromium,webkit]){
   if(width===1180){
     assert((await page.locator('.turn-identity img').boundingBox()).width>=64,'official emblem retained');
     const cockpit=await page.locator('.support-cockpit').boundingBox();
-    assert(cockpit.y+cockpit.height<=660,'cockpit fits the useful iPad landscape viewport with Safari chrome');
+    const dock=await page.locator('.turn-dock').boundingBox();
+    const gap=dock.y-cockpit.y-cockpit.height;
+    assert(gap>=0&&gap<=58,'cockpit leaves a modest gap above the dock: '+gap);
+    const header=await page.locator('.turn-header').boundingBox();
+    assert(header.height<=100,'PV and healing controls share the compact landscape header');
+    const board=await page.locator('.turn-board').boundingBox();
+    const sidebar=await page.locator('.turn-sidebar').boundingBox();
+    assert(Math.abs(board.height-sidebar.height)<=1,'combat columns share a baseline');
+
+    await page.setViewportSize({width,height:660});
+    await page.evaluate(()=>scrollTo(0,0));
+    const shortCockpit=await page.locator('.support-cockpit').boundingBox();
+    const shortDock=await page.locator('.turn-dock').boundingBox();
+    assert(shortCockpit.y+shortCockpit.height<=shortDock.y,'short landscape keeps the cockpit above the dock');
+    await shot('combat-compact');
+    await page.setViewportSize({width,height:820});
   }
  }
  for(const name of ['Sorts & pouvoirs','Social','Journal','Groupe']){

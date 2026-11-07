@@ -457,3 +457,34 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
 .grimoire-tags .utility-icon{margin-right:3px}
 .grimoire-row [data-favorite][aria-pressed=true] .utility-icon,.grimoire-tools [aria-pressed=true] .utility-icon{fill:currentColor}
 @media(max-width:480px){.grimoire-cost>.utility-icon{display:none}}
+
+/* Compact the cockpit's header and share the extra landscape height between its lanes. */
+@media (min-width:960px) and (orientation:landscape){
+  .app:has(>.support-cockpit) .turn-header{padding-block:7px}
+  .app:has(>.support-cockpit) .turn-identity h1{font-size:clamp(25px,2.65vw,38px)}
+  .app:has(>.support-cockpit) .turn-vitals{
+    grid-template-columns:minmax(214px,1.8fr) minmax(82px,.75fr) auto auto;
+  }
+  .app:has(>.support-cockpit) .turn-hp{
+    grid-template-columns:minmax(78px,1fr) minmax(0,1.4fr);
+    align-items:center;
+  }
+  .app:has(>.support-cockpit) .turn-hp .hp-actions{margin:0;flex-wrap:nowrap}
+  .app:has(>.support-cockpit) .turn-hp .mini{white-space:nowrap}
+}
+@media (min-width:960px) and (min-height:740px) and (orientation:landscape){
+  .app.shell:has(>.support-cockpit){
+    display:flex;flex-direction:column;min-height:min(100dvh,960px);
+    padding-bottom:calc(68px + env(safe-area-inset-bottom))!important;
+  }
+  .app>.support-cockpit{flex:1 0 auto;align-items:stretch}
+  .support-cockpit .turn-board,.support-cockpit .turn-lane{
+    display:flex;flex-direction:column;
+  }
+  .support-cockpit :is(.turn-lanes,.turn-commands){flex:1}
+  .support-cockpit .turn-commands{grid-auto-rows:1fr}
+  .support-cockpit .turn-sidebar{grid-template-rows:1fr auto}
+  .support-cockpit .ardent-combo{display:flex;flex-direction:column}
+  .support-cockpit .combo-steps{flex:1;grid-auto-rows:1fr}
+  .app:has(>.support-cockpit)>.footer{padding:6px 0 0}
+}
