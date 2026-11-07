@@ -457,3 +457,6 @@ Quatre intentions, Inspiration/Manteau/variante soin directs, ressources dériv�
 
 ### Lots C et D — catalogue et vestige
 Navigation intention → catalogue avec filtre préactivé et recherche réinitialisée. Tous/Soins/Offensif/Contrôle & Défense dérivent du catalogue validé ; sous-filtres offensifs, Boule de feu en tête. Khar-Vek dans Soins/Tous, commande partagée avec le dragon ; Manteau des survivants explicitement conditionnel. Majesté et Injonction dans Contrôle & Défense. Niveaux, emplacements, portée et action conservés. Aucun changement des contrats, des calculs, des coûts ou du stockage.
+
+### Lot E — Groupe responsive
+Cause identifiée : la grille mobile de `[data-group-quick]` plaçait l'unique grille de capacités dans une demi-colonne, elle-même subdivisée. Conteneur remis en bloc ; grille de capacités deux colonnes téléphone / une colonne rail iPad, libellés multilignes et compteurs sans rétrécissement. Boutons ≥44 px, notes en dessous, état personnel pleine largeur. Raccourcis et événements conservés.
