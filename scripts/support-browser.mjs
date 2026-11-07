@@ -3,7 +3,7 @@ import {chromium,webkit} from 'playwright';
 import {createServer} from 'node:http';
 import {readFile,mkdir} from 'node:fs/promises';
 import {join,extname} from 'node:path';
-const server=createServer(async(req,res)=>{try{const p=new URL(req.url,'http://localhost').pathname;const f=join('dist',p==='/'?'index.html':p);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp'})[extname(f)]||'application/octet-stream');res.end(await readFile(f));}catch{res.writeHead(404).end();}});
+const server=createServer(async(req,res)=>{try{const p=new URL(req.url,'http://localhost').pathname;const f=join('dist',p==='/'?'index.html':p);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.svg':'image/svg+xml'})[extname(f)]||'application/octet-stream');res.end(await readFile(f));}catch{res.writeHead(404).end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 await mkdir('screenshots/v12',{recursive:true});
 try{for(const engine of [chromium,webkit]){const browser=await engine.launch();try{for(const width of [375,390,430,1180]){
@@ -19,7 +19,9 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  assert.equal(await page.locator('.combo-steps [data-done=true]').count(),0);
  assert.equal(await page.locator('.combo-steps [aria-current=step]').getAttribute('data-step'),'1');
  const icons=await page.locator('.turn-command .turn-icon').evaluateAll(images=>images.map(image=>image.complete&&image.naturalWidth>0));
- assert.equal(icons.length,5);assert(icons.every(Boolean),'the five extracted pictograms loaded');
+ assert.equal(icons.length,6);assert(icons.every(Boolean),'the six vector pictograms loaded');
+ assert.equal(await page.locator('.combat-tools').count(),0);
+ assert.match(await page.locator('[data-kharvek=pulse] img').getAttribute('src'),/heal\.svg$/);
  await shot('combat');
  for(const name of ['Sorts & pouvoirs','Social','Journal','Groupe','Combat']){await tab(name);assert.equal(await page.locator(width>720?'header.top':name==='Combat'?'header.top':'.compact-header').isVisible(),true);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' overflow');}
  await tab('Groupe');

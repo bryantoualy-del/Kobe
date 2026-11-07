@@ -8,7 +8,7 @@ const server=createServer(async(req,res)=>{
  const path=new URL(req.url,'http://localhost').pathname;
  try{
   const bytes=await readFile(join('dist',path==='/'?'index.html':path));
-  res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.html':'text/html','.webp':'image/webp','.jpg':'image/jpeg'})[extname(path==='/'?'index.html':path)]||'application/octet-stream');
+  res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.html':'text/html','.webp':'image/webp','.jpg':'image/jpeg'})[extname(path==='/'?'index.html':path)]||'application/octet-stream');
   res.end(bytes);
  }catch{res.writeHead(404).end();}
 });
@@ -41,7 +41,12 @@ try{
    await page.emulateMedia({reducedMotion:'reduce'});
    assert.equal(await page.locator('.hit-roll').innerText(),'26');
    await capture('confirmation-jet');
-   await page.getByRole('button',{name:'Touché',exact:true}).click();
+   await page.keyboard.press('Escape');
+   await page.locator('.turn-more > summary').click();
+   await page.getByRole('button',{name:'Saisir le résultat MJ'}).click();
+   await page.locator('dialog[open] select[name=result]').selectOption('hit');
+   await page.locator('dialog[open] button[type=submit]').click();
+   await page.locator('dialog[open]').waitFor({state:'detached'});
    await page.locator('.turn-more:not([open]) > summary').click();
    await page.getByRole('button',{name:'Repos long',exact:true}).first().click();
    await page.getByRole('button',{name:'Annuler',exact:true}).click();

@@ -3,7 +3,7 @@ import {createServer} from 'node:http';
 import {readFile,mkdir} from 'node:fs/promises';
 import {join,extname} from 'node:path';
 import {chromium,webkit} from 'playwright';
-const server=createServer(async(req,res)=>{try{const p=new URL(req.url,'http://localhost').pathname;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.html':'text/html'})[extname(p)]??'text/html');res.end(await readFile(join(process.cwd(),'dist',p==='/'?'index.html':p)));}catch{res.writeHead(404).end();}});
+const server=createServer(async(req,res)=>{try{const p=new URL(req.url,'http://localhost').pathname;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.html':'text/html'})[extname(p)]??'text/html');res.end(await readFile(join(process.cwd(),'dist',p==='/'?'index.html':p)));}catch{res.writeHead(404).end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const browser=await type.launch({headless:true});try{

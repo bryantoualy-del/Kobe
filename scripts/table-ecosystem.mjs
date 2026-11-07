@@ -15,7 +15,7 @@ const http=createServer(async(req,res)=>{try{
  const file=resolve(root,'.'+(path.startsWith('/Kobe/')?path.slice(5):path));
  if(!file.startsWith(root+sep))throw Error('bad path');
  const bytes=await readFile(file);
- res.setHeader('content-type',({'.js':'text/javascript','.css':'text/css','.html':'text/html','.json':'application/json','.png':'image/png','.webp':'image/webp'})[extname(file)]||'application/octet-stream');res.end(bytes);
+ res.setHeader('content-type',({'.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.html':'text/html','.json':'application/json','.png':'image/png','.webp':'image/webp'})[extname(file)]||'application/octet-stream');res.end(bytes);
 }catch{res.writeHead(404).end();}});
 await new Promise(r=>http.listen(0,'127.0.0.1',r));
 const origin='http://127.0.0.1:'+http.address().port;

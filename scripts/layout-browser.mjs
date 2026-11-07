@@ -9,7 +9,7 @@ const server=createServer(async(req,res)=>{try{
  const before=p.startsWith('/before/'),root=resolve(before?'.before':'dist');
  const file=resolve(root,p.replace(/^\/(before|after)\//,'')||'index.html');
  if(!file.startsWith(root+'/'))throw Error('path');
- res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.html':'text/html','.webp':'image/webp','.jpg':'image/jpeg'})[extname(file)]||'application/octet-stream');res.end(await readFile(file));
+ res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.html':'text/html','.webp':'image/webp','.jpg':'image/jpeg'})[extname(file)]||'application/octet-stream');res.end(await readFile(file));
 }catch{res.writeHead(404).end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));await mkdir('screenshots/layout',{recursive:true});
 try{for(const engine of [chromium,webkit]){

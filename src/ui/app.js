@@ -6,7 +6,7 @@ import {rollPanel,roll,selectRollControl} from './social.js';
 import {mountConnect} from './connect-ui.js';
 import {kharvekPanel,openKharvekForm} from "./kharvek-ui.js";
 import {quickAttack,spellbookPanel,filterSpells,openSpellCast,openSpellDetail,openSpellResolve,openSpellControl} from './spell-ui.js';
-import {combatPanel, quickActions, socialPanel, openCombatForm} from './combat-ui.js';
+import {combatFollowups, quickActions, socialPanel, openCombatForm} from './combat-ui.js';
 import {createStore} from '../kobe/storage.js';
 const sessionDesk=document.getElementById('sessionDesk');
 const inventoryDesk=document.getElementById('inventoryDesk');
@@ -26,9 +26,7 @@ if(['combat','kharvek'].includes(state.preferences.tab)){
  const bar=combatView==='kharvek'
    ? sectionButtons({offense:'← Retour au cockpit',kharvek:'Khar-Vek'},combatView,'combat-view')
    : '';
- const defense=`<article class="panel"><h2>Défense</h2><div class="actions"><button data-combat="condition">États</button><button data-combat="death-save">Jet de mort</button>${button('temp','Appliquer les PV temporaires')}${button('undo','Annuler la dernière action')}${button('correct','Corriger les PV')}</div><label><input id="critical" type="checkbox"> Dégâts d’un critique à 0 PV</label></article>`;
- const tools=`<details class="combat-tools"><summary>Suivi & ajustements${state.pendingResolutions.length?' · '+state.pendingResolutions.length+' résultat(s) en attente':''}</summary>${combatPanel(state)}${defense}</details>`;
- return bar+(combatView==='kharvek'?kharvekPanel(state):supportCockpit(state,comboHeal))+tools;
+ return bar+(combatView==='kharvek'?kharvekPanel(state):supportCockpit(state,comboHeal));
 }
 if(state.preferences.tab==='spells')return spellbookPanel(state);
 if(state.preferences.tab==='social')return sectionButtons({profile:'Profil',inventory:'Inventaire'},socialView,'social-view')+(socialView==='inventory'?'<div id="inventory-slot"></div>':`${rollPanel(state)}<section class="panel"><h2>Social · notes privées</h2><p class="muted">Carnet conservé localement. Les décisions et résultats restent annoncés à la table.</p>${socialPanel(state)}<label for="notes">Notes de Kobe</label><textarea id="notes" maxlength="20000">${escapeHTML(state.notes)}</textarea><small id="notes-status">Sauvegarde automatique</small></section>`);
@@ -40,6 +38,7 @@ function sectionButtons(items,selected,attribute){
 }
 const secondaryView=()=>groupOpen||!['combat','kharvek'].includes(state.preferences.tab);
 function header(){
+ const pending=state.pendingResolutions.length;
  const compact=secondaryView()? `<header class="compact-header"><strong>Kobe Kozzo</strong><span>${state.hp.current}/${state.hp.max} PV · CA ${state.profile.ac}</span></header>`:'';
  return `${compact}<header class="top turn-header">
    <div class="turn-identity"><img src="./src/ui/emblem.webp" alt="Emblème de Kobe"><div><h1>Kobe Kozzo</h1><p>Barde 10 · Collège du Glamour</p></div></div>
@@ -51,13 +50,20 @@ function header(){
      <label class="turn-value tempstat"><input id="tempHpInput" type="number" min="0" max="10000" aria-label="PV temporaires de Kobe" value="${state.hp.temp}"> PV temp.</label>
      <span class="turn-metric">CA <b>${state.profile.ac}</b></span><span class="turn-metric">DD <b>17</b></span>
    </div>
-   <details class="turn-more"><summary aria-label="Plus de commandes">⋯</summary>
-     <div class="turn-more-panel"><span>Vitesse · 9 m</span>
+   <details class="turn-more"><summary aria-label="Plus de commandes${pending?' · '+pending+' en attente':''}">⋯${pending?`<span class="turn-pending-badge" aria-hidden="true">${pending}</span>`:''}</summary>
+     <div class="turn-more-panel">${combatFollowups(state)}<span>Vitesse · 9 m</span>
      <button data-action="initiative" aria-label="Lancer l’initiative">Initiative +4</button>
      <button data-combat="rest" data-rest-kind="short">Repos court</button>
      <button data-combat="rest" data-rest-kind="long">Repos long</button>
      <button data-action="spend-action" ${state.combat.phase==='active'&&state.economy.actionAvailable?'':'disabled'}>Dépenser l’action</button>
-     <button data-action="spend-bonus" ${state.combat.phase==='active'&&state.economy.bonusAvailable?'':'disabled'}>Dépenser l’action bonus</button></div>
+     <button data-action="spend-bonus" ${state.combat.phase==='active'&&state.economy.bonusAvailable?'':'disabled'}>Dépenser l’action bonus</button>
+     <button data-combat="condition">États</button>
+     <button data-combat="death-save">Jet de mort</button>
+     <button data-combat="time">Temps écoulé</button>
+     <button data-combat="combat-correct">Correction MJ</button>
+     ${button('temp','Appliquer des PV temporaires')}
+     ${state.undo?button('undo','Annuler la dernière action'):''}
+     <label class="turn-critical"><input id="critical" type="checkbox"> Critique à 0 PV</label></div>
    </details>
  </header>`;
 }
