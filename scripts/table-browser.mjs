@@ -45,7 +45,9 @@ try{
    await page.reload();
    await until(()=>rooms.get(room).players.get('kobe')&&rooms.get(room).players.get('kobe')!==priorSocket,'automatic invitation resume after reload');
    await page.getByRole('tab',{name:'Groupe',exact:true}).click();
+   await page.getByRole('button',{name:'RPG Connect',exact:true}).click();
    await page.getByText(/Connecté · MJ en ligne/).waitFor();
+   await page.getByRole('button',{name:'RPG Connect',exact:true}).click();
    await page.getByRole('tab',{name:'Social',exact:true}).click();
    await page.locator('#physical').check();
    await page.locator('[data-roll=Persuasion]').click();
