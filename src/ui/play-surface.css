@@ -234,6 +234,7 @@
 .last-action{padding:0 10px 2px}
 .last-action button{min-height:44px;margin:5px 0 8px}
 .turn-last-result:has(#ribbon:not([hidden])) .last-action{display:none}
+body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
 #turn-result-slot #ribbon{position:static;transform:none;width:auto;max-height:none;box-shadow:none;border-radius:12px}
 #turn-result-slot #ribbon .rb{font:600 14px/1.4 system-ui;overflow-wrap:anywhere}
 #turn-result-slot #ribbon .ribbon-actions{flex-wrap:wrap}
