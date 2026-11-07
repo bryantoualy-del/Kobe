@@ -15,14 +15,18 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  const next=async()=>{const n=(await state()).turn.startRevision;await page.locator('[data-action=end-turn]').click();await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.turn.startRevision===n+1,n);};
  const shot=async name=>{await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:`screenshots/v12/${engine.name()}-${width}-${name}.png`,fullPage:true});};
  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('.support-cockpit').waitFor();
- assert.equal(await page.locator('.intent-grid>.intent-card').count(),4);
+ assert.equal(await page.locator('.turn-lane').count(),2);
+ assert.equal(await page.locator('.combo-steps [data-done=true]').count(),0);
+ assert.equal(await page.locator('.combo-steps [aria-current=step]').getAttribute('data-step'),'1');
+ const icons=await page.locator('.turn-command .turn-icon').evaluateAll(images=>images.map(image=>image.complete&&image.naturalWidth>0));
+ assert.equal(icons.length,5);assert(icons.every(Boolean),'the five extracted pictograms loaded');
  await shot('combat');
  for(const name of ['Sorts & pouvoirs','Social','Journal','Groupe','Combat']){await tab(name);assert.equal(await page.locator(width>720?'header.top':name==='Combat'?'header.top':'.compact-header').isVisible(),true);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' overflow');}
  await tab('Groupe');
  const geometry=await page.locator('[data-group-quick] .combat-ability-button').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect(),p=e.closest('.rpg-quick-column').getBoundingClientRect();return {height:r.height,left:r.left,right:r.right,pLeft:p.left,pRight:p.right,scroll:e.scrollWidth,width:e.clientWidth};}));
  assert.equal(geometry.length,6);for(const r of geometry){assert(r.height>=44);assert(r.left>=r.pLeft&&r.right<=r.pRight);assert(r.scroll<=r.width);}
  await shot('groupe');await tab('Combat');
- await page.locator('.intent-heal').click();await page.locator('.catalog-kharvek:not([hidden])').waitFor();
+ await page.locator('[data-intent=Soins]').click();await page.locator('.catalog-kharvek:not([hidden])').waitFor();
  assert.equal(await page.locator('[data-spell-filter=Soins]').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('.catalog-kharvek [data-kharvek]:visible').count(),3);
  assert.equal(await page.locator('[data-spell-card]:visible').count(),2);
@@ -30,24 +34,33 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  await page.locator('.spell-slots>summary').click();await page.locator('[data-slot="1"][data-slot-value="3"]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[1]===3);await page.locator('[data-ribbon-undo]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[1]===4);
  await shot('soins');
  await tab('Combat');await page.locator('[data-combat-view=kharvek]').click();await page.locator('[data-charge-value="6"]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===6);
- await page.locator('[data-combat-view=offense]').click();await page.locator('.intent-heal').click();await page.locator('.catalog-kharvek [data-kharvek=pulse]').click();
+ await page.locator('[data-combat-view=offense]').click();await page.locator('[data-intent=Soins]').click();await page.locator('.catalog-kharvek [data-kharvek=pulse]').click();
  await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===5);assert.equal((await state()).slots[1],4);assert.equal((await state()).economy.actionAvailable,false);
  assert.equal(await page.locator('dialog[open],.spell-inline').count(),0);
  await page.reload();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===5);await tab('Combat');await next();
- await page.locator('.intent-attack').click();await page.locator('[data-spell-filter=Offensif][aria-pressed=true]').waitFor();
+ await page.locator('[data-intent=Offensif]').click();await page.locator('[data-spell-filter=Offensif][aria-pressed=true]').waitFor();
  const first=await page.locator('[data-spell-card]:visible').evaluateAll(els=>els.sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top)[0].dataset.spellCard);assert.equal(first,'fireball');
  await page.locator('[data-offensive-filter="Tours de magie"]').click();assert.deepEqual(await page.locator('[data-spell-card]:visible').evaluateAll(es=>es.map(e=>e.dataset.spellCard)),['vicious-mockery','fire-bolt']);
  await page.locator('[data-offensive-filter=Zone]').click();assert.equal(await page.locator('[data-spell-card]:visible').count(),1);
- await shot('offensif');await tab('Combat');await page.locator('.intent-control').click();await page.locator('.catalog-bardic [data-combat=majesty]').waitFor();assert(await page.locator('[data-spell-card=circle-of-power]').isVisible());
- await tab('Combat');await page.locator('.intent-inspire [data-combat=inspiration]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);await next();
- await page.locator('[data-combo=survivors]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);assert.equal((await state()).resources.charges,4);
- await page.locator('[data-combo-fire]').click();await page.locator('[data-spell-card=fireball] [data-cast-level]').selectOption('4');await page.locator('[data-cast=fireball]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===2);
+ await shot('offensif');await tab('Combat');await page.locator('[data-intent="Contrôle & Défense"]').click();await page.locator('.catalog-bardic [data-combat=majesty]').waitFor();assert(await page.locator('[data-spell-card=circle-of-power]').isVisible());
+ await tab('Combat');await page.locator('.turn-commands [data-combat=inspiration]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);await next();
+ await page.locator('[data-combo-heal]').check();
+ await page.locator('[data-combo=mantle]').click();
+ await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
+ assert.equal((await state()).resources.charges,4);
+ assert.equal(await page.locator('[data-step="1"]').getAttribute('data-done'),'true');
+ assert.equal(await page.locator('[data-step="2"]').getAttribute('aria-current'),'step');
+ await page.reload();await page.locator('[data-combo=fireball]').waitFor();
+ await page.locator('[data-combo-level]').selectOption('4');
+ await page.locator('[data-combo=fireball]').click();
+ await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===2);
+ assert.equal(await page.locator('.combo-steps [data-done=true]').count(),2);
  assert.equal((await state()).economy.bonusAvailable,false);assert.equal((await state()).economy.actionAvailable,false);assert.deepEqual((await state()).combat.targets,[]);
  assert((await state()).journal.some(e=>e.label.includes('Manteau des survivants')));assert((await state()).journal.some(e=>e.label.includes('Boule de feu')));
- await tab('Combat');assert(await page.locator('[data-combo=mantle]').isDisabled());
- await page.locator('[data-ribbon-undo]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===3);assert.equal((await state()).resources.inspiration,3);
- await tab('Combat');await next();await page.locator('.intent-inspire [data-combat=mantle]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===2);
+ assert.equal(await page.locator('[data-combo]').count(),0);
+ await page.locator('[data-ribbon-undo]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===3);assert.equal((await state()).resources.inspiration,3);await page.locator('[data-combo=fireball]').waitFor();
+ await tab('Combat');await next();assert.equal(await page.locator('.combo-steps [data-done=true]').count(),0);await page.locator('.turn-commands [data-combat=mantle]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===2);
  await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
- if(engine.name()==='chromium'){await context.setOffline(true);await page.reload();await page.locator('.support-cockpit').waitFor();await page.locator('.intent-heal').click();await page.locator('.catalog-kharvek:not([hidden])').waitFor();assert.equal((await state()).resources.charges,4);}
+ if(engine.name()==='chromium'){await context.setOffline(true);await page.reload();await page.locator('.support-cockpit').waitFor();await page.locator('[data-intent=Soins]').click();await page.locator('.catalog-kharvek:not([hidden])').waitFor();assert.equal((await state()).resources.charges,4);}
  assert.deepEqual(errors,[]);await context.close();console.log(engine.name()+' support '+width+' PASS');
 }}finally{await browser.close();}}}finally{server.close();}

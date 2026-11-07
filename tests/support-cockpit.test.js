@@ -2,15 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {initialState,decode,envelope} from '../src/kobe/model.js';
 import {transition} from '../src/kobe/engine.js';
-import {comboAvailability} from '../src/ui/support-ui.js';
+import {ardentStage,comboAvailability} from '../src/ui/support-ui.js';
 let serial=0;
 const command=(s,type,payload)=>({id:'support-'+ ++serial,actorId:'kobe',origin:'player',expectedRevision:s.revision,type,payload});
 const run=(s,type,payload)=>{const r=transition(s,command(s,type,payload));assert.equal(r.ok,true,r.message);return r;};
 for(const survivors of [false,true])test('Sequential combo, resource accounting, manual movement and Undo: heal '+survivors,()=>{
  const s=initialState();s.resources.charges=6;
  assert.equal(comboAvailability(s,survivors).ok,true);
+ assert.equal(ardentStage(s),'mantle');
  const mantle=run(s,'mantle',{table:true,survivors,healRolls:survivors?[4]:undefined});
+ assert.equal(ardentStage(mantle.state),'fireball');
  const fire=run(mantle.state,'spell-cast',{table:true,spellId:'fireball',level:3,rolls:Array(8).fill(3)});
+ assert.equal(ardentStage(fire.state),'complete');
  assert.equal(fire.state.resources.inspiration,4);
  assert.equal(fire.state.resources.charges,survivors?5:6);
  assert.equal(fire.state.slots[3],2);
@@ -22,6 +25,10 @@ for(const survivors of [false,true])test('Sequential combo, resource accounting,
  assert.deepEqual(decode(JSON.stringify(envelope(fire.state))).state,JSON.parse(JSON.stringify(fire.state)));
  const restored=run(fire.state,'undo',{commandId:fire.events[0].commandId??fire.state.undo.commandId}).state;
  assert.equal(restored.slots[3],3);
+ assert.equal(ardentStage(restored),'fireball');
+ const {turn}=restored;
+ const next=run(restored,'turn-next',{turn:turn.startRevision+1,epoch:turn.epoch,combatId:turn.combatId});
+ assert.equal(ardentStage(next.state),'mantle');
  assert.equal(restored.resources.inspiration,4,'Undo only undoes the last committed step');
 });
 for(const [label,change,heal] of [

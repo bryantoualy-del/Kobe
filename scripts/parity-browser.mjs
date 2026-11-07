@@ -29,9 +29,9 @@ try{
    await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
    await capture('combat');
    assert.equal(await page.locator('.dragon-art').count(),0);
-   assert.equal(await page.locator('[data-combat-view]').count(),2);
+   assert.equal(await page.locator('[data-combat-view]').count(),1);
    assert.equal(await page.locator('[data-combat-view=resources],[data-combat-view=powers]').count(),0);
-   await page.locator('.intent-attack').click();
+   await page.locator('[data-intent=Offensif]').click();
    await page.locator('[data-spell-card=fire-bolt] .attack-options summary').click();
    await page.locator('[name=signature-mode][value=advantage]').check();
    await page.locator('#signature-dice').fill('4 17');
@@ -42,6 +42,7 @@ try{
    assert.equal(await page.locator('.hit-roll').innerText(),'26');
    await capture('confirmation-jet');
    await page.getByRole('button',{name:'Touché',exact:true}).click();
+   await page.locator('.turn-more:not([open]) > summary').click();
    await page.getByRole('button',{name:'Repos long',exact:true}).first().click();
    await page.getByRole('button',{name:'Annuler',exact:true}).click();
    await page.getByRole('button',{name:'Repos long',exact:true}).first().click();
@@ -113,7 +114,7 @@ try{
    for(const width of [375,390,430]){
     await page.setViewportSize({width,height:844});await tab('Combat');
     const next=await page.locator('[data-action=end-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width,'end turn visible');
-    const heal=await page.locator('[data-action=heal]').boundingBox(),temp=await page.locator('.tempstat').boundingBox();assert(heal.x+heal.width<=temp.x,'heal must not overlap temporary HP');
+    const heal=await page.locator('[data-action=heal]').boundingBox(),temp=await page.locator('.tempstat').boundingBox();assert(heal.x+heal.width<=temp.x||heal.y>=temp.y+temp.height,'heal must not overlap temporary HP');
     await page.locator('[data-combat-view=kharvek]').click();
     const marks=await page.locator('.charge-mark').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().y));assert.equal(new Set(marks).size,1,'seven charges on one row');
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile horizontal overflow');

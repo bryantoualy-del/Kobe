@@ -64,12 +64,14 @@ try {
       await mkdir('screenshots',{recursive:true});
       await page.screenshot({path:'screenshots/'+name+'-spellbook-viewport.png'});
       await page.getByRole('tab',{name:'Combat',exact:true}).click();
-      await page.locator('[data-combat-view=offense]').click();
-      await page.locator('.combat-favorites>summary').click();
-      assert.equal(await page.locator('.favorites-panel [data-spell-card]').count(),4);
+      for(const id of ['fireball','healing-word','circle-of-power','slow']){
+        await page.locator('.turn-commands [data-cast="'+id+'"]').waitFor();
+      }
+      assert.equal(await page.locator('[data-turn-lane=bonusAvailable] [data-cast=healing-word]').count(),1);
       await page.screenshot({path:'screenshots/'+name+'-favorites-viewport.png'});
-      await page.locator('[data-spell-card="fireball"] [data-cast-level]').selectOption('4');
-      await page.locator('[data-cast=fireball]').click();
+      await page.locator('[data-combo=mantle]').click();
+      await page.locator('[data-combo-level]').selectOption('4');
+      await page.locator('[data-combo=fireball]').click();
       await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===2);
       assert.equal(await page.locator('dialog[open],.spell-inline,[name=target]').count(),0);
       assert.equal((await state()).pendingResolutions.length,0);
