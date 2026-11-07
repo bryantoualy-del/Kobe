@@ -40,8 +40,9 @@ export function vfxForCommand(type,payload={}){
  if(type==='kharvek-power'&&['pulse','rally'].includes(payload.power))return 'kharvek';
  return null;
 }
-export function playKobeVfx(kind){
+export function playKobeVfx(kind,{intensity}={}){
  if(!LABELS[kind]||!allowed())return false;
+ const level=['subtle','normal','spectacular'].includes(intensity)?intensity:(typeof localStorage!=='undefined'&&localStorage.getItem('kobe-vfx-intensity'))||'normal';
  if(!document.getElementById('kobe-vfx-styles')){
    const style=document.createElement('style');style.id='kobe-vfx-styles';style.textContent=STYLE.replaceAll('./fx/kenney/',new URL('./fx/kenney/',import.meta.url).href);document.head.append(style);
  }
@@ -49,6 +50,8 @@ export function playKobeVfx(kind){
  active?.remove();
  const layer=document.createElement('div');
  layer.className='kobe-vfx kobe-vfx--'+kind;
+ layer.style.opacity=level==='subtle'?'0.65':'1';
+ layer.style.transform=level==='spectacular'?'scale(1.25)':'scale(1)';
  layer.setAttribute('aria-hidden','true');
  const veil=document.createElement('div');veil.className='kobe-vfx__veil';layer.append(veil);
  const core=document.createElement('div');core.className='kobe-vfx__core';layer.append(core);
