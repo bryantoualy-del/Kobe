@@ -35,7 +35,8 @@ Les règles des sorts en action bonus sont conservées : Manteau (capacité) + B
 - Recette `scripts/support-browser.mjs` : Chromium et WebKit, 375/390/430 × 844 et 1180 × 820, intentions, filtres, soins, combo, journal, charges, rechargement, géométrie Groupe, header et absence de formulaires. Hors ligne dans Chromium ; redémarrage à froid couvert par `resume-browser.mjs`.
 - Recettes préexistantes adaptées aux nouveaux points d'entrée, sans retrait des vérifications métier : Social, Journal, favoris, sorts, Khar-Vek, Table Libre, reprise, sept clients et Encounter.
 - CI intermédiaire [42358138101](https://github.com/bryantoualy-del/Kobe/actions/runs/42358138101) entièrement verte sur `ac49b8d` : trois jobs réussis, huit parcours de soutien, toutes les recettes préexistantes et écosystème.
-- La compaction finale du catalogue est validée séparément avant livraison ; résultat et captures ci-dessous.
+- Validation finale du code `31e68a2e4e323efba485ae8b2ac4d6b6b4f264da` : [CI 42358689295](https://github.com/bryantoualy-del/Kobe/actions/runs/42358689295), **trois jobs réussis** (test-build, browser-smoke, ecosystem). Les huit parcours de soutien passent, y compris correction/Undo des emplacements.
+- Captures originales : [artefact complet](https://github.com/bryantoualy-del/Kobe/actions/runs/42358689295/artifacts/13568427899), archivé en sélection WebP ci-dessous. Les commits ultérieurs de captures/documentation ne changent pas le code testé.
 
 ## Limites de recette
 
@@ -63,3 +64,25 @@ Safari iPhone/iPad physique, veille iOS, rotation et clavier matériel non dispo
 | 16. V5 | Table-browser + table-ecosystem, sept clients et Encounter, reçu de correction unique et privé |
 
 Les assertions de scripts sont exécutables en CI. Les captures illustrent la présentation ; elles ne remplacent pas les assertions d'état ni les tests de protocole.
+
+## Captures examinées
+
+WebKit Linux, formats simulés. Le dossier contient une sélection compressée des PNG originaux de la CI finale ; aucune maquette générée.
+
+| Vue | Format iPhone, 375 × 844 | Format iPad Air 5 paysage, 1180 × 820 |
+|---|---|---|
+| Combat | [Cockpit](recette-v12/combat-iphone.webp) | [Cockpit](recette-v12/combat-ipad.webp) |
+| Sorts | [Grimoire compact](recette-v12/sorts-iphone.webp) | [Grimoire compact](recette-v12/sorts-ipad.webp) |
+| Groupe | [Accès rapide](recette-v12/groupe-iphone.webp) | [Accès rapide](recette-v12/groupe-ipad.webp) |
+
+![Cockpit iPad](recette-v12/combat-ipad.webp)
+
+## Revue joueur
+
+1. Ouvrir Combat, puis Soigner / Attaquer / Contrôler : vérifier le filtre et le retour par la navigation principale.
+2. Dans Khar-Vek, régler les charges à 6. Revenir à Soutien, jouer Manteau + soin puis l'étape Boule de feu N3 : 1 inspiration, 1 charge et 1 emplacement N3 consommés.
+3. Annuler Boule de feu : seul le dernier lancement est annulé ; Manteau + soin reste joué.
+4. Vérifier Groupe sur téléphone, puis rechargement et reprise en mode avion après préparation du cache.
+5. Réaliser la recette physique iOS avant de considérer le cycle veille/fermeture/Fichiers validé matériellement.
+
+Aucun déploiement ni fusion effectué pour cette mission ; PR14 soumise à validation.

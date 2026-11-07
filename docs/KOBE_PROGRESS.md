@@ -472,3 +472,7 @@ Le catalogue affichait trop de commandes d'emplacements avant les capacités. R�
 
 ### Lot F — grimoire compact
 CI 42358413457 : mise en page complète, moteur/build, sorts, Social/Journal, Khar-Vek, V5 et reprise réussis. L'assertion supplémentaire de correction d'emplacement s'est arrêtée sur un sélecteur CSS numérique non cité ; correction du script uniquement, puis nouvelle exécution complète. Les captures de cette exécution confirment le résumé d'emplacements compact.
+
+## V1.2 — clôture fonctionnelle, 7 novembre 2026
+Lots A–F réalisés. Tête de code distante `31e68a2` validée par CI **42358689295**, trois jobs verts : 164 tests, build/cache/statique, Chromium/WebKit à 375/390/430/1180, parcours de soutien, toutes les suites existantes, sept clients et Encounter. Corrections d'emplacements et Undo vérifiées dans la version compacte. Captures finales examinées puis sélectionnées dans `docs/recette-v12` ; rapport et matrice des 16 scénarios dans `docs/KOBE_V12_VALIDATION.md`.
+PR14 : https://github.com/bryantoualy-del/Kobe/pull/14, branche `feat/kobe-v12-support-cockpit`, base main `a8269e2`. Aucun changement `src/kobe` ni `src/companion`, aucun contrat V5 modifié. Combo séquentiel documenté, Undo de dernière action conservé. Aucune régression critique identifiée par les contrôles exécutés. Limite : Safari iOS physique non testé. Pas de fusion ni déploiement.
