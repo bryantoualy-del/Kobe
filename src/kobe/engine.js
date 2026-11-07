@@ -1,8 +1,9 @@
+import {preventsAction} from './conditions.js';
 import {resolveRoll} from './social.js';
 import {correction} from './table-correction.js';
 import {kharvekCommand} from "./kharvek.js";
 import {spellCommand} from './spells.js';
-import {combatCommand, afterDamage, advance, endConcentration} from './combat.js';
+import {combatCommand, afterDamage, advance, canAct, endConcentration, expireTurnEffects} from './combat.js';
 import {canonical, freshEconomy, integer, LIMITS, snapshot, TABS, validateState} from './model.js';
 const fail = (code, message) => { throw Object.assign(new Error(message), {code}); };
 export function transition(state, command, context = {}) {
@@ -34,7 +35,7 @@ export function transition(state, command, context = {}) {
           if(field!==p.field||canonical(value)!==canonical(p.value))fail('INVALID_COMMAND','Proposition incohérente.');
           if(field==='hp'){s.hp.current=value;if(!value)endConcentration(s);else s.combat.death={success:0,failure:0,stable:false,dead:false};}
           else if(field==='temp'){s.hp.temp=value;s.hp.source=value?'Correction MJ':null;}
-          else {s.combat.conditions=value;s.effects=s.effects.filter(effect=>effect.kind!=='condition'||value.includes(effect.conditionName));if(value.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x)))endConcentration(s);}
+          else {s.combat.conditions=value;s.effects=s.effects.filter(effect=>effect.kind!=='condition'||value.includes(effect.conditionName));if(preventsAction(value))endConcentration(s);}
           label=`Correction MJ validée : ${field} → ${value}`;
         }else label=`Demande MJ ${p.remoteEvent.type} traitée à la table, sans application automatique`;
         break;
@@ -47,7 +48,7 @@ export function transition(state, command, context = {}) {
       case 'heal': if(s.combat.death.dead) fail('DEAD','Un soin ne ressuscite pas.'); integer(p.amount, 1, 10000); s.hp.current = Math.min(s.hp.max, s.hp.current + p.amount); if(s.hp.current>0)s.combat.death={success:0,failure:0,stable:false,dead:false}; kind = 'heal'; label = `${s.hp.current - state.hp.current} PV récupérés`; break;
       case 'set-temp-hp': integer(p.amount, 0, 10000); if(p.amount>s.hp.temp)s.hp.source='Attribution manuelle';s.hp.temp = Math.max(s.hp.temp, p.amount); kind = 'temp'; label = `${s.hp.temp} PV temporaires (sans cumul)`; break;
       case 'spend': {
-        if(s.hp.current===0||s.combat.death.dead||s.combat.conditions.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x)))fail('INCAPACITATED','Kobe ne peut pas agir.');
+        if(!canAct(s))fail('INCAPACITATED','Kobe ne peut pas agir.');
         if(p.economy!=='reactionAvailable'&&s.combat.phase!=='active')fail('OUT_OF_TURN','Hors tour de Kobe.');
         if (!['actionAvailable','bonusAvailable','reactionAvailable'].includes(p.economy)) fail('INVALID_COMMAND','Action inconnue.');
         if (!s.economy[p.economy]) fail('ACTION_USED','Cette action est déjà utilisée.');
@@ -63,7 +64,10 @@ export function transition(state, command, context = {}) {
       case 'turn-start': {
         if(command.type==='turn-next')combatCommand(s,{...command,type:'turn-end'});
         if (p.turn !== state.turn.startRevision + 1 || p.epoch !== state.turn.epoch || p.combatId !== state.turn.combatId) fail('STALE_REVISION','Tour déjà traité ou hors séquence.');
-        advance(s,6); s.effects=s.effects.filter(e=>!e.untilTurn||e.untilTurn>p.turn); s.combat.round++;s.combat.turnDamage=0;s.combat.phase='active';s.combat.bonusSpell=false;s.combat.leveledAction=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`; break;
+        const expired=expireTurnEffects(s,p.turn);
+        advance(s,6); s.combat.round++;s.combat.turnDamage=0;s.combat.phase='active';s.combat.bonusSpell=false;s.combat.leveledAction=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`;
+        if(expired.length)label+=' · Fin : '+expired.join(', ');
+        break;
       }
       case 'self-correct': {
         integer(p.hp,0,s.hp.max);integer(p.temp,0,10000);integer(p.ac,0,100);
@@ -76,7 +80,7 @@ export function transition(state, command, context = {}) {
         }
         s.effects=s.effects.filter(e=>e.kind!=='condition'||p.conditions.includes(e.conditionName));
         s.combat.conditions=[...new Set(p.conditions)];
-        if(!p.hp||p.conditions.some(x=>['incapacitated','unconscious','stunned','paralyzed','petrified'].includes(x)))endConcentration(s);
+        if(!p.hp||preventsAction(p.conditions))endConcentration(s);
         label='État personnel actualisé';break;
       }
       case 'correct': {

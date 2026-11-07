@@ -31,3 +31,34 @@ test('Starting or ending concentration never removes unrelated Inspiration or Cr
 test('Temporary HP protect against massive damage instant death threshold',()=>{let s=initialState();s.hp.current=1;s.hp.temp=100;s=run(s,'damage',{amount:101});assert.equal(s.hp.current,0);assert.equal(s.combat.death.dead,false);});
 test('Missed Fire bolt logs zero damage even if the form contains a number',()=>{let s=run(setup(),'fire-bolt',{...enemy,handFree:true});s=run(s,'resolve',{id:s.pendingResolutions[0].id,result:'miss',damage:20});assert.match(s.journal.at(-1).label,/0 dégâts/);assert.deepEqual(s.journal.at(-1).rolls,[]);});
 test('Temporary condition duration expires on narrative time without resurrecting concentration',()=>{let s=run(setup(),'majesty',maj);s=run(s,'condition',{name:'stunned',enabled:true,duration:12});assert.equal(s.concentration,null);s=run(s,'time',{seconds:12,confirmed:true});assert.equal(s.combat.conditions.includes('stunned'),false);assert.equal(s.concentration,null);});
+
+test('Removing the last blocking condition unlocks unused actions without refunding spent actions',()=>{
+ let s=run(initialState(),'spend',{economy:'actionAvailable'});
+ s=run(s,'condition',{name:'stunned',enabled:true});
+ s=run(s,'condition',{name:'paralyzed',enabled:true});
+ const remove=name=>{s=run(s,'condition',{name,enabled:false});};
+ remove('stunned');
+ assert.equal(transition(s,command(s,'inspiration',{table:true})).ok,false);
+ remove('paralyzed');
+ assert.deepEqual(s.combat.conditions,[]);
+ assert.equal(s.economy.actionAvailable,false);
+ assert.equal(s.economy.reactionAvailable,true);
+ s=run(s,'condition',{name:'prone',enabled:true});
+ s=run(s,'inspiration',{table:true});
+ assert.equal(s.economy.bonusAvailable,false);
+});
+
+test('A timed condition survives reload and expires only on the requested start of turn',()=>{
+ let s=run(initialState(),'condition',{name:'stunned',enabled:true,turns:2});
+ s=run(s,'time',{seconds:120,confirmed:true});
+ s=next(s);
+ s=decode(JSON.stringify(envelope(s))).state;
+ assert.deepEqual(s.combat.conditions,['stunned']);
+ assert.equal(transition(s,command(s,'inspiration',{table:true})).ok,false);
+ s=next(s);
+ assert.deepEqual(s.combat.conditions,[]);
+ assert.equal(s.effects.length,0);
+ assert.match(s.journal.at(-1).label,/Fin : Étourdi/);
+ s=run(s,'inspiration',{table:true});
+ assert.equal(s.resources.inspiration,4);
+});

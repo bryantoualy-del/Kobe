@@ -60,11 +60,14 @@ try{
    const first=await until(()=>rx.find(m=>m.type==='state'),'HP state');
    assert.equal(first.state.hp.current,83);assert.equal(first.state.characterId,'kobe');assert.ok(!('resources' in first.state));
    const command=(id,type,payload)=>send({type:'command',room,characterId:'kobe',event:{id,type,payload,characterId:'kobe'}});
-   command('group','state:sync',{syncEpoch:'A',groupRevision:1,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current:45,max:60,temp:3}},{id:'e',kind:'enemy',name:'Garde',health:{current:90,max:90}}]});
+   command('group','state:sync',{syncEpoch:'A',groupRevision:1,conditionActors:[{id:'s',name:'Samoth',kind:'player',health:{current:45,max:60,temp:3},conditions:[{name:'À terre'}]},{id:'e',kind:'enemy',name:'Garde',health:{current:90,max:90}}]});
    await page.getByText(/45 \/ 60 PV/).waitFor();
    assert.equal(await page.locator('#rpgGroupView').getAttribute('data-has-roster'),'true');
    assert.equal(await page.locator('[data-group-actor=s] .rpg-monogram').textContent(),'S');
    assert.equal(await page.locator('[data-group-actor=s] progress').getAttribute('value'),'45');
+   const prone=page.locator('[data-group-actor=s] .rpg-group-state');
+   assert.equal(await prone.textContent(),'À terre');
+   await page.waitForFunction(()=>document.querySelector('[data-group-actor=s] .rpg-group-state img')?.naturalWidth>0);
    const correct=()=>command('correction-1','hp:set',{manualTable:true,expectedValue:83,value:60});
    correct();await page.getByRole('button',{name:'Appliquer cette correction'}).click();
    await until(()=>rx.some(m=>m.type==='command-ack'&&m.id==='correction-1'),'accepted correction');

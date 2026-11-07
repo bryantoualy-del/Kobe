@@ -38,6 +38,19 @@ try{
   const token=backend.rooms.get(room).tokens.get(name.toLowerCase());assert.ok(token,'MJ issued invitation for '+name);
   await p.evaluate(({endpoint,room,token})=>{document.querySelector('[name=endpoint]').value=endpoint;document.querySelector('[name=room]').value=room;document.querySelector('[name=token]').value=token;RPGConnect.connect();},{endpoint,room,token});
   await p.waitForFunction(()=>RPGConnect.getStatus().connected&&RPGTable.active());
+  await p.evaluate(()=>RPGGroupView.open());
+  const editor=p.locator('dialog.rpg-self-editor');
+  const stunned=editor.locator('[data-self-condition="Étourdi"]');
+  const edit=p.locator('#rpgGroupView [data-edit-self]');
+  await edit.click();
+  await stunned.check();
+  await editor.getByRole('button',{name:'Appliquer',exact:true}).click();
+  await p.waitForFunction(()=>CompanionAPI.getState().statuses.includes('Étourdi'));
+  await edit.click();
+  await stunned.uncheck();
+  await editor.getByRole('button',{name:'Appliquer',exact:true}).click();
+  await p.waitForFunction(()=>!CompanionAPI.getState().statuses.includes('Étourdi'));
+  console.log(name+': état personnel ajouté et retiré en Table Libre.');
  }
  const k=await app('Kobe');await k.getByRole('tab',{name:'Groupe',exact:true}).click();await k.getByRole('button',{name:'RPG Connect',exact:true}).click();
  const token=backend.rooms.get(room).tokens.get('kobe');assert.ok(token,'MJ issued invitation for Kobe');

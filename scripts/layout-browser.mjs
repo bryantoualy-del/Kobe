@@ -29,6 +29,10 @@ try{for(const engine of [chromium,webkit]){
     const box=await page.locator(selector).boundingBox();
     assert(box.height>=44&&box.y+box.height<next.y,selector+' touch height and visibility');
   }
+  for(const selector of ['.turn-header [data-action=conditions]','[data-action=initiative]','[data-rest-kind=short]','[data-rest-kind=long]']){
+    const box=await page.locator(selector).boundingBox();
+    assert(box.height>=44&&box.x>=0&&box.x+box.width<=width,selector+' visible touch target');
+  }
   if(width===1180){
     assert((await page.locator('.turn-identity img').boundingBox()).width>=64,'official emblem retained');
     const cockpit=await page.locator('.support-cockpit').boundingBox();
