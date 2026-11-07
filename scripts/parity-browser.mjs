@@ -24,7 +24,7 @@ try{
    const page=await context.newPage(),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(url+'#roster='+Buffer.from(JSON.stringify(roster)).toString('base64url'));
-   const tab=name=>page.getByRole('tab',{name,exact:true}).click();
+   const tab=async name=>{await page.getByRole('tab',{name,exact:true}).click();await page.waitForFunction(label=>[...document.querySelectorAll('[role=tab]')].some(el=>el.textContent===label&&el.getAttribute('aria-selected')==='true'),name);};
    const capture=name=>page.screenshot({path:'screenshots/'+engine.name()+'-v11-'+name+'.png'});
    await page.getByText('Prêt hors ligne',{exact:true}).waitFor();
    await capture('combat');

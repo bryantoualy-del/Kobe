@@ -446,3 +446,5 @@ Validation définitive de main cd2f54a : CI 42348457910 entièrement verte, dont
 
 ## 7 novembre — retour Safari iPad : header persistant
 Capture utilisateur confirmée : le header complet était remplacé hors Combat par le bandeau mobile, même sur iPad. Rétablissement du header et de la barre de tour sur tous les onglets au-dessus de 720 px, dont Groupe. Le header compact et l’absence de barre de tour hors Combat restent limités aux téléphones pour conserver les parcours mobiles validés. Aucune donnée ni règle modifiée. La recette layout vérifie désormais le bandeau, l’emblème, les PV et la barre de tour dans Sorts, Social, Journal et Groupe, sous Chromium/WebKit.
+
+Première CI : contrôles layout Chromium/WebKit et écosystème verts. La recette parity lisait la géométrie avant la fin du changement d’onglet (header désormais présent mais masqué sur mobile) : attente explicite de l’onglet sélectionné ajoutée avant toute mesure. Capture WebKit iPad Social examinée : header complet rétabli.
