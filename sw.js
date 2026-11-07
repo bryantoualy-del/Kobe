@@ -1,6 +1,7 @@
 importScripts('./offline-shell.js');
-const CACHE='kobe-v11-'+self.KobeShellRevision;
-const FILES=['./',...Object.keys(self.KobeShellAssets).map(path=>'./'+path)];
+const CACHE='kobe-v11-fx2-'+self.KobeShellRevision;
+const FX_FILES=['flame_02.png','magic_03.png','circle_05.png','spark_04.png'].map(name=>'./src/ui/fx/kenney/'+name);
+const FILES=['./',...Object.keys(self.KobeShellAssets).map(path=>'./'+path),...FX_FILES];
 const root=new URL('./',self.registration.scope);
 const known=new Set(FILES.map(path=>new URL(path,root).pathname));
 self.addEventListener('install',event=>event.waitUntil((async()=>{
