@@ -124,7 +124,7 @@ nav.tabs{flex-wrap:wrap}
 .vitals .hp-main-row label{width:48px!important;min-width:0!important}
 .vitals .hp-main-row b{font-size:12px!important}
 .vitals .hp-actions{gap:3px!important}
-.vitals .hp-actions button{font-size:8px!important;padding:3px!important;min-height:20px!important}
+.vitals .hp-actions button{font-size:12px;padding:6px;min-height:44px}
 .vitals .temp-source{font-size:8px!important}
 nav.tabs{display:flex!important;align-items:center!important;gap:5px!important;margin:0 0 7px!important;padding:0!important;min-height:38px!important}
 .tabs button{padding:7px 12px!important;min-height:36px!important;font-size:11px!important}

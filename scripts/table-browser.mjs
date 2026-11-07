@@ -41,6 +41,18 @@ try{
      await page.getByText(/Connecté · MJ en ligne/).waitFor();
    };
    await joinRoom();
+   const priorSocket=rooms.get(room).players.get('kobe');
+   await page.reload();
+   await until(()=>rooms.get(room).players.get('kobe')&&rooms.get(room).players.get('kobe')!==priorSocket,'automatic invitation resume after reload');
+   await page.getByRole('tab',{name:'Groupe',exact:true}).click();
+   await page.getByText(/Connecté · MJ en ligne/).waitFor();
+   await page.getByRole('tab',{name:'Social',exact:true}).click();
+   await page.locator('#physical').check();
+   await page.locator('[data-roll=Persuasion]').click();
+   await page.locator('[name=answer]').fill('12');await page.locator('[data-dialog-accept]').click();
+   await page.waitForFunction(()=>document.querySelector('output.ribbon')?.textContent.includes('Persuasion'));
+   assert.ok(!rx.some(m=>m.type==='event'),'private Social roll never broadcast');
+   await page.getByRole('tab',{name:'Groupe',exact:true}).click();
    const touchCounts={};await page.evaluate(()=>{window.__taps=0;document.addEventListener('click',()=>window.__taps++,true);});
    const count=()=>page.evaluate(()=>window.__taps);let start=await count();
    const first=await until(()=>rx.find(m=>m.type==='state'),'HP state');

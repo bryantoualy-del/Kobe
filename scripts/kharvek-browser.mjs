@@ -23,6 +23,13 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
    await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===n,charges);
    assert.equal(await page.locator('dialog[open],.spell-inline,[name=target]').count(),0);
  };
+ // Two DOM clicks in one task must commit only one transaction.
+ await page.locator('[data-kharvek=pulse]').evaluate(b=>{b.click();b.click();});
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===5);
+ assert.equal((await state()).economy.actionAvailable,false);
+ await page.locator('[data-ribbon-undo]').click();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===6);
+ assert.equal((await state()).economy.actionAvailable,true);
  await fire('pulse',5);
  assert.equal((await state()).hp.current,83);
  assert.equal((await state()).economy.actionAvailable,false);

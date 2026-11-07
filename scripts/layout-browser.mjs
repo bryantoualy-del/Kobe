@@ -16,9 +16,9 @@ try{for(const engine of [chromium,webkit]){
  const browser=await engine.launch();try{for(const width of [375,390,430,1180]){for(const phase of ['before','after']){
  const context=await browser.newContext({viewport:{width,height:width===1180?820:844},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
  const page=await context.newPage();await page.goto(`http://127.0.0.1:${server.address().port}/${phase}/index.html`);
- const tab=async name=>{await page.getByRole('tab',{name,exact:true}).click();await page.evaluate(()=>scrollTo(0,0));};
+ const tab=async name=>{await page.getByRole('tab',{name,exact:true}).click();await page.waitForFunction(name=>[...document.querySelectorAll('[role=tab]')].some(e=>(e.getAttribute('aria-label')||e.textContent)===name&&e.getAttribute('aria-selected')==='true'),name);await page.evaluate(()=>scrollTo(0,0));};
  await tab('Sorts & pouvoirs');
- for(const id of ['fireball','healing-word','circle-of-power','slow'])await page.locator(`[data-favorite="${id}"]`).click();
+ for(const id of ['fireball','healing-word','circle-of-power','slow']){await page.locator(`[data-favorite="${id}"]`).click();await page.waitForFunction(id=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.preferences.favorites.includes(id),id);}
  await tab('Combat');
  const shot=async name=>page.screenshot({path:`screenshots/layout/${engine.name()}-${width}-${phase}-${name}.png`});
  await shot('combat');
@@ -29,7 +29,7 @@ try{for(const engine of [chromium,webkit]){
  }
  for(const name of ['Sorts & pouvoirs','Social','Journal','Groupe']){
   await tab(name);await shot(name==='Sorts & pouvoirs'?'spells':name.toLowerCase());
-  if(phase==='after')assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow '+width);
+  if(phase==='after')assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow '+width+' '+JSON.stringify(await page.evaluate(()=>[...document.querySelectorAll('main *')].filter(e=>e.getBoundingClientRect().right>innerWidth).map(e=>({tag:e.tagName,cls:e.className,width:e.getBoundingClientRect().width})).slice(0,12))));
  }
  await tab('Combat');await page.locator('[data-combat-view=kharvek]').click();
  await page.locator('[data-charge-value="3"]').click();await page.evaluate(()=>scrollTo(0,0));await shot('kharvek');
