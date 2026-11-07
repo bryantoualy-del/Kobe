@@ -1,3 +1,4 @@
+import {spellGlyph} from './icons.js';
 import {kharvekActions} from './kharvek-ui.js';
 import {quickActions} from './combat-ui.js';
 import {
@@ -34,7 +35,10 @@ function availability(s, spell) {
   );
 }
 const roles = {Contrôle:'controle', Protection:'defense', Soins:'soin', Dégâts:'flamme', Utilitaire:'arcane'};
-let spellFilter='Tous', offensiveFilter='Tous';
+const book = {role:'Tous', offensive:'Tous', level:'all', favorites:false, query:'', selected:'fireball'};
+const featured = ['fireball','fire-bolt','healing-word','slow','circle-of-power'];
+const bookOrder = [...featured.map(spellById), ...SPELLS.filter(spell=>!featured.includes(spell.id))];
+const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const matchesIntent=(sp,filter)=>filter==='Tous'||(filter==='Offensif'?sp.categories.includes('Dégâts'):filter==='Contrôle & Défense'?sp.categories.some(c=>['Contrôle','Protection'].includes(c)):sp.categories.includes(filter));
 function source(spell){
   const slug=spell.id==='tiny-hut'?'petite-hutte-de-leomund':spell.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
@@ -43,61 +47,170 @@ function source(spell){
 function levelPicker(s,spell){
  if(!spell.level)return '';
  const choices=availableLevels(s,spell);
- return `<label class="cast-level">Niveau <select data-cast-level aria-label="Niveau · ${esc(spell.name)}">${choices.map(n=>`<option value="${n}">N${n} (${s.slots[n]})</option>`).join('')}${spell.ritual?'<option value="ritual">Rituel</option>':''}</select></label>`;
+ return `<label class="cast-level">Niveau <select data-cast-level aria-label="Niveau · ${esc(spell.name)}">${choices.map(n=>`<option value="${n}">N${n} · ${s.slots[n]} restant(s)</option>`).join('')}${spell.ritual?'<option value="ritual">Rituel</option>':''}</select></label>`;
 }
 function attackOptions(spell){
  if(spell.id!=='fire-bolt')return '';
  return `<details class="attack-options"><summary>Avantage & dés physiques</summary><fieldset class="signature-modes"><legend>Jet d’attaque</legend>${[['normal','Normal'],['advantage','Avantage'],['disadvantage','Désavantage']].map(([v,label])=>`<label><input type="radio" name="signature-mode" value="${v}" ${v==='normal'?'checked':''}><span>${label}</span></label>`).join('')}</fieldset><label>D20 physiques<input id="signature-dice" placeholder="Facultatif" autocomplete="off"></label></details>`;
 }
-function card(s, spell, compact = false) {
-  const av = availability(s, spell),
-    favorite = s.preferences.favorites.includes(spell.id);
-  const role=spell.categories[0];
-  if(!compact)return `<article class="spell role-${roles[role]}" data-spell-card="${spell.id}"><div class="eyebrow">${spell.level?'N'+spell.level:'Tour de magie'} · ${esc(spell.castTime)} · ${role}</div><details class="spell-doc"><summary><h3>${esc(spell.name)}</h3></summary><div class="spell-doc-body">${esc(spell.components)} · ${esc(durationLabel(spell))}<p>${esc(spell.summary)}</p><a class="spell-doc-source" target="_blank" rel="noopener noreferrer" href="${source(spell)}">Fiche AideDD ↗</a></div></details><div class="meta">${esc(spell.range)}${spell.concentration?' · concentration':''}</div><div class="actions spell-cast-actions">${levelPicker(s,spell)}${btn("data-cast",spell.id,"Lancer",`class="primary" ${av.ok?'':'disabled'} title="${esc(av.label)}"`)}${btn("data-favorite",spell.id,favorite?'★':'☆',`aria-label="Favori · ${esc(spell.name)}" aria-pressed="${favorite}" ${!favorite&&s.preferences.favorites.length===4?'disabled':''}`)}</div>${attackOptions(spell)}</article>`;
-  return `<article class="spell-card ${compact ? "compact" : ""}" data-spell-card="${spell.id}"><div class="spell-title"><h3>${esc(spell.name)}</h3><span class="spell-level">${spell.level ? "N" + spell.level : "Tour de magie"}${spell.secret ? " · Secret" : ""}</span></div><p class="spell-meta">${esc(spell.castTime)}${compact?"":" · "+esc(spell.range)}<br>${esc(durationLabel(spell))} · ${spell.level ? "Emplacement N" + spell.level + "–5" : "Sans emplacement"}</p>${compact ? "" : `<p class="spell-summary">${esc(spell.summary)}</p>`}<div class="spell-status ${av.ok ? "ready" : ""}">${esc(av.label)}</div><div class="actions spell-cast-actions">${levelPicker(s,spell)}${btn("data-cast", spell.id, "Lancer", `class="primary" ${av.ok ? "" : "disabled"}`)}${compact ? "" : btn("data-favorite", spell.id, favorite ? "★ Favori" : "☆ Favori", `aria-pressed="${favorite}" ${!favorite && s.preferences.favorites.length === 4 ? "disabled" : ""}`)}<a class="spell-doc-source" href="${source(spell)}" target="_blank" rel="noopener noreferrer">AideDD ↗</a></div></article>`;
+function spellRow(state, spell) {
+  const favorite = state.preferences.favorites.includes(spell.id);
+  return `<article class="grimoire-row role-${roles[spell.categories[0]]}" data-spell-card="${spell.id}">
+    <button type="button" class="grimoire-select" data-book-select="${spell.id}" aria-pressed="${book.selected===spell.id}">
+      <span class="grimoire-glyph">${spellGlyph(spell.id)}</span>
+      <span class="grimoire-name"><strong>${esc(spell.name)}</strong><small>${spell.level?'Niveau '+spell.level:'Tour de magie'}</small></span>
+      <span class="grimoire-cost">${esc(spell.castTime)}${spell.concentration?'<small>Concentration</small>':''}</span>
+      <span class="grimoire-range">${esc(spell.range.split(' · ')[0])}</span>
+    </button>
+    ${btn('data-favorite',spell.id,favorite?'★':'☆',
+      `aria-label="Favori · ${esc(spell.name)}" aria-pressed="${favorite}" ${!favorite&&state.preferences.favorites.length===4?'disabled':''}`)}
+  </article>`;
 }
-export function favoritesPanel(s) {
-  return `<section class="panel span favorites-panel"><div class="score-heading"><h2>♫ Les quatre mesures</h2><button type="button" data-tab="spells">Modifier les favoris</button></div><div class="favorite-grid">${s.preferences.favorites.map((id) => card(s, spellById(id), true)).join("")}${Array.from({ length: 4 - s.preferences.favorites.length }, () => '<div class="favorite-empty">Une mesure libre<br><small>Choisir un favori dans le grimoire</small></div>').join("")}</div></section>`;
+
+function spellSheet(state, spell) {
+  if (!spell) return '<p class="grimoire-empty-detail">Sélectionne un sort pour voir sa fiche.</p>';
+  const av=availability(state,spell);
+  return `<article class="grimoire-sheet role-${roles[spell.categories[0]]}" data-spell-detail-id="${spell.id}">
+    <header><span class="grimoire-glyph">${spellGlyph(spell.id)}</span>
+      <div><h3>${esc(spell.name)}</h3><p>${spell.level?'Niveau '+spell.level:'Tour de magie'} · ${esc(spell.school)}</p></div>
+    </header>
+    <div class="grimoire-tags"><span>${esc(spell.castTime)}</span><span>${esc(spell.range)}</span>
+      ${spell.concentration?'<span>Concentration</span>':''}${spell.ritual?'<span>Rituel</span>':''}
+    </div>
+    <p class="grimoire-summary">${esc(spell.summary)}</p>
+    <div class="grimoire-reference">${btn('data-spell-detail',spell.id,'Règles détaillées')}
+      <a href="${source(spell)}" target="_blank" rel="noopener noreferrer">Fiche AideDD ↗</a>
+    </div>
+    ${attackOptions(spell)}
+    <p class="grimoire-ready" data-book-availability data-ready="${av.ok}">${esc(av.label)}</p>
+    <div class="grimoire-cast">${levelPicker(state,spell)}
+      ${btn('data-cast',spell.id,'Lancer',`class="primary" ${av.ok?'':'disabled'}`)}
+    </div>
+  </article>`;
 }
-export function spellbookPanel(s) {
-  const slots=s.slots.slice(1).map((n,i)=>{
+
+export function spellbookPanel(state) {
+  const slots=state.slots.slice(1).map((n,i)=>{
     const max=[4,3,3,3,2][i];
     return `<div class="slot-group"><b>N${i+1}</b><div class="dots">${Array.from({length:max},(_,j)=>`<button class="dot ${j<n?'on':''}" data-slot="${i+1}" data-slot-value="${j<n?j:j+1}" aria-label="Niveau ${i+1}, emplacement ${j+1} ${j<n?'disponible':'utilisé'}"></button>`).join('')}</div><small>${n}/${max}</small></div>`;
   }).join('');
-  const filters=['Tous','Soins','Offensif','Contrôle & Défense'].map(role=>`<button class="${spellFilter===role?'active':''}" data-spell-filter="${role}" aria-pressed="${spellFilter===role}">${role}</button>`).join('');
-  const sections=[0,1,2,3,4,5].map(level=>`<section class="panel spell-section" data-level="${level}"><h2>${level?'Niveau '+level:'Tours de magie'}</h2><div class="spell-grid">${SPELLS.filter(sp=>sp.level===level).sort((a,b)=>(b.id==='fireball')-(a.id==='fireball')).map(sp=>card(s,sp)).join('')}</div></section>`).join('');
-  return `<div class="score"><details class="panel spell-slots"><summary><h2>Emplacements</h2><span>${s.slots.slice(1).map((n,i)=>`N${i+1} : ${n}`).join(' · ')}</span></summary><div class="slot-groups">${slots}</div></details><div class="spell-legend" role="group" aria-label="Filtrer les sorts par type">${filters}</div><div class="spell-subfilters" role="group" aria-label="Types offensifs">${['Tous','Sorts','Tours de magie','Zone'].map(f=>`<button data-offensive-filter="${f}" aria-pressed="${offensiveFilter===f}">${f}</button>`).join('')}</div><div class="actions"><input id="spell-search" aria-label="Rechercher un sort" type="search" placeholder="Rechercher un sort ou pouvoir"></div><div class="catalog-sections">${sections}<section class="panel catalog-kharvek"><h2>Khar-Vek · ${s.resources.charges}/6 charges</h2><p>Sans emplacement · à 18 m. Manteau des survivants : soin conditionnel intégré au Manteau d’inspiration, jamais autonome.</p>${kharvekActions(s)}</section><section class="panel catalog-bardic">${quickActions(s,['inspiration','mantle','majesty','majesty-command','cry'])}</section></div><p id="spell-empty" hidden>Aucune capacité pour ces filtres.</p></div>`;
+  const filters=['Tous','Soins','Offensif','Contrôle & Défense'].map(role=>
+    `<button type="button" data-spell-filter="${role}" aria-pressed="${book.role===role}">${role}</button>`).join('');
+  return `<section class="grimoire" aria-label="Sorts et pouvoirs">
+    <h2>Grimoire</h2>
+    <div class="grimoire-tools">
+      <input id="spell-search" aria-label="Rechercher un sort ou pouvoir" type="search" placeholder="Rechercher un sort ou pouvoir" value="${esc(book.query)}">
+      <button type="button" data-book-favorites aria-pressed="${book.favorites}">★ Favoris</button>
+      <details class="spell-slots">
+        <summary><span class="sr-only">Emplacements</span>${state.slots.slice(1).map((n,i)=>`<span>N${i+1} · ${n}</span>`).join('')}</summary>
+        <div class="slot-groups">${slots}</div>
+      </details>
+    </div>
+    <div class="grimoire-filters"><div class="spell-legend" role="group" aria-label="Catégories de sorts">${filters}</div>
+      <select data-book-level aria-label="Niveau de sort"><option value="all">Tous les niveaux</option>
+        ${[0,1,2,3,4,5].map(n=>`<option value="${n}" ${book.level===String(n)?'selected':''}>${n?'Niveau '+n:'Tours de magie'}</option>`).join('')}
+      </select>
+    </div>
+    <div class="spell-subfilters" role="group" aria-label="Types offensifs" hidden>
+      ${['Tous','Sorts','Tours de magie','Zone'].map(f=>`<button type="button" data-offensive-filter="${f}" aria-pressed="${book.offensive===f}">${f}</button>`).join('')}
+    </div>
+    <div class="grimoire-grid">
+      <div class="grimoire-list" aria-label="Catalogue des sorts et pouvoirs">
+        <div class="grimoire-spells">${bookOrder.map(spell=>spellRow(state,spell)).join('')}</div>
+        <section class="catalog-kharvek"><h3>Khar-Vek · ${state.resources.charges}/6</h3>
+          <p>Sans emplacement · à 18 m. Manteau + soin combine une action bonus et une charge.</p>${kharvekActions(state)}
+        </section>
+        <section class="catalog-bardic">${quickActions(state,['inspiration','mantle','majesty','majesty-command','cry'])}</section>
+        <p id="spell-empty" hidden>Aucun résultat pour ces filtres.</p>
+      </div>
+      <div id="grimoire-detail" class="grimoire-detail" aria-label="Fiche du sort">${spellSheet(state,spellById(book.selected))}</div>
+    </div>
+  </section>`;
 }
-export function filterSpells(role,subtype){
-  if(typeof role==='string'){spellFilter=role;offensiveFilter='Tous';const search=document.querySelector('#spell-search');if(search)search.value='';}
-  if(typeof subtype==='string')offensiveFilter=subtype;
-  const normalize=v=>v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  const q=normalize(document.querySelector('#spell-search')?.value||'');
-  for(const b of document.querySelectorAll('[data-spell-filter]')){
-    const active=b.dataset.spellFilter===spellFilter;
-    b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
+
+export function filterSpells(state, change={}) {
+  if(change.role!==undefined) Object.assign(book,{query:'',offensive:'Tous',level:'all',favorites:false});
+  Object.assign(book,change);
+  const root=document.querySelector('.grimoire');
+  if(!root)return;
+  const query=normalize(book.query.trim());
+  const powerFilter=book.level==='all'&&!book.favorites;
+  root.querySelector('#spell-search').value=book.query;
+  root.querySelector('[data-book-level]').value=book.level;
+  root.querySelector('[data-book-favorites]').setAttribute('aria-pressed',String(book.favorites));
+  for(const b of root.querySelectorAll('[data-spell-filter],[data-offensive-filter]')){
+    const active=b.hasAttribute('data-spell-filter')?b.dataset.spellFilter===book.role:b.dataset.offensiveFilter===book.offensive;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',String(active));
   }
-  const sub=document.querySelector('.spell-subfilters');if(sub)sub.hidden=spellFilter!=='Offensif';
-  for(const b of document.querySelectorAll('[data-offensive-filter]')){const active=b.dataset.offensiveFilter===offensiveFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));}
-  for(const card of document.querySelectorAll('.score [data-spell-card]')){
-    const sp=spellById(card.dataset.spellCard);
-    const subtype=spellFilter!=='Offensif'||offensiveFilter==='Tous'||(offensiveFilter==='Sorts'&&sp.level>0)||(offensiveFilter==='Tours de magie'&&sp.level===0)||(offensiveFilter==='Zone'&&sp.maxTargets>1);
-    card.hidden=!(normalize(sp.name+' '+sp.summary).includes(q)&&matchesIntent(sp,spellFilter)&&subtype);
+  root.querySelector('.spell-subfilters').hidden=book.role!=='Offensif';
+  const rows=[...root.querySelectorAll('[data-spell-card]')];
+  for(const row of rows){
+    const spell=spellById(row.dataset.spellCard);
+    const subtype=book.role!=='Offensif'||book.offensive==='Tous'||(book.offensive==='Sorts'&&spell.level>0)||
+      (book.offensive==='Tours de magie'&&spell.level===0)||(book.offensive==='Zone'&&spell.maxTargets>1);
+    row.hidden=!(normalize(spell.name+' '+spell.summary).includes(query)&&matchesIntent(spell,book.role)&&subtype&&
+      (book.level==='all'||Number(book.level)===spell.level)&&(!book.favorites||state.preferences.favorites.includes(spell.id)));
   }
-  for(const section of document.querySelectorAll('.spell-section')){section.hidden=!section.querySelector('[data-spell-card]:not([hidden])');section.style.order=spellFilter==='Offensif'&&section.dataset.level==='3'?-1:0;}
-  const kv=document.querySelector('.catalog-kharvek');if(kv){kv.style.order=spellFilter==='Soins'?-1:0;
-    for(const b of kv.querySelectorAll('[data-kharvek]'))b.hidden=!normalize(b.textContent+(b.dataset.kharvek==='survivors'?' Manteau des survivants':'')).includes(q);
-    kv.hidden=!['Tous','Soins'].includes(spellFilter)||!kv.querySelector('[data-kharvek]:not([hidden])');
+  const kharvek=root.querySelector('.catalog-kharvek');
+  for(const b of kharvek.querySelectorAll('[data-kharvek]')){
+    b.hidden=!normalize(b.textContent+(b.dataset.kharvek==='survivors'?' Manteau des survivants':'')).includes(query);
   }
-  const bard=document.querySelector('.catalog-bardic');if(bard){
-    for(const card of bard.querySelectorAll('.combat-ability')){
-      const id=card.dataset.powerTone;
-      const match=spellFilter==='Tous'||(spellFilter==='Contrôle & Défense'&&['majesty','majesty-command'].includes(id))||(spellFilter==='Offensif'&&offensiveFilter==='Tous'&&id==='cry');
-      card.hidden=!match||!normalize(card.textContent).includes(q);
+  kharvek.hidden=!powerFilter||!['Tous','Soins'].includes(book.role)||!kharvek.querySelector('[data-kharvek]:not([hidden])');
+  const bard=root.querySelector('.catalog-bardic');
+  for(const row of bard.querySelectorAll('.combat-ability')){
+    const id=row.dataset.powerTone;
+    const match=book.role==='Tous'||(book.role==='Contrôle & Défense'&&['majesty','majesty-command'].includes(id))||
+      (book.role==='Offensif'&&book.offensive==='Tous'&&id==='cry');
+    row.hidden=!match||!normalize(row.textContent).includes(query);
+  }
+  for(const lane of bard.querySelectorAll('.quick-lane'))lane.hidden=!lane.querySelector('.combat-ability:not([hidden])');
+  bard.hidden=!powerFilter||!bard.querySelector('.combat-ability:not([hidden])');
+
+  const visible=rows.filter(row=>!row.hidden);
+  const selected=visible.find(row=>row.dataset.spellCard===book.selected)??visible[0];
+  const detail=root.querySelector('#grimoire-detail');
+  if(selected){
+    book.selected=selected.dataset.spellCard;
+    if(detail.querySelector('[data-spell-detail-id]')?.dataset.spellDetailId!==book.selected){
+      detail.innerHTML=spellSheet(state,spellById(book.selected));
     }
-    bard.hidden=!bard.querySelector('.combat-ability:not([hidden])');
+  }else if(detail.querySelector('[data-spell-detail-id]'))detail.innerHTML=spellSheet(state);
+  for(const row of rows){
+    row.classList.toggle('selected',row===selected);
+    row.querySelector('[data-book-select]').setAttribute('aria-pressed',String(row===selected));
   }
-  const empty=document.querySelector('#spell-empty');if(empty)empty.hidden=!!document.querySelector('.catalog-sections>section:not([hidden])');
+  root.querySelector('#spell-empty').hidden=!!(visible.length||!kharvek.hidden||!bard.hidden);
+  if(Object.keys(change).some(key=>key!=='selected'))root.querySelector('.grimoire-list').scrollTop=0;
+}
+
+export function handleBookControl(state, target) {
+  if(target.id==='spell-search')filterSpells(state,{query:target.value});
+  if(target.matches('[data-book-level]'))filterSpells(state,{level:target.value});
+  if(target.matches('[data-cast-level]')){
+    const sheet=target.closest('[data-spell-detail-id]');
+    if(!sheet)return;
+    const spell=spellById(sheet.dataset.spellDetailId);
+    const ritual=target.value==='ritual';
+    const av=spellAvailability(state,spell,ritual?spell.level:Number(target.value),ritual);
+    const status=sheet.querySelector('[data-book-availability]');
+    status.textContent=av.label;
+    status.dataset.ready=av.ok;
+    sheet.querySelector('[data-cast]').disabled=!av.ok;
+  }
+}
+
+export function handleBookClick(state, target) {
+  const control=target.closest('[data-spell-filter],[data-offensive-filter],[data-book-favorites],[data-book-select]');
+  if(!control)return false;
+  if(control.hasAttribute('data-spell-filter'))filterSpells(state,{role:control.dataset.spellFilter});
+  else if(control.hasAttribute('data-offensive-filter'))filterSpells(state,{offensive:control.dataset.offensiveFilter});
+  else if(control.hasAttribute('data-book-favorites'))filterSpells(state,{favorites:!book.favorites});
+  else{
+    filterSpells(state,{selected:control.dataset.bookSelect});
+    if(matchMedia('(max-width:720px)').matches)document.querySelector('#grimoire-detail').scrollIntoView({block:'start'});
+  }
+  return true;
 }
 
 function show(title, body, onSubmit, anchor) {
@@ -188,7 +301,7 @@ function hitDialog(r,state,dispatch){
 }
 export async function openSpellCast(id,s,dispatch,selectedLevel){
  const spell=spellById(id);
- const chosen=selectedLevel??document.querySelector(`[data-spell-card="${id}"] [data-cast-level]`)?.value;
+ const chosen=selectedLevel??document.querySelector(`[data-spell-detail-id="${id}"] [data-cast-level]`)?.value;
  const ritual=chosen==='ritual';
  const level=spell.level ? Number(ritual?spell.level:chosen??availableLevels(s,spell)[0]??spell.level):0;
  if(spell.attack)return quickAttack(dispatch,'Cible annoncée',document.querySelector('[name=signature-mode]:checked')?.value??'normal',document.querySelector('#signature-dice')?.value??'');

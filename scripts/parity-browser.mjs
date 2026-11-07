@@ -32,7 +32,8 @@ try{
    assert.equal(await page.locator('[data-combat-view]').count(),1);
    assert.equal(await page.locator('[data-combat-view=resources],[data-combat-view=powers]').count(),0);
    await page.locator('[data-intent=Offensif]').click();
-   await page.locator('[data-spell-card=fire-bolt] .attack-options summary').click();
+   await page.locator('[data-book-select=fire-bolt]').click();
+   await page.locator('[data-spell-detail-id=fire-bolt] .attack-options summary').click();
    await page.locator('[name=signature-mode][value=advantage]').check();
    await page.locator('#signature-dice').fill('4 17');
    await page.emulateMedia({reducedMotion:'no-preference'});

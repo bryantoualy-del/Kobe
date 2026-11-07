@@ -1,3 +1,4 @@
+import {glyph as icon, spellGlyph} from './icons.js';
 import {assertCanAct, bardicAvailability} from '../kobe/combat.js';
 import {kharvekAvailability} from '../kobe/kharvek.js';
 import {availableLevels, spellAvailability} from '../kobe/spells.js';
@@ -6,7 +7,6 @@ import {spellById} from '../kobe/spell-catalog.js';
 const escape = value => String(value).replace(/[&<>"']/g, char =>
   ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[char]);
 
-const icon = name => `<img class="turn-icon" src="./src/ui/icons/${name}.svg" alt="" width="36" height="36">`;
 
 function usableSpell(state, spell) {
   const levels = availableLevels(state, spell);
@@ -37,7 +37,7 @@ export function ardentStage(state) {
 }
 
 function command(attribute, label, description, availability, glyph, tone) {
-  const graphic = glyph ? icon(glyph) : '<span class="turn-glyph" aria-hidden="true">✦</span>';
+  const graphic = glyph||'<span class="turn-glyph" aria-hidden="true">✦</span>';
   return `<button type="button" class="turn-command tone-${tone}" ${attribute} ${availability.ok?'':'disabled'} title="${escape(availability.label)}">
     ${graphic}<span><strong>${escape(label)}</strong><small>${escape(description)}</small>
     ${availability.ok?'':`<small class="command-unavailable">${escape(availability.label)}</small>`}</span><span aria-hidden="true">›</span>
@@ -49,7 +49,7 @@ function spellCommand(state, spell) {
   const tone = spell.categories.includes('Soins') ? 'heal' : spell.categories.includes('Dégâts') ? 'fire' : 'neutral';
   const description = spell.id === 'fire-bolt' ? '+9 · sans emplacement' :
     spell.level ? `N${spell.level}–5 · 1 emplacement` : 'Sans emplacement';
-  return command(`data-cast="${spell.id}"`, spell.name, description, usableSpell(state, spell), art, tone);
+  return command(`data-cast="${spell.id}"`, spell.name, description, usableSpell(state, spell), art?icon(art):spellGlyph(spell.id), tone);
 }
 
 function lane(state, title, key, favorites, defaults) {
@@ -105,11 +105,11 @@ export function supportCockpit(state, addHeal = false) {
   const actionDefaults = ['fire-bolt','fireball'].filter(id => !actionFavorites.some(spell => spell.id === id))
     .map(id => spellCommand(state, spellById(id)));
   actionDefaults.push(command('data-kharvek="pulse"', 'Pulsation réparatrice', 'Khar-Vek · 1 charge',
-    kharvekAvailability(state, 'pulse'), 'heal', 'heal'));
+    kharvekAvailability(state, 'pulse'), icon('heal'), 'heal'));
   const bonusDefaults = [
-    command('data-combat="inspiration"', 'Inspiration', '1 inspiration · d10', bardicAvailability(state, 'inspiration'), 'music', 'music'),
-    command('data-combat="mantle"', 'Manteau', '1 inspiration · 11 PV temp.', bardicAvailability(state, 'mantle'), 'mantle', 'music'),
-    command('data-kharvek="survivors"', 'Manteau + soin', '1 inspiration · 1 charge', kharvekAvailability(state, 'survivors'), 'mantle-heal', 'music'),
+    command('data-combat="inspiration"', 'Inspiration', '1 inspiration · d10', bardicAvailability(state, 'inspiration'), icon('music'), 'music'),
+    command('data-combat="mantle"', 'Manteau', '1 inspiration · 11 PV temp.', bardicAvailability(state, 'mantle'), icon('mantle'), 'music'),
+    command('data-kharvek="survivors"', 'Manteau + soin', '1 inspiration · 1 charge', kharvekAvailability(state, 'survivors'), icon('mantle-heal'), 'music'),
   ];
   return `<section class="support-cockpit" aria-label="Cockpit du tour">
     <div class="turn-board">

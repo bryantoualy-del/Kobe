@@ -24,9 +24,18 @@ export function mountConnect(store,quickActions,dispatch){
     shell.classList.toggle('rpg-connected',v.connected);
     const self=store.getState();
     const rows=[...v.group].sort((a,b)=>(b.initiative??-100)-(a.initiative??-100));
-    root.innerHTML=`<section class="rpg-group-view" id="rpgGroupView"><aside class="card rpg-quick-column"><h2>Actions rapides</h2><div data-group-quick>${quickActions(self)}</div><button type="button" data-edit-self class="ability">Modifier mon état</button></aside><section class="card rpg-initiative"><header><h2>Groupe · initiative</h2><small data-group-status>${v.stale?'Tour partagé non confirmé':v.session?.round?'Round '+v.session.round:''}</small></header><div data-initiative-list></div></section></section>`;
-    root.querySelector('[data-group-quick]>.eyebrow')?.remove();
-    root.querySelector('[data-group-quick]>h2')?.remove();
+    const status=v.stale&&rows.length?'Tour partagé non confirmé':v.session?.round?'Round '+v.session.round:'';
+    const presence=v.connected?(v.gmOnline?'MJ en ligne':'MJ absent'):'Mode local';
+    root.innerHTML=`<section class="rpg-group-view" id="rpgGroupView" data-has-roster="${rows.length>0}">
+      <section class="card rpg-initiative"><header>
+        <div><h2>Groupe</h2><small>${presence}${rows.length?' · Initiative partagée':''}</small></div>
+        <small data-group-status>${status}</small>
+      </header><div data-initiative-list></div></section>
+      <aside class="card rpg-quick-column"><h2>Actions rapides</h2>
+        <div data-group-quick>${quickActions(self)}</div>
+        <button type="button" data-edit-self class="ability">Modifier mon état</button>
+      </aside>
+    </section>`;
     root.querySelector('[data-edit-self]').onclick=()=>openSelf();
     shell.querySelector('.rpg-connect-dot').classList.toggle('online',v.connected&&v.gmOnline);
     shell.querySelector('.rpg-connect-status').textContent=v.connected?(v.gmOnline?'Connecté · MJ en ligne':'Connecté · MJ absent'):'Hors ligne · compagnon autonome';
@@ -41,13 +50,57 @@ export function mountConnect(store,quickActions,dispatch){
     if(requests.childElementCount)panel.hidden=false;
     renderInitiative(v);
     const list=root.querySelector('[data-initiative-list]');
-  for(const a of rows){const row=document.createElement('article');row.className='rpg-initiative-row';row.dataset.groupActor=a.id;const active=!!a.activeTurn&&!v.stale;row.classList.toggle('is-current-turn',active);row.append(text('strong',Number.isFinite(a.initiative)?a.initiative:'—','rpg-initiative-value'));
-   if(a.portrait){const img=document.createElement('img');img.src=a.portrait;img.alt='';row.append(img);}const body=document.createElement('div');body.append(text('strong',a.name));if(active)body.append(text('small','Tour actif','rpg-active-label'));
-   if(a.health){body.append(text('span',a.health.current+' / '+a.health.max+' PV'+(a.health.temp?' · +'+a.health.temp+' PV temp.':'')));const bar=document.createElement('progress');bar.max=Math.max(1,a.health.max);bar.value=a.health.current;bar.setAttribute('aria-label','PV de '+a.name);body.append(bar);}
-   const states=document.createElement('div');states.className='rpg-group-states';for(const c of a.conditions||[]){const name=typeof c==='string'?c:c.name;if(name)states.append(text('span',name,'rpg-group-state'));}body.append(states);row.append(body);
-   const meta=document.createElement('div');meta.className='rpg-group-meta';if(Number.isFinite(a.ac))meta.append(text('span','CA '+a.ac));if(a.kind!=='enemy'){meta.append(text('span',a.reaction===true?'Réaction disponible':a.reaction===false?'Réaction utilisée':'Réaction —'));if(a.concentration)meta.append(text('span','Concentration','rpg-concentration-label'));}row.append(meta);list.append(row);
-  }
-  if(!rows.length)list.append(text('p','Aucun ordre partagé par Encounter. Le personnage reste utilisable en local.'));
+    for(const actor of rows){
+      const row=document.createElement('article');
+      row.className='rpg-initiative-row';
+      row.dataset.groupActor=actor.id;
+      const active=!v.stale&&(actor.activeTurn===true||v.session?.activeCharacterId===actor.id);
+      row.classList.toggle('is-current-turn',active);
+      row.append(text('strong',Number.isFinite(actor.initiative)?actor.initiative:'—','rpg-initiative-value'));
+      const monogram=text('span',Array.from(actor.name.trim())[0]?.toLocaleUpperCase('fr')??'·','rpg-monogram');
+      monogram.setAttribute('aria-hidden','true');
+      row.append(monogram);
+      const identity=document.createElement('div');
+      identity.className='rpg-actor-name';
+      identity.append(text('strong',actor.name));
+      if(active)identity.append(text('small',actor.id==='kobe'?'À toi de jouer':'Tour actif','rpg-active-label'));
+      const meta=[];
+      if(Number.isFinite(actor.ac))meta.push('CA '+actor.ac);
+      if(actor.kind!=='enemy'&&actor.reaction!=null)meta.push(actor.reaction?'Réaction disponible':'Réaction utilisée');
+      if(actor.kind!=='enemy'&&actor.concentration)meta.push('Concentration');
+      if(meta.length)identity.append(text('small',meta.join(' · '),'rpg-actor-meta'));
+      const states=document.createElement('div');
+      states.className='rpg-group-states';
+      for(const condition of actor.conditions||[]){
+        const name=typeof condition==='string'?condition:condition.name;
+        if(name)states.append(text('span',name,'rpg-group-state'));
+      }
+      if(states.childElementCount)identity.append(states);
+      row.append(identity);
+      if(actor.health){
+        const {current,max,temp}=actor.health;
+        const health=document.createElement('div');
+        health.className='rpg-actor-health';
+        health.append(text('span',`${current} / ${max} PV${temp?' · +'+temp+' temp.':''}`));
+        const bar=document.createElement('progress');
+        bar.max=Math.max(1,max);
+        bar.value=current;
+        bar.setAttribute('aria-label','PV de '+actor.name);
+        health.append(bar);
+        row.append(health);
+      }
+      list.append(row);
+    }
+    if(!rows.length){
+      const empty=document.createElement('div');
+      empty.className='rpg-local';
+      empty.append(text('p',v.connected?'En attente de l’ordre d’initiative partagé par Encounter.':'Les actions rapides restent disponibles en local.'));
+      const open=text('button','Ouvrir RPG Connect');
+      open.type='button';
+      open.onclick=()=>{panel.hidden=false;invitation.focus();};
+      empty.append(open);
+      list.append(empty);
+    }
   }
   const initiative=shell.querySelector('.rpg-initiative-request');
   function renderInitiative(v){

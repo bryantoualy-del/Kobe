@@ -1,3 +1,4 @@
+import {powerGlyph} from './icons.js';
 import {POWERS,kharvekAvailability,dragonStage} from '../kobe/kharvek.js';
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function drumSVG(charges){
@@ -26,7 +27,7 @@ export function drumSVG(charges){
 }
 export function kharvekActions(s){
  const labels={pulse:['Pulsation réparatrice','Action · 1 charge','3d8 + 5 PV · un bénéficiaire'],rally:['Rythme de ralliement','Action · 3 charges','2d8 + 5 PV chacun · jusqu’à 3'],survivors:['Manteau + soin','Bonus · 1 Inspiration · 1 charge','Manteau des survivants · 11 PV temporaires + 1d10 + 5 PV à un bénéficiaire']};
- return `<div class="power-list support-actions" aria-label="Soins de Khar-Vek">${Object.entries(labels).map(([id,[name,cost,effect]])=>{const av=kharvekAvailability(s,id);return `<button type="button" data-kharvek="${id}" ${av.ok?'':'disabled'}><strong>${name}</strong><span>${effect}</span><small>${cost}${av.ok?'':' · '+esc(av.label)}</small></button>`;}).join('')}</div>`;
+ return `<div class="power-list support-actions" aria-label="Soins de Khar-Vek">${Object.entries(labels).map(([id,[name,cost,effect]])=>{const av=kharvekAvailability(s,id);return `<button type="button" data-kharvek="${id}" ${av.ok?'':'disabled'}>${powerGlyph(id)}<span class="power-copy"><strong>${name}</strong><span>${effect}</span><small>${cost}${av.ok?'':' · '+esc(av.label)}</small></span></button>`;}).join('')}</div>`;
 }
 export function kharvekPanel(s){
  const charges=s.resources.charges;

@@ -43,11 +43,18 @@ try {
         );
       await page.goto(url);
       await page.getByRole('tab',{name:'Sorts & pouvoirs',exact:true}).click();
-      await page.getByRole('heading',{name:'Emplacements',exact:true}).waitFor();
+      await page.locator('.spell-slots > summary').waitFor();
       assert.equal(await page.locator('[data-spell-card]').count(),19);
-      const cards=await page.locator('.spell-section').first().locator('.spell').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,height:r.height};}));
-      assert.equal(cards[0].y,cards[1].y,'compact cards share a row');
-      assert(cards.filter((_,i)=>i!==4).every(c=>c.height<230),'compact collapsed spell cards');
+      const cards=await page.locator('.grimoire-row').evaluateAll(rows=>rows.map(row=>row.getBoundingClientRect().height));
+      assert(cards.every(height=>height>=44&&height<92),'compact tactile rows');
+      assert.equal(await page.locator('.grimoire-detail [data-cast]').count(),1);
+      await page.waitForFunction(()=>[...document.querySelectorAll('.grimoire-row img')].every(img=>img.complete&&img.naturalWidth>0));
+      const glyphs=await page.locator('.grimoire-row img').evaluateAll(imgs=>imgs.map(img=>img.getAttribute('src')));
+      assert.equal(new Set(glyphs).size,19);
+      assert(glyphs.every(src=>src.endsWith('.svg')));
+      await page.locator('[data-book-level]').selectOption('5');
+      assert.equal(await page.locator('[data-spell-card]:visible').count(),2);
+      await page.locator('[data-book-level]').selectOption('all');
       await page.locator('[data-spell-filter="Soins"]').click();
       assert.equal(await page.locator('[data-spell-card]:visible').count(),2);
       await page.locator('[data-spell-filter="Tous"]').click();
@@ -58,24 +65,30 @@ try {
         await page.locator('[data-favorite="'+id+'"]').click();
         await page.waitForFunction(id=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.preferences.favorites.includes(id),id);
       }
-      const description=page.locator('[data-spell-card="circle-of-power"] details');
-      await description.locator('summary').click();
-      assert.match(await description.locator('a').getAttribute('href'),/vf=cercle-de-pouvoir$/);
+      await page.locator('[data-book-favorites]').click();
+      assert.equal(await page.locator('[data-spell-card]:visible').count(),4);
+      await page.locator('[data-book-select=circle-of-power]').click();
+      assert.match(await page.locator('.grimoire-reference a').getAttribute('href'),/vf=cercle-de-pouvoir$/);
+      await page.locator('[data-book-select=fireball]').click();
+      const sheet=page.locator('[data-spell-detail-id=fireball]');
+      await sheet.locator('[data-cast-level]').selectOption('5');
+      assert(await sheet.locator('[data-cast=fireball]').isEnabled());
+      await sheet.locator('[data-cast-level]').selectOption('3');
+      await page.locator('[data-book-favorites]').click();
       await mkdir('screenshots',{recursive:true});
       await page.screenshot({path:'screenshots/'+name+'-spellbook-viewport.png'});
+      await sheet.locator('[data-cast-level]').selectOption('4');
+      await sheet.locator('[data-cast=fireball]').click();
+      await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===2);
+      assert.equal(await page.locator('dialog[open],.spell-inline,[name=target]').count(),0);
+      assert.equal((await state()).pendingResolutions.length,0);
+      await page.screenshot({path:'screenshots/'+name+'-casting-modal.png'});
       await page.getByRole('tab',{name:'Combat',exact:true}).click();
       for(const id of ['fireball','healing-word','circle-of-power','slow']){
         await page.locator('.turn-commands [data-cast="'+id+'"]').waitFor();
       }
       assert.equal(await page.locator('[data-turn-lane=bonusAvailable] [data-cast=healing-word]').count(),1);
       await page.screenshot({path:'screenshots/'+name+'-favorites-viewport.png'});
-      await page.locator('[data-combo=mantle]').click();
-      await page.locator('[data-combo-level]').selectOption('4');
-      await page.locator('[data-combo=fireball]').click();
-      await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[4]===2);
-      assert.equal(await page.locator('dialog[open],.spell-inline,[name=target]').count(),0);
-      assert.equal((await state()).pendingResolutions.length,0);
-      await page.screenshot({path:'screenshots/'+name+'-casting-modal.png'});
       const next=async()=>{
         const before=(await state()).turn.startRevision;
         await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
@@ -93,7 +106,7 @@ try {
       assert.equal(await page.locator('dialog[open],.spell-inline').count(),0);
       if(name==='chromium'){await page.evaluate(()=>navigator.serviceWorker.ready);await context.setOffline(true);await page.reload();}
       await page.getByRole('tab',{name:'Sorts & pouvoirs',exact:true}).click();
-      await page.getByRole('heading',{name:'Emplacements',exact:true}).waitFor();
+      await page.locator('.spell-slots > summary').waitFor();
       assert.equal(await page.locator('[data-spell-card]').count(),19);
       assert.deepEqual(errors,[]);
       console.log(name+': direct spell casts, upcast N4, concentration replacement, favorites, filters, no target forms and offline PASS');

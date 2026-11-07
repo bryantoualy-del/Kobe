@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36">
+  <defs><linearGradient id="metal" x2=".2" y2="1"><stop stop-color="#c8f0d9"/><stop offset="1" stop-color="#79be9e"/></linearGradient></defs>
+  <g fill="none" stroke="url(#metal)" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="18" cy="10" rx="10" ry="4"/><path d="M8 10v15c0 5 20 5 20 0V10M8 16l20 8m0-8L8 24M3 12v9m30-9v9"/></g>
+</svg>

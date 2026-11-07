@@ -1,3 +1,4 @@
+import {powerGlyph} from './icons.js';
 import {bardicAvailability} from '../kobe/combat.js';
 import {spellAvailability} from '../kobe/spells.js';
 import {spellById} from '../kobe/spell-catalog.js';
@@ -16,9 +17,18 @@ export function quickActions(s,ids=null){
   ['cry','Cri draconique','Bonus',s.resources.cry+'/4','Ennemis à 3 m'],
   ['fire-bolt','Trait de feu','Action','2d10','Attaque à distance · feu']
  ];
- return `<div class="eyebrow">Kobe Kozzo · accès rapide</div><h2>Capacités de combat</h2><div class="combat-abilities">${items.filter(item=>!ids||ids.includes(item[0])).map(([id,label,cost,charge,note])=>{
+ const selected=items.filter(([id])=>!ids||ids.includes(id));
+ const row=([id,label,cost,charge,note])=>{
    const availability=id==='fire-bolt'?spellAvailability(s,spellById(id)):bardicAvailability(s,id);
-   return `<div class="combat-ability" data-power-tone="${id}"><span class="ability-cost">${cost}</span><button class="combat-ability-button" data-combat="${id}" ${availability.ok?'':'disabled'} title="${esc(availability.label)}"><span class="ability-name">${label}</span><span class="ability-charge">${charge}</span></button><small class="ability-note">${note}</small></div>`;
+   return `<div class="combat-ability quick-row" data-power-tone="${id}">
+     <button type="button" class="combat-ability-button" data-combat="${id}" ${availability.ok?'':'disabled'}>
+       ${powerGlyph(id)}<span class="ability-name">${label}<small>${availability.ok?note:esc(availability.label)}</small></span>
+       ${charge?`<span class="ability-charge">${charge}</span>`:''}
+     </button></div>`;
+ };
+ return `<div class="quick-lanes">${[['Action','Action'],['Bonus','Action bonus']].map(([cost,title])=>{
+   const group=selected.filter(item=>item[2]===cost);
+   return group.length?`<section class="quick-lane"><h3>${title}</h3><div class="quick-rows">${group.map(row).join('')}</div></section>`:'';
  }).join('')}</div>`;
 }
 export function combatFollowups(state){
@@ -50,7 +60,7 @@ export function combatFollowups(state){
  return (pending?`<section aria-label="Résolutions en attente"><b>Résolutions en attente</b>${pending}</section>`:'')+
    (effects?`<details class="turn-effects"><summary>Effets actifs · ${state.effects.length}</summary>${effects}</details>`:'');
 }
-export function socialPanel(s){return `<h3>Représentation captivante</h3><p>1 minute vue et entendue · jusqu’à 5 humanoïdes à 18 m · SAG DD17 · charme 1 h. Fin si la cible est blessée, attaquée par Kobe ou voit Kobe attaquer/blesser un allié. Réussite discrète ; décisions au MJ.</p>${btn('performance','Représentation captivante · '+s.combat.performance+'/1')}`;}
+export function socialPanel(s){return `<h3 class="power-heading">${powerGlyph('performance')}Représentation captivante</h3><p>1 minute vue et entendue · jusqu’à 5 humanoïdes à 18 m · SAG DD17 · charme 1 h. Fin si la cible est blessée, attaquée par Kobe ou voit Kobe attaquer/blesser un allié. Réussite discrète ; décisions au MJ.</p>${btn('performance','Représentation captivante · '+s.combat.performance+'/1')}`;}
 export function openCombatForm(action,s,dispatch){
  if(action==='move')return dispatch('move',{meters:s.economy.movementRemaining});
  if(['inspiration','mantle','majesty','majesty-command','cry','performance'].includes(action))return dispatch(action,{table:true});
