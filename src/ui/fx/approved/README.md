@@ -10,3 +10,6 @@ Once uploaded, the combat presentation uses them in `src/ui/kobe-vfx.js`. The se
 - `fireball_transparent.webp`: approved 9-frame animation with transparent background; replaces `fireball.gif` for Fireball playback.
 - `fireball.gif`: retained as archive, not loaded by combat or offline precache.
 - `firebolt.gif`: still pending upload; Fire Bolt has no approved visual fallback.
+
+## Updated production asset
+- `fireball_clean_alpha.webp` is now the live Fireball animation (374 KB). The previous `fireball_transparent.webp` remains archived but is no longer referenced by combat or the service worker.
