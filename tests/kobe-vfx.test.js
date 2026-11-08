@@ -16,3 +16,9 @@ test('Khar-Vek effects apply only to actual healing powers',()=>{
  assert.equal(vfxForCommand('kharvek-dawn',{confirmed:true}),null);
  assert.equal(vfxForCommand('correct',{field:'charges'}),null);
 });
+
+test('Trait de feu is recognized without a second mechanical command',()=>{
+ assert.equal(vfxForCommand('spell-cast',{spellId:'fire-bolt'}),'firebolt');
+ assert.equal(vfxForCommand('spell-cast',{spellId:'firebolt'}),'firebolt');
+ assert.equal(vfxForCommand('spell-resolve',{spellId:'fire-bolt'}),null);
+});
