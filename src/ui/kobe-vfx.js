@@ -6,7 +6,7 @@ const DURATIONS={fireball:1450,mantle:1200,kharvek:1650};
 const NS='http://www.w3.org/2000/svg';
 let active=null,timer=null;
 function node(tag,attrs={},parent){const el=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));parent?.append(el);return el;}
-function animate(el,frames,options){el.animate(frames,{fill:'both',easing:'cubic-bezier(.16,.8,.2,1)',...options});}
+function animate(el,frames,options){el.style.transformBox='view-box';el.style.transformOrigin='200px 200px';el.animate(frames,{fill:'both',easing:'cubic-bezier(.16,.8,.2,1)',...options});}
 function defs(svg,kind){
  const d=node('defs',{},svg),colors=PALETTE[kind];
  const grad=node('radialGradient',{id:'kfx-core-gradient'},d);
