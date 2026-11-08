@@ -30,13 +30,18 @@ export function vfxForCommand(type,payload={}){
  if(type==='spell-cast'){
   const id=String(payload.spellId||'').toLowerCase();
   if(id==='fireball')return 'fireball';
-  if(id==='fire-bolt'||id==='firebolt')return 'firebolt';
+  
   if(['healing-word','cure-wounds','mass-cure-wounds','greater-restoration'].includes(id))return 'heal';
   if(['command','suggestion','hypnotic-pattern','hold-person','dominate-person','fear'].includes(id))return 'control';
   if(['power-word-heal'].includes(id))return 'heal';
   return null;
  }
- if(type==='fire-bolt')return 'firebolt';
+ // Trait de feu only has a visual impact after a confirmed hit, never on cast or miss.
+  if(type==='spell-resolve'){
+   const id=String(payload.spellId||'').toLowerCase();
+   return ['fire-bolt','firebolt'].includes(id)&&['hit','critical'].includes(payload.result)?'firebolt':null;
+  }
+  if(type==='resolve'&&payload.kind==='fire'&&['hit','critical'].includes(payload.result))return 'firebolt';
  if(type==='mantle')return payload.survivors?'heal':'mantle';
  if(type==='inspiration')return 'inspiration';
  if(type==='majesty')return 'majesty';

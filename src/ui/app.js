@@ -159,7 +159,9 @@ const resultRibbon=document.getElementById('ribbon');
 resultRibbon.querySelector('[data-ribbon-close]').onclick=()=>{resultRibbon.hidden=true;};
 resultRibbon.querySelector('[data-ribbon-undo]').onclick=async()=>{if(state.undo?.commandId===resultRibbon.dataset.command)await dispatch('undo',{commandId:state.undo.commandId});};
 function updateRibbon(result,type){
- if(!result.ok||result.replay||['preferences','notes','favorites','private-roll'].includes(type))return;
+ if(!result.ok||result.replay)return;
+  if(type==='preferences'){resultRibbon.hidden=true;return;}
+  if(['notes','favorites','private-roll'].includes(type))return;
  resultRibbon.hidden=true;
  if(type==='condition')return; // The panel and header already show the result.
  const event=result.events?.at(-1);
@@ -172,7 +174,27 @@ function updateRibbon(result,type){
 }
 store.subscribe(s=>{if(s.turn.startRevision!==state.turn.startRevision||s.turn.epoch!==state.turn.epoch||s.turn.combatId!==state.turn.combatId)comboHeal=false;state=s;document.dispatchEvent(new Event('kobe-mechanical-update'));if(!busy)render();});
 const make=(type,payload={})=>({id:'local-'+crypto.randomUUID(),actorId:'kobe',origin:'player',expectedRevision:state.revision,type,payload});
-async function dispatch(type,payload){if(busy)return;busy=true;mount.inert=true;try{const r=await store.dispatch(make(type,payload));updateRibbon(r,type);if(!r.ok)problem=r.message||r.code;else {problem='';if(!r.replay){const effect=vfxForCommand(type,payload);if(effect)playKobeVfx(effect);}}return r;}finally{busy=false;mount.inert=false;render();}}
+async function dispatch(type,payload){
+  if(busy)return;
+  // A cast only rolls the attack; the corresponding resolution confirms a hit.
+  const resolution=['spell-resolve','resolve'].includes(type)
+    ? state.pendingResolutions.find(item=>item.id===payload?.id)
+    : null;
+  busy=true;mount.inert=true;
+  try{
+    const r=await store.dispatch(make(type,payload));
+    updateRibbon(r,type);
+    if(!r.ok)problem=r.message||r.code;
+    else{
+      problem='';
+      if(!r.replay){
+        const effect=vfxForCommand(type,resolution?{...payload,spellId:resolution.spellId,kind:resolution.kind}:payload);
+        if(effect)playKobeVfx(effect);
+      }
+    }
+    return r;
+  }finally{busy=false;mount.inert=false;render();}
+}
 function quickRest(kind){
  const long=kind==='long';
  const detail=long?'8 heures · PV, emplacements et ressources restaurés. Jusqu’à 5 dés de vie récupérés.':'1 heure · Inspiration bardique et Représentation récupérées.';

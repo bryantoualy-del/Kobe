@@ -1,5 +1,5 @@
 importScripts('./offline-shell.js');
-const CACHE='kobe-v11-fx5-'+self.KobeShellRevision;
+const CACHE='kobe-v11-fx6-'+self.KobeShellRevision;
 const FX_FILES=['flame_02.png','magic_03.png','circle_05.png','spark_04.png'].map(name=>'./src/ui/fx/kenney/'+name);
 const FILES=['./',...Object.keys(self.KobeShellAssets).map(path=>'./'+path),...FX_FILES,'./src/ui/fx/approved/fireball_clean_alpha.webp'];
 const root=new URL('./',self.registration.scope);

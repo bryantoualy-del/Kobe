@@ -72,6 +72,10 @@ try{
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
    assert.equal(await page.locator('dialog[open]').count(),0);
    await page.reload();await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+   await page.locator('#ribbon:not([hidden])').waitFor();
+   await page.getByRole('tab',{name:'Sorts & pouvoirs',exact:true}).click();
+   assert.equal(await page.locator('#ribbon').isVisible(),false,'the previous turn result must close on tab navigation');
+   await page.getByRole('tab',{name:'Combat',exact:true}).click();
    await page.locator('.turn-commands [data-combat=mantle]').click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
    assert.equal(await page.locator('dialog[open],.spell-inline').count(),0);
