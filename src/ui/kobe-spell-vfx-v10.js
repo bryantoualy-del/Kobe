@@ -65,15 +65,30 @@ const PILOT_CSS=`
 @keyframes p-shield{0%{opacity:0;transform:scale(.08);filter:brightness(1.8)}24%{opacity:1;transform:scale(.65)}48%{opacity:1;transform:scale(1.04)}78%{opacity:.95;transform:scale(1.2)}100%{opacity:0;transform:scale(1.55)}}
 @media(prefers-reduced-motion:reduce){.ksp-proto{display:none!important}}
 `;
+
+const REFINED_CSS=`
+.ksp-proto .p-mirror{position:absolute;top:13%;width:28%;height:74%;border:clamp(5px,1vmin,10px) solid #b86637;border-radius:48% 48% 13% 13%/28% 28% 9% 9%;background:linear-gradient(115deg,rgba(21,20,25,.9),rgba(100,159,180,.6) 28%,rgba(231,249,255,.92) 46%,rgba(91,142,164,.65) 62%,rgba(20,25,38,.93));box-shadow:inset 0 0 20px #d4f7ff,0 0 16px #b86637,0 0 34px rgba(135,210,239,.4);overflow:hidden;animation:p-mirror-appear 1550ms ease-out both}
+.ksp-proto .p-mirror:before{content:'';position:absolute;inset:5%;border:2px solid rgba(240,229,206,.7);border-radius:inherit;box-shadow:inset 0 0 19px rgba(196,240,255,.75)}
+.ksp-proto .p-mirror:after{content:'';position:absolute;top:-40%;left:-60%;width:60%;height:190%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);transform:rotate(20deg);animation:p-mirror-sheen 1550ms ease-out both}
+.ksp-proto .p-mirror--left{left:4%;--rot:-11deg;animation-delay:130ms}
+.ksp-proto .p-mirror--middle{left:36%;--rot:0deg;animation-delay:0ms}
+.ksp-proto .p-mirror--right{right:4%;--rot:11deg;animation-delay:230ms}
+.ksp-proto .p-halo{position:absolute;left:50%;top:50%;width:75%;aspect-ratio:1;border:clamp(5px,1.1vmin,11px) solid #f8e3a3;border-radius:50%;box-shadow:0 0 18px #e5b963,0 0 55px rgba(229,185,99,.55),inset 0 0 20px rgba(229,185,99,.5);transform:translate(-50%,-50%) rotate(-90deg);clip-path:polygon(50% 50%,50% 0,50% 0);animation:p-halo-trace 2200ms ease-in-out both}
+.ksp-proto .p-halo-fill{position:absolute;left:50%;top:50%;width:75%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 45%,rgba(255,249,209,.52),rgba(229,185,99,.3) 47%,rgba(229,185,99,.1) 75%);box-shadow:inset 0 0 45px rgba(255,242,184,.5),0 0 45px rgba(229,185,99,.3);transform:translate(-50%,-50%);animation:p-halo-fill 2200ms ease-out both}
+@keyframes p-mirror-appear{0%{opacity:0;transform:perspective(600px) rotateY(85deg) rotate(var(--rot)) scale(.6)}30%{opacity:1;transform:perspective(600px) rotateY(0deg) rotate(var(--rot)) scale(1)}75%{opacity:1;transform:perspective(600px) rotateY(-5deg) rotate(var(--rot)) scale(1)}100%{opacity:0;transform:perspective(600px) rotateY(-20deg) rotate(var(--rot)) scale(1.05)}}
+@keyframes p-mirror-sheen{0%,20%{left:-80%;opacity:0}42%{opacity:1}80%,100%{left:130%;opacity:0}}
+@keyframes p-halo-trace{0%{opacity:0;clip-path:polygon(50% 50%,50% 0,50% 0)}12%{opacity:1}20%{clip-path:polygon(50% 50%,50% 0,100% 0,100% 40%)}37%{clip-path:polygon(50% 50%,50% 0,100% 0,100% 100%,55% 100%)}53%{clip-path:polygon(50% 50%,50% 0,100% 0,100% 100%,0 100%,0 55%)}66%,100%{opacity:1;clip-path:circle(50% at 50% 50%)}}
+@keyframes p-halo-fill{0%,64%{opacity:0;filter:brightness(2)}72%{opacity:.95;filter:brightness(1.4)}100%{opacity:.82;filter:brightness(1)}}
+`;
 function playPilot(id){
- if(!document.querySelector('#ksp-pilot-css')){const st=document.createElement('style');st.id='ksp-pilot-css';st.textContent=PILOT_CSS;document.head.append(st)}
+ if(!document.querySelector('#ksp-pilot-css')){const st=document.createElement('style');st.id='ksp-pilot-css';st.textContent=PILOT_CSS+REFINED_CSS;document.head.append(st)}
  const root=document.createElement('div');root.className='ksp-proto';root.setAttribute('aria-hidden','true');
  const stage=document.createElement('div');stage.className='p-stage';root.append(stage);
  const add=(cls)=>{const n=document.createElement('div');n.className=cls;stage.append(n)};
  if(id==='dissonant-whispers'){add('p-smoke');add('p-smoke');add('p-distortion');add('p-distortion')}
- if(id==='mirror-image'){add('p-shimmer');add('p-figure p-figure--center');add('p-figure p-figure--left');add('p-figure p-figure--right')}
- if(id==='circle-of-power'){add('p-glow');add('p-shield');add('p-shield')}
- document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},1850);return true;
+ if(id==='mirror-image'){add('p-mirror p-mirror--left');add('p-mirror p-mirror--middle');add('p-mirror p-mirror--right')}
+ if(id==='circle-of-power'){add('p-halo-fill');add('p-halo')}
+ document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?2500:1850);return true;
 }
 export function playSpellFx(id,{intensity='normal'}={}){
  const d=SPELL_FX.find(x=>x[0]===id);
