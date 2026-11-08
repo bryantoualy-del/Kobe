@@ -4,11 +4,11 @@
  * No imported assets, gameplay state changes, sound, or network calls.
  */
 const THEMES=Object.freeze({
- fireball:{color:'#ff7a29',light:'#ffe6a1',dark:'#872f35',glyph:'✹',duration:1450,burst:38},
+ fireball:{color:'#ff7a29',light:'#ffe6a1',dark:'#872f35',glyph:'✹',duration:1650,burst:38},
  firebolt:{color:'#ff7935',light:'#fff0c5',dark:'#9b3525',glyph:'✦',duration:750,burst:11},
  mantle:{color:'#e5b963',light:'#fff5cf',dark:'#b86637',glyph:'✧',duration:900,burst:10},
  majesty:{color:'#d5a9ff',light:'#f9e5ff',dark:'#872f35',glyph:'♛',duration:950,burst:8},
- cry:{color:'#d34d42',light:'#ffd49a',dark:'#872f35',glyph:'♜',duration:710,burst:12},
+ cry:{color:'#d34d42',light:'#ffd49a',dark:'#872f35',glyph:'♜',duration:1050,burst:12},
  kharvek:{color:'#e5b963',light:'#f0e5ce',dark:'#872f35',glyph:'♫',duration:1130,burst:12},
  rally:{color:'#e5b963',light:'#fff2b5',dark:'#b86637',glyph:'♪',duration:1380,burst:15},
  survivors:{color:'#ecb961',light:'#fff0c5',dark:'#872f35',glyph:'✥',duration:1240,burst:12},
@@ -103,6 +103,32 @@ function installStyle(){
  @keyframes kfx-strike{0%,9%,100%{opacity:0;transform:translate(-50%,-50%) scale(.3)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}27%{opacity:0}}
  @keyframes kfx-protect{0%,36%{opacity:0;transform:translate(-50%,-50%) scale(.4)}55%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) scale(2.5)}}
 
+
+ /* Actual flame tongues, not a radial orb: each jet separates, twists and dissipates. */
+ .kfx-v2__flame{position:absolute;left:50%;top:45%;width:var(--flame-width);height:var(--flame-height);transform-origin:50% 80%;background:linear-gradient(0deg,#9e2018 0%,#f3541e 17%,#ff9f34 47%,#fff1a2 72%,rgba(255,247,199,.94) 91%,transparent 100%);clip-path:polygon(50% 0%,62% 19%,57% 35%,77% 20%,85% 42%,100% 61%,91% 79%,72% 95%,48% 100%,21% 91%,6% 71%,12% 52%,28% 37%,23% 18%,42% 35%);filter:drop-shadow(0 0 12px #fa6926);animation:kfx-flame-jet var(--kfx-duration) cubic-bezier(.17,.65,.25,1) both;animation-delay:var(--flame-delay)}
+ .kfx-v2__flame--core{background:linear-gradient(0deg,#ba2b16,#ff8f20 27%,#ffdf6f 56%,#fffdea 91%,transparent);filter:drop-shadow(0 0 17px #ffd46e)}
+ @keyframes kfx-flame-jet{0%,24%{opacity:0;transform:translate(-50%,-45%) rotate(var(--flame-rotate)) translateY(0) scale(.1,.2)}40%{opacity:1;transform:translate(-50%,-45%) rotate(var(--flame-rotate)) translateY(calc(var(--flame-distance) * -.28)) scale(.85,1.2)}68%{opacity:.97;transform:translate(-50%,-45%) rotate(calc(var(--flame-rotate) + var(--flame-sway))) translateY(calc(var(--flame-distance) * -.8)) scale(1,1.7)}100%{opacity:0;transform:translate(-50%,-45%) rotate(calc(var(--flame-rotate) - var(--flame-sway))) translateY(calc(var(--flame-distance) * -1.5)) scale(.45,2)}}
+ /* A dragon's cry travels across the view as rippling, expanding sonic fronts. */
+ .kfx-v2__cry-flash{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(212,67,47,.27),transparent);animation:kfx-cry-flash var(--kfx-duration) ease-out both}
+ .kfx-v2__cry-head{position:absolute;left:23%;top:45%;transform:translate(-50%,-50%);font-size:clamp(60px,13vmin,116px);line-height:1;filter:drop-shadow(0 0 15px #e34e37);animation:kfx-cry-head var(--kfx-duration) ease-out both}
+ .kfx-v2__cry-wave{position:absolute;left:26%;top:45%;width:min(25vw,230px);height:min(44vh,330px);border:clamp(4px,.85vmin,8px) solid transparent;border-right-color:#ffce83;border-radius:50%;box-shadow:10px 0 19px -12px #e55b39;animation:kfx-cry-wave var(--kfx-duration) cubic-bezier(.16,.6,.26,1) both;animation-delay:var(--cry-delay)}
+ .kfx-v2__cry-wave--inner{border-right-color:#fff2bf;border-width:3px}
+ .kfx-v2__cry-strike{position:absolute;left:30%;top:45%;width:var(--cry-length);height:3px;border-radius:99px;background:linear-gradient(90deg,#e64739,#fff4cf,transparent);box-shadow:0 0 13px #d74130;animation:kfx-cry-strike var(--kfx-duration) ease-out both;animation-delay:var(--cry-delay);transform-origin:left center}
+ @keyframes kfx-cry-flash{0%,20%,100%{opacity:0}40%{opacity:1}}
+ @keyframes kfx-cry-head{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}22%{opacity:1;transform:translate(-50%,-50%) scale(1.14)}52%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.8)}}
+ @keyframes kfx-cry-wave{0%,18%{opacity:0;transform:translate(-50%,-50%) scale(.12)}32%{opacity:1}78%{opacity:.9;transform:translate(calc(-50% + 52vw),-50%) scale(2.5,1.7)}100%{opacity:0;transform:translate(calc(-50% + 70vw),-50%) scale(3,1.9)}}
+ @keyframes kfx-cry-strike{0%,21%{opacity:0;transform:translate(0,-50%) scaleX(.1)}38%{opacity:1}90%{opacity:.6;transform:translate(52vw,-50%) scaleX(1.5)}100%{opacity:0;transform:translate(67vw,-50%) scaleX(1.8)}}
+ /* Wearable cloak silhouette: spreading shoulders, long hem and animated golden fabric folds. */
+ .kfx-v2__cloak{position:absolute;left:50%;top:46%;width:min(72vmin,440px);height:min(76vmin,490px);transform:translate(-50%,-50%);overflow:visible;filter:drop-shadow(0 0 19px var(--kfx-color));animation:kfx-cloak-open var(--kfx-duration) cubic-bezier(.17,.8,.23,1) both}
+ .kfx-v2__cloak-cloth{fill:url(#kfx-cloak-grad);stroke:#e5b963;stroke-width:4;stroke-linejoin:round}
+ .kfx-v2__cloak-lining{fill:none;stroke:#fff0c7;stroke-width:3;stroke-linecap:round;opacity:.82}
+ .kfx-v2__cloak-collar{fill:#fff0c7;stroke:#b86637;stroke-width:3}
+ .kfx-v2__cloak-crown{position:absolute;left:50%;top:12%;transform:translateX(-50%);font-size:clamp(36px,8vmin,77px);color:#f0d28c;text-shadow:0 0 17px #d5a9ff;animation:kfx-cloak-crown var(--kfx-duration) ease-out both}
+ .kfx-v2__cloak-pulse{position:absolute;left:50%;top:46%;width:min(42vmin,260px);aspect-ratio:1;border:3px solid var(--kfx-light);border-radius:50%;box-shadow:0 0 20px var(--kfx-color);animation:kfx-cloak-pulse var(--kfx-duration) ease-out both}
+ @keyframes kfx-cloak-open{0%{opacity:0;transform:translate(-50%,-50%) scale(.3,.7) rotate(-7deg)}22%{opacity:.8;transform:translate(-50%,-50%) scale(.72,1) rotate(4deg)}42%{opacity:1;transform:translate(-50%,-50%) scale(1.13,1.02) rotate(-2deg)}65%{opacity:1;transform:translate(-50%,-50%) scale(1,1) rotate(1deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.15,1.1) rotate(-1deg)}}
+ @keyframes kfx-cloak-pulse{0%,25%{opacity:0;transform:translate(-50%,-50%) scale(.2)}45%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(3)}}
+ @keyframes kfx-cloak-crown{0%,20%,100%{opacity:0;transform:translate(-50%,-20%) scale(.5)}45%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}75%{opacity:.8}}
+
  @media(prefers-reduced-motion:reduce){.kfx-v2{display:none!important}}
  `;
  const st=document.createElement('style');st.id='kobe-fx-kentaro-v2';st.textContent=css;document.head.append(st);styleReady=true;
@@ -113,14 +139,69 @@ function addPart(parent,className,style={}){
  for(const [key,value] of Object.entries(style))el.style.setProperty(key,String(value));
  parent.append(el);return el;
 }
+
+// A real fabric silhouette shared by Glamour mantles and Khar-Vek's survivor mantle.
+function buildCloak(root,kind){
+ const svgNS='http://www.w3.org/2000/svg';
+ const svg=document.createElementNS(svgNS,'svg');
+ svg.setAttribute('viewBox','0 0 400 430');
+ svg.setAttribute('aria-hidden','true');
+ svg.setAttribute('class','kfx-v2__cloak');
+ const defs=document.createElementNS(svgNS,'defs');
+ const grad=document.createElementNS(svgNS,'linearGradient');
+ grad.id='kfx-cloak-grad';grad.setAttribute('x1','0%');grad.setAttribute('x2','100%');
+ const palette=kind==='majesty'?['#3c214f','#9b67b3','#f1cc86','#4b2445']:['#6d372d','#bd7a43','#f3da8f','#8d4141'];
+ palette.forEach((color,i)=>{const stop=document.createElementNS(svgNS,'stop');stop.setAttribute('offset',i*100/3+'%');stop.setAttribute('stop-color',color);grad.append(stop)});
+ defs.append(grad);svg.append(defs);
+ function path(d,cls){
+  const p=document.createElementNS(svgNS,'path');
+  p.setAttribute('d',d);p.setAttribute('class',cls);svg.append(p);
+ }
+ path('M 158 91 Q 198 66 242 91 Q 258 116 308 132 Q 338 203 359 366 Q 292 411 237 382 Q 201 407 166 382 Q 108 409 42 366 Q 58 205 94 132 Q 137 112 158 91 Z','kfx-v2__cloak-cloth');
+ path('M 154 106 Q 124 207 96 364 M 201 114 Q 194 228 195 389 M 248 107 Q 281 215 311 364 M 93 137 Q 102 165 125 172 M 308 137 Q 301 165 278 172','kfx-v2__cloak-lining');
+ path('M 157 89 Q 196 67 243 89 L 230 139 Q 198 122 172 139 Z','kfx-v2__cloak-collar');
+ root.append(svg);
+ addPart(root,'kfx-v2__cloak-pulse');
+ if(kind==='majesty'){const crown=addPart(root,'kfx-v2__cloak-crown');crown.textContent='♛';}
+}
+function buildCry(root,intensity){
+ addPart(root,'kfx-v2__cry-flash');
+ const head=addPart(root,'kfx-v2__cry-head');head.textContent='🐉';head.setAttribute('aria-hidden','true');
+ const count=intensity==='subtle'?2:intensity==='spectacular'?5:3;
+ for(let i=0;i<count;i++){
+  addPart(root,'kfx-v2__cry-wave'+(i%2?' kfx-v2__cry-wave--inner':''),{'--cry-delay':i*115+'ms'});
+ }
+ for(let i=0;i<7;i++){
+  addPart(root,'kfx-v2__cry-strike',{
+   '--cry-length':(15+i%4*7)+'vw',
+   '--cry-delay':(70+i%3*65)+'ms',
+   'top':(39+i*2.1)+'%'
+  });
+ }
+}
+
 function buildSignature(root,kind,intensity){
  const isFire=kind==='fireball',isBolt=kind==='firebolt';
  const isDrum=['kharvek','rally','survivors'].includes(kind);
+ if(['mantle','majesty'].includes(kind)){buildCloak(root,kind);return true;}
+ if(kind==='cry'){buildCry(root,intensity);return true;}
  if(!isFire&&!isBolt&&!isDrum)return false;
  if(isFire){
   addPart(root,'kfx-v2__heat');
   addPart(root,'kfx-v2__charge');
   addPart(root,'kfx-v2__inferno');
+  const flames=intensity==='subtle'?15:intensity==='spectacular'?45:30;
+  for(let i=0;i<flames;i++){
+   const angle=(i*137.508+((i%5)-2)*7)%360;
+   addPart(root,'kfx-v2__flame'+(i%5===0?' kfx-v2__flame--core':''),{
+    '--flame-width':(19+i%6*9)+'px',
+    '--flame-height':(70+i%7*24)+'px',
+    '--flame-rotate':Math.round(angle)+'deg',
+    '--flame-sway':(i%2?13:-13)+'deg',
+    '--flame-distance':(105+i%8*24)+'px',
+    '--flame-delay':(i%6*22)+'ms'
+   });
+  }
   addPart(root,'kfx-v2__shock');
   addPart(root,'kfx-v2__shock kfx-v2__shock--late');
   const count=intensity==='subtle'?18:intensity==='spectacular'?70:42;
@@ -151,7 +232,7 @@ function buildSignature(root,kind,intensity){
   addPart(root,'kfx-v2__beat',{'--beat-delay':delay+'ms'});
   addPart(root,'kfx-v2__strike',{'--beat-delay':delay+'ms'});
  }
- if(kind==='survivors')addPart(root,'kfx-v2__protect');
+ if(kind==='survivors'){addPart(root,'kfx-v2__protect');buildCloak(root,'survivors');}
  return true;
 }
 
