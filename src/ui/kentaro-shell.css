@@ -1,0 +1,37 @@
+/* Kobe x Kentaro — first isolated shell pass.
+ * References Kentaro's dual identity/vitals layout. Gameplay remains Kobe-specific.
+ */
+:root{--k-shell:#0b0d13;--k-border:#544438;--k-surface:#17171d}
+.shell.app{max-width:1480px;margin-inline:auto;background:transparent}
+.shell.app>.top.turn-header{
+ display:grid;grid-template-columns:minmax(260px,1.15fr) minmax(0,2fr);
+ align-items:stretch;gap:12px;padding:0;margin:0 0 12px;
+ background:transparent;border:0;box-shadow:none
+}
+.shell.app>.top.turn-header .turn-identity,
+.shell.app>.top.turn-header .turn-vitals{
+ min-width:0;min-height:112px;border:1px solid var(--k-border);
+ border-radius:16px;background:linear-gradient(145deg,#272026,#100f16);
+ box-shadow:0 12px 28px #0005
+}
+.shell.app>.top.turn-header .turn-identity{padding:14px;display:flex;align-items:center;gap:14px}
+.shell.app>.top.turn-header .turn-identity img{width:76px;height:76px;object-fit:contain;flex-shrink:0}
+.shell.app>.top.turn-header .turn-identity h1{font-family:Georgia,serif;font-size:clamp(23px,2.8vw,37px);line-height:1.1}
+.shell.app>.top.turn-header .turn-identity p{margin:6px 0 0;color:#cfbca8}
+.shell.app>.top.turn-header .turn-vitals{padding:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.shell.app>.top.turn-header .turn-hp{flex:2 1 180px}
+.shell.app>.top.turn-header .turn-value input{max-width:90px}
+.shell.app>.top.turn-header .turn-metric{flex:1 1 55px}
+.shell.app>.turn-strip{border-radius:14px;border-color:var(--k-border);background:linear-gradient(125deg,#241c20,#12131b)}
+.shell.app>.turn-strip button{border-radius:10px}
+.shell.app .turn-finish{background:linear-gradient(160deg,#f0c976,#c28b36);color:#1e1510;font-weight:850;border-color:#f0cf84}
+@media(max-width:750px){
+ .shell.app>.top.turn-header{grid-template-columns:1fr;gap:8px}
+ .shell.app>.top.turn-header .turn-identity{min-height:78px;padding:10px}
+ .shell.app>.top.turn-header .turn-identity img{width:56px;height:56px}
+ .shell.app>.top.turn-header .turn-vitals{min-height:80px}
+}
+@media(min-width:751px) and (max-width:1050px){
+ .shell.app>.top.turn-header{grid-template-columns:minmax(200px,1fr) minmax(0,1.8fr)}
+ .shell.app>.top.turn-header .turn-identity img{width:58px;height:58px}
+}
