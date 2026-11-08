@@ -1,39 +1,65 @@
-// Kobe FX pilot — presentation only. Never changes combat state or sends network events.
-// Kenney CC0 local PNG textures + DOM animation: no remote assets, no runtime dependencies and no audio.
-const STYLE = `
-.kobe-vfx{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden;contain:layout style paint}
-.kobe-vfx__veil{position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,#b8663730,transparent 52%);animation:kfx-veil .9s ease-out both}
-.kobe-vfx__core{position:absolute;left:50%;top:48%;width:110px;height:110px;margin:-55px;border-radius:50%;filter:blur(2px);animation:kfx-core 1.1s cubic-bezier(.16,.8,.2,1) both}
-.kobe-vfx--fireball .kobe-vfx__core{background:radial-gradient(circle,#fff3b0 0%,#e5b963 16%,#b86637 36%,#872f35 60%,transparent 72%);box-shadow:0 0 70px 25px #872f357d}
-.kobe-vfx--mantle .kobe-vfx__core{background:radial-gradient(circle,#fff5cc,#e5b9634d 42%,transparent 70%);box-shadow:0 0 55px #e5b96375}
-.kobe-vfx--kharvek .kobe-vfx__core{background:radial-gradient(circle,#f0e5ce,#b86637 28%,#872f3580 54%,transparent 72%);box-shadow:0 0 68px #b86637ad}
-.kobe-vfx__ring{position:absolute;left:50%;top:48%;width:140px;height:140px;margin:-70px;border:2px solid #e5b963;border-radius:50%;box-shadow:0 0 18px #b86637,inset 0 0 18px #872f35;animation:kfx-ring 1.05s ease-out both}
-.kobe-vfx--mantle .kobe-vfx__ring{border-style:dashed}
-.kobe-vfx--kharvek .kobe-vfx__ring{border-width:5px;border-color:#b86637}
-.kobe-vfx__particle{position:absolute;left:50%;top:48%;width:var(--s);height:var(--s);border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c);animation:kfx-spark 1.12s ease-out both;animation-delay:var(--delay)}
-.kobe-vfx__caption{position:absolute;left:50%;top:calc(48% + 110px);transform:translateX(-50%);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;color:#f0e5ce;text-shadow:0 2px 12px #000;font:700 clamp(15px,3vw,22px) Georgia,serif;letter-spacing:.04em;animation:kfx-caption 1.25s ease-out both}
-@keyframes kfx-veil{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
-@keyframes kfx-core{0%{opacity:0;transform:scale(.2)}26%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(2.5)}}
-@keyframes kfx-ring{0%{opacity:0;transform:scale(.25) rotate(0)}25%{opacity:1}100%{opacity:0;transform:scale(4) rotate(24deg)}}
-@keyframes kfx-spark{0%{opacity:0;transform:translate(0,0) scale(.3)}20%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(.1)}}
-@keyframes kfx-caption{0%{opacity:0;transform:translate(-50%,12px)}25%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.kobe-vfx{display:none}}
-/* Genuine Kenney Particle Pack CC0 textures, vendored locally. */
-.kobe-vfx__particle{background-image:url('./fx/kenney/spark_04.png');background-size:contain;background-position:center;background-repeat:no-repeat;background-color:transparent!important;border-radius:0!important;filter:drop-shadow(0 0 5px var(--c))}
-.kobe-vfx__ring{border:0!important;box-shadow:none!important;background:url('./fx/kenney/circle_05.png') center/contain no-repeat;filter:drop-shadow(0 0 18px #e5b963)}
-.kobe-vfx--fireball .kobe-vfx__core{background-image:url('./fx/kenney/flame_02.png')!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;filter:drop-shadow(0 0 28px #b86637)}
-.kobe-vfx--mantle .kobe-vfx__core,.kobe-vfx--kharvek .kobe-vfx__core{background-image:url('./fx/kenney/magic_03.png')!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;filter:drop-shadow(0 0 20px #e5b963)}
-.kobe-vfx--mantle .kobe-vfx__ring{filter:drop-shadow(0 0 20px #e5b963)}
-.kobe-vfx--kharvek .kobe-vfx__ring{filter:drop-shadow(0 0 22px #b86637)}
-
-
-`;
-const LABELS={fireball:'Boule de feu',mantle:'Manteau d’inspiration',kharvek:'Khar-Vek · pulsation'};
-let active=null,cleanup=null;
-function allowed(){
- return typeof document!=='undefined' && !document.documentElement.matches('[data-still="true"]') &&
-   !(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+// Kobe's Theatre of Arcana: vector-painted, self-contained combat cinematics.
+// Pure presentation: no state mutation, audio, network, or RPG Connect events.
+const PALETTE={fireball:['#fff3c2','#ffb45b','#dc622c','#872f35'],mantle:['#fff8da','#e5b963','#b86637','#f0e5ce'],kharvek:['#f0e5ce','#e5b963','#b86637','#872f35']};
+const LABELS={fireball:'Boule de feu',mantle:'Manteau d’inspiration',kharvek:'Khar-Vek · Le Battement'};
+const DURATIONS={fireball:1450,mantle:1200,kharvek:1650};
+const NS='http://www.w3.org/2000/svg';
+let active=null,timer=null;
+function node(tag,attrs={},parent){const el=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));parent?.append(el);return el;}
+function animate(el,frames,options){el.animate(frames,{fill:'both',easing:'cubic-bezier(.16,.8,.2,1)',...options});}
+function defs(svg,kind){
+ const d=node('defs',{},svg),colors=PALETTE[kind];
+ const grad=node('radialGradient',{id:'kfx-core-gradient'},d);
+ [[0,colors[0],1],[.22,colors[1],.98],[.55,colors[2],.9],[1,colors[3],0]].forEach(([at,color,opacity])=>node('stop',{offset:at*100+'%','stop-color':color,'stop-opacity':opacity},grad));
+ const glow=node('filter',{id:'kfx-glow',x:'-100%',y:'-100%',width:'300%',height:'300%'},d);
+ node('feGaussianBlur',{stdDeviation:kind==='fireball'?10:5},glow);
+ const stroke=node('linearGradient',{id:'kfx-stroke',x1:'0',x2:'1',y1:'0',y2:'1'},d);
+ colors.forEach((color,i)=>node('stop',{offset:i*100/(colors.length-1)+'%','stop-color':color},stroke));
 }
+function fire(svg,scale){
+ const halo=node('circle',{cx:200,cy:200,r:88,fill:'url(#kfx-core-gradient)',filter:'url(#kfx-glow)'},svg);
+ animate(halo,[{opacity:0,transform:'scale(.12)'},{opacity:.95,transform:'scale(.65)',offset:.24},{opacity:1,transform:'scale(2.5)',offset:.53},{opacity:0,transform:'scale(3.2)'}],{duration:1450});
+ const core=node('circle',{cx:200,cy:200,r:48,fill:'url(#kfx-core-gradient)'},svg);
+ animate(core,[{opacity:0,transform:'scale(.1)'},{opacity:1,transform:'scale(.85)',offset:.25},{opacity:1,transform:'scale(1.3)',offset:.46},{opacity:0,transform:'scale(3)'}],{duration:1250});
+ for(let i=0;i<14;i++){
+  const angle=i*Math.PI*2/14,rr=70+i%3*11;
+  const x=200+Math.cos(angle)*rr,y=200+Math.sin(angle)*rr;
+  const path=node('path',{d:`M 200 200 Q ${200+Math.cos(angle-.28)*rr*.6} ${200+Math.sin(angle-.28)*rr*.6} ${x} ${y} Q ${x+Math.cos(angle+.3)*24} ${y+Math.sin(angle+.3)*24} ${x+Math.cos(angle)*54} ${y+Math.sin(angle)*54}`,fill:'none',stroke:i%3===0?'#fff3c2':i%3===1?'#ffae59':'#b84227','stroke-width':i%3===0?2:5,'stroke-linecap':'round',filter:i%3===0?'url(#kfx-glow)':''},svg);
+  animate(path,[{opacity:0,strokeDashoffset:240,transform:'scale(.2)'},{opacity:1,strokeDashoffset:0,transform:'scale(.8)',offset:.43},{opacity:0,transform:'scale(2.2)'}],{duration:1000,delay:180+i%4*30});
+ }
+ for(let i=0;i<28;i++){
+  const a=i*2.399963,dist=80+(i%6)*21;
+  const ember=node('ellipse',{cx:200,cy:200,rx:1.5+i%3,ry:3+i%4,fill:i%4===0?'#fff3c2':'#e5b963'},svg);
+  animate(ember,[{opacity:0,transform:'translate(0px,0px) scale(.2)'},{opacity:1,offset:.3},{opacity:0,transform:`translate(${Math.cos(a)*dist}px,${Math.sin(a)*dist}px) scale(.2)`}],{duration:900+i%4*120,delay:370+i%5*32});
+ }
+}
+function mantle(svg){
+ const group=node('g',{},svg);
+ for(let i=0;i<3;i++){
+  const radius=60+i*23;
+  const path=node('path',{d:`M ${200-radius} 200 C ${200-radius} ${200-radius*1.1} ${200+radius} ${200-radius*1.1} ${200+radius} 200 S ${200-radius} ${200+radius*1.1} ${200-radius} 200`,fill:'none',stroke:i===0?'#fff8da':i===1?'#e5b963':'#b86637','stroke-width':i===0?2.5:1.5,'stroke-linecap':'round','stroke-dasharray':i===0?'6 12':'none'},group);
+  animate(path,[{opacity:0,transform:'scale(.5) rotate(-24deg)'},{opacity:.95,transform:'scale(1) rotate(0deg)',offset:.4},{opacity:0,transform:'scale(1.45) rotate(18deg)'}],{duration:1150,delay:i*65});
+ }
+ for(let i=0;i<8;i++){
+  const a=i*Math.PI/4,rr=100;
+  const p=node('path',{d:`M ${200+Math.cos(a)*rr} ${200+Math.sin(a)*rr} q 8 -16 15 -2 q 7 14 15 -2`,fill:'none',stroke:i%2?'#e5b963':'#fff8da','stroke-width':2,'stroke-linecap':'round'},group);
+  animate(p,[{opacity:0,transform:'scale(.65)'},{opacity:1,offset:.45},{opacity:0,transform:'scale(1.2)'}],{duration:950,delay:i*35});
+ }
+ const jewel=node('path',{d:'M200 147 L214 187 L253 200 L214 213 L200 253 L186 213 L147 200 L186 187 Z',fill:'url(#kfx-core-gradient)',stroke:'#e5b963','stroke-width':1},group);
+ animate(jewel,[{opacity:0,transform:'scale(.2)'},{opacity:1,transform:'scale(.95)',offset:.45},{opacity:0,transform:'scale(1.4)'}],{duration:1200});
+}
+function kharvek(svg){
+ const drum=node('g',{},svg);
+ const rim=node('ellipse',{cx:200,cy:200,rx:112,ry:69,fill:'#25151b',stroke:'#b86637','stroke-width':9},drum);
+ node('ellipse',{cx:200,cy:200,rx:100,ry:58,fill:'#321c20',stroke:'#e5b963','stroke-width':1.5},drum);
+ for(let i=0;i<9;i++){const a=i*2*Math.PI/9;node('path',{d:`M ${200+Math.cos(a)*70} ${200+Math.sin(a)*39} Q 200 200 ${200+Math.cos(a+.45)*94} ${200+Math.sin(a+.45)*52}`,fill:'none',stroke:i%2?'#b86637':'#872f35','stroke-width':2},drum);}
+ const dragon=node('path',{d:'M121 215 C140 259 180 253 191 224 C206 187 170 163 186 146 C198 133 230 143 245 161 L264 153 L253 174 L278 182 L252 191 C259 220 238 241 217 231 C235 220 233 206 219 200 C202 192 204 216 195 225 C177 248 149 238 121 215 Z',fill:'none',stroke:'#e5b963','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':560,'stroke-dashoffset':560},drum);
+ animate(dragon,[{strokeDashoffset:560,opacity:.2},{strokeDashoffset:0,opacity:1,offset:.57},{strokeDashoffset:0,opacity:.2}],{duration:1550});
+ const pulse=node('ellipse',{cx:200,cy:200,rx:110,ry:69,fill:'none',stroke:'#e5b963','stroke-width':7,filter:'url(#kfx-glow)'},svg);
+ animate(pulse,[{opacity:0,transform:'scale(.6)'},{opacity:1,transform:'scale(1)',offset:.48},{opacity:0,transform:'scale(2.4)'}],{duration:1450,delay:180});
+ animate(rim,[{stroke:'#872f35'},{stroke:'#e5b963',offset:.5},{stroke:'#872f35'}],{duration:1600});
+}
+function allowed(){return typeof document!=='undefined'&&!document.documentElement.matches('[data-still="true"]')&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;}
 export function vfxForCommand(type,payload={}){
  if(type==='spell-cast'&&payload.spellId==='fireball')return 'fireball';
  if(type==='mantle')return payload.survivors?'kharvek':'mantle';
@@ -43,34 +69,18 @@ export function vfxForCommand(type,payload={}){
 export function playKobeVfx(kind,{intensity}={}){
  if(!LABELS[kind]||!allowed())return false;
  const level=['subtle','normal','spectacular'].includes(intensity)?intensity:(typeof localStorage!=='undefined'&&localStorage.getItem('kobe-vfx-intensity'))||'normal';
- if(!document.getElementById('kobe-vfx-styles')){
-   const style=document.createElement('style');style.id='kobe-vfx-styles';style.textContent=STYLE.replaceAll('./fx/kenney/',new URL('./fx/kenney/',import.meta.url).href);document.head.append(style);
- }
- if(cleanup)clearTimeout(cleanup);
+ if(timer)clearTimeout(timer);
  active?.remove();
  const layer=document.createElement('div');
- layer.className='kobe-vfx kobe-vfx--'+kind;
- layer.style.opacity=level==='subtle'?'0.65':'1';
- layer.style.transform=level==='spectacular'?'scale(1.25)':'scale(1)';
+ layer.className='kobe-arcana-vfx kobe-arcana-vfx--'+kind;
  layer.setAttribute('aria-hidden','true');
- const veil=document.createElement('div');veil.className='kobe-vfx__veil';layer.append(veil);
- const core=document.createElement('div');core.className='kobe-vfx__core';layer.append(core);
- const ring=document.createElement('div');ring.className='kobe-vfx__ring';layer.append(ring);
- const count=kind==='fireball'?28:kind==='mantle'?16:20;
- const palette=kind==='fireball'?['#872F35','#B86637','#E5B963','#F0E5CE']:kind==='mantle'?['#E5B963','#F0E5CE']:['#B86637','#E5B963','#872F35'];
- for(let i=0;i<count;i++){
-   const p=document.createElement('i');p.className='kobe-vfx__particle';
-   const angle=(2*Math.PI*i/count)+.13;
-   const radius=(kind==='fireball'?165:125)+(i%4)*22;
-   p.style.setProperty('--x',Math.round(Math.cos(angle)*radius)+'px');
-   p.style.setProperty('--y',Math.round(Math.sin(angle)*radius)+'px');
-   p.style.setProperty('--s',(3+i%5*2)+'px');
-   p.style.setProperty('--c',palette[i%palette.length]);
-   p.style.setProperty('--delay',((i%5)*.018)+'s');
-   layer.append(p);
- }
- const caption=document.createElement('div');caption.className='kobe-vfx__caption';caption.textContent=LABELS[kind];layer.append(caption);
- document.body.append(layer);active=layer;
- cleanup=setTimeout(()=>{layer.remove();if(active===layer)active=null;cleanup=null;},1450);
+ Object.assign(layer.style,{position:'fixed',inset:0,zIndex:180,pointerEvents:'none',display:'grid',placeItems:'center',overflow:'hidden',opacity:level==='subtle'?.7:1});
+ const stage=document.createElement('div');
+ Object.assign(stage.style,{position:'relative',width:'min(76vw, 54vh, 440px)',aspectRatio:'1',transform:level==='spectacular'?'scale(1.16)':'none'});
+ const svg=node('svg',{viewBox:'0 0 400 400',width:'100%',height:'100%','aria-hidden':'true'},stage);
+ svg.style.overflow='visible';defs(svg,kind);
+ if(kind==='fireball')fire(svg);else if(kind==='mantle')mantle(svg);else kharvek(svg);
+ layer.append(stage);document.body.append(layer);active=layer;
+ timer=setTimeout(()=>{layer.remove();if(active===layer)active=null;timer=null;},DURATIONS[kind]+100);
  return true;
 }
