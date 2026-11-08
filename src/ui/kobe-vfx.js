@@ -37,16 +37,12 @@ export function vfxForCommand(type,payload={}){
   return null;
  }
  if(type==='fire-bolt')return 'firebolt';
- if(type==='mantle')return payload.survivors?'survivors':'mantle';
+ if(type==='mantle')return payload.survivors?'heal':'mantle';
  if(type==='inspiration')return 'inspiration';
  if(type==='majesty')return 'majesty';
  if(type==='majesty-command')return 'control';
  if(type==='cry')return 'cry';
- if(type==='kharvek-power'){
-  if(payload.power==='pulse')return 'kharvek';
-  if(payload.power==='rally')return 'rally';
-  if(payload.power==='survivors')return 'survivors';
- }
+ if(type==='kharvek-power'&&['pulse','rally','survivors'].includes(payload.power))return 'heal';
  return null;
 }
 function installStyle(){
@@ -143,7 +139,7 @@ function installStyle(){
  @keyframes kfx-solar-crackle{0%,30%{opacity:0;transform:translate(-50%,-50%) scale(.3)}58%{opacity:1;transform:translate(calc(-50% + var(--spark-x) * .6),calc(-50% + var(--spark-y) * .6)) scale(1.3)}100%{opacity:0;transform:translate(calc(-50% + var(--spark-x)),calc(-50% + var(--spark-y))) scale(.2)}}
 
 
- .kfx-v2__dragon-vector{position:absolute;left:23%;top:45%;width:min(34vmin,250px);height:min(34vmin,250px);overflow:visible;filter:drop-shadow(0 0 13px #d34d42);animation:kfx-dragon-arrive var(--kfx-duration) ease-out both}
+ .kfx-v2__dragon-vector{position:absolute;left:23%;top:45%;width:min(34vmin,250px);height:min(34vmin,250px);overflow:visible;filter:drop-shadow(0 0 13px #d34d42);animation:none}
  .kfx-v2__dragon-jaw{transform-box:fill-box;transform-origin:10% 10%;animation:kfx-dragon-jaw var(--kfx-duration) cubic-bezier(.12,.68,.26,1) both}
  .kfx-v2__dragon-mouth{animation:kfx-dragon-mouth var(--kfx-duration) ease-in-out both}
  .kfx-v2__dragon-throat{animation:kfx-dragon-throat var(--kfx-duration) ease-out both}
@@ -191,32 +187,13 @@ function buildCloak(root,kind){
 }
 function buildCry(root,intensity){
  addPart(root,'kfx-v2__cry-flash');
- // Reuse Kobe's existing vector artwork, with a separate articulating jaw.
- const svgNS='http://www.w3.org/2000/svg';
- const dragon=document.createElementNS(svgNS,'svg');
- dragon.setAttribute('viewBox','0 0 62 62');
- dragon.setAttribute('class','kfx-v2__dragon-vector');
- dragon.setAttribute('aria-hidden','true');
- const icon=document.createElementNS(svgNS,'image');
- icon.setAttribute('href','./src/ui/icons/party-cry.svg');
- icon.setAttribute('x','0');icon.setAttribute('y','0');
- icon.setAttribute('width','62');icon.setAttribute('height','62');
- dragon.append(icon);
- const mouth=document.createElementNS(svgNS,'path');
- mouth.setAttribute('d','M 34 29 Q 42 25 52 30 Q 46 40 36 39 Z');
- mouth.setAttribute('fill','#5e1827');mouth.setAttribute('stroke','#b86637');mouth.setAttribute('stroke-width','1.6');
- mouth.setAttribute('class','kfx-v2__dragon-mouth');
- dragon.append(mouth);
- const jaw=document.createElementNS(svgNS,'path');
- jaw.setAttribute('d','M 33 34 Q 44 36 51 31 L 48 40 Q 40 45 32 38 Z');
- jaw.setAttribute('fill','#bf733c');jaw.setAttribute('stroke','#ffc08c');jaw.setAttribute('stroke-width','1.1');
- jaw.setAttribute('class','kfx-v2__dragon-jaw');
- dragon.append(jaw);
- const throat=document.createElementNS(svgNS,'path');
- throat.setAttribute('d','M 48 31 L 59 26 L 52 36 Z');
- throat.setAttribute('fill','#ffce83');throat.setAttribute('class','kfx-v2__dragon-throat');
- dragon.append(throat);
- root.append(dragon);
+ // Static original party-cry icon; only the shockwaves animate.
+ const icon=document.createElement('img');
+ icon.className='kfx-v2__dragon-vector';
+ icon.src='./src/ui/icons/party-cry.svg';
+ icon.alt='';
+ icon.draggable=false;
+ root.append(icon);
  const count=intensity==='subtle'?2:intensity==='spectacular'?5:3;
  for(let i=0;i<count;i++){
   addPart(root,'kfx-v2__cry-wave'+(i%2?' kfx-v2__cry-wave--inner':''),{'--cry-delay':i*115+'ms'});
@@ -232,10 +209,10 @@ function buildCry(root,intensity){
 
 function buildSignature(root,kind,intensity){
  const isFire=kind==='fireball',isBolt=kind==='firebolt';
- const isDrum=['kharvek','rally','survivors'].includes(kind);
+
  if(['mantle','majesty'].includes(kind)){buildCloak(root,kind);return true;}
  if(kind==='cry'){buildCry(root,intensity);return true;}
- if(!isFire&&!isBolt&&!isDrum)return false;
+ if(!isFire&&!isBolt)return false;
  if(isFire){
   addPart(root,'kfx-v2__heat');
   addPart(root,'kfx-v2__sun');
@@ -261,13 +238,6 @@ function buildSignature(root,kind,intensity){
   addPart(track,'kfx-v2__bolt-flare');
   return true;
  }
- // One visible pulsation per spent charge: pulse=1, rally=3, survivors=1.
- const charges=kind==='rally'?3:1;
- for(let i=0;i<charges;i++){
-  const delay=i*325;
-  addPart(root,'kfx-v2__beat',{'--beat-delay':delay+'ms'});
-  addPart(root,'kfx-v2__strike',{'--beat-delay':delay+'ms'});
- }
  return true;
 }
 
@@ -276,6 +246,8 @@ export function stopKobeVfx(){
  active?.remove();active=null;
 }
 export function playKobeVfx(kind,{intensity='normal'}={}){
+ // Old gallery identifiers remain readable but use the exact standard healing FX.
+ if(['kharvek','rally','survivors'].includes(kind))kind='heal';
  const theme=THEMES[kind];if(!theme||!enabled())return false;
  try{if(intensity==='normal')intensity=localStorage.getItem('kobe-vfx-intensity')||'normal';}catch{}
  if(!['subtle','normal','spectacular'].includes(intensity))intensity='normal';
