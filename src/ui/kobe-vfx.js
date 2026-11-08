@@ -1,116 +1,105 @@
-// Kobe's Theatre of Arcana: vector-painted, self-contained combat cinematics.
-// Pure presentation: no state mutation, audio, network, or RPG Connect events.
-const PALETTE={fireball:['#fff3c2','#ffb45b','#dc622c','#872f35'],mantle:['#fff8da','#e5b963','#b86637','#f0e5ce'],kharvek:['#f0e5ce','#e5b963','#b86637','#872f35']};
-const LABELS={fireball:'Boule de feu',firebolt:'Trait de feu',mantle:'Manteau d’inspiration',kharvek:'Khar-Vek · Le Battement'};
-const DURATIONS={fireball:1450,mantle:1200,kharvek:1650};
-const NS='http://www.w3.org/2000/svg';
-let active=null,timer=null;
-function node(tag,attrs={},parent){const el=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));parent?.append(el);return el;}
-function animate(el,frames,options){el.style.transformBox='view-box';el.style.transformOrigin='200px 200px';el.animate(frames,{fill:'both',easing:'cubic-bezier(.16,.8,.2,1)',...options});}
-function defs(svg,kind){
- const d=node('defs',{},svg),colors=PALETTE[kind];
- const grad=node('radialGradient',{id:'kfx-core-gradient'},d);
- [[0,colors[0],1],[.22,colors[1],.98],[.55,colors[2],.9],[1,colors[3],0]].forEach(([at,color,opacity])=>node('stop',{offset:at*100+'%','stop-color':color,'stop-opacity':opacity},grad));
- const glow=node('filter',{id:'kfx-glow',x:'-100%',y:'-100%',width:'300%',height:'300%'},d);
- node('feGaussianBlur',{stdDeviation:kind==='fireball'?10:5},glow);
- const stroke=node('linearGradient',{id:'kfx-stroke',x1:'0',x2:'1',y1:'0',y2:'1'},d);
- colors.forEach((color,i)=>node('stop',{offset:i*100/(colors.length-1)+'%','stop-color':color},stroke));
-}
-function fire(svg,scale){
- const halo=node('circle',{cx:200,cy:200,r:88,fill:'url(#kfx-core-gradient)',filter:'url(#kfx-glow)'},svg);
- animate(halo,[{opacity:0,transform:'scale(.12)'},{opacity:.95,transform:'scale(.65)',offset:.24},{opacity:1,transform:'scale(2.5)',offset:.53},{opacity:0,transform:'scale(3.2)'}],{duration:1450});
- const core=node('circle',{cx:200,cy:200,r:48,fill:'url(#kfx-core-gradient)'},svg);
- animate(core,[{opacity:0,transform:'scale(.1)'},{opacity:1,transform:'scale(.85)',offset:.25},{opacity:1,transform:'scale(1.3)',offset:.46},{opacity:0,transform:'scale(3)'}],{duration:1250});
- for(let i=0;i<14;i++){
-  const angle=i*Math.PI*2/14,rr=70+i%3*11;
-  const x=200+Math.cos(angle)*rr,y=200+Math.sin(angle)*rr;
-  const path=node('path',{d:`M 200 200 Q ${200+Math.cos(angle-.28)*rr*.6} ${200+Math.sin(angle-.28)*rr*.6} ${x} ${y} Q ${x+Math.cos(angle+.3)*24} ${y+Math.sin(angle+.3)*24} ${x+Math.cos(angle)*54} ${y+Math.sin(angle)*54}`,fill:'none',stroke:i%3===0?'#fff3c2':i%3===1?'#ffae59':'#b84227','stroke-width':i%3===0?2:5,'stroke-linecap':'round',filter:i%3===0?'url(#kfx-glow)':''},svg);
-  animate(path,[{opacity:0,strokeDashoffset:240,transform:'scale(.2)'},{opacity:1,strokeDashoffset:0,transform:'scale(.8)',offset:.43},{opacity:0,transform:'scale(2.2)'}],{duration:1000,delay:180+i%4*30});
- }
- for(let i=0;i<28;i++){
-  const a=i*2.399963,dist=80+(i%6)*21;
-  const ember=node('ellipse',{cx:200,cy:200,rx:1.5+i%3,ry:3+i%4,fill:i%4===0?'#fff3c2':'#e5b963'},svg);
-  animate(ember,[{opacity:0,transform:'translate(0px,0px) scale(.2)'},{opacity:1,offset:.3},{opacity:0,transform:`translate(${Math.cos(a)*dist}px,${Math.sin(a)*dist}px) scale(.2)`}],{duration:900+i%4*120,delay:370+i%5*32});
- }
-}
-function mantle(svg){
- const group=node('g',{},svg);
- for(let i=0;i<3;i++){
-  const radius=60+i*23;
-  const path=node('path',{d:`M ${200-radius} 200 C ${200-radius} ${200-radius*1.1} ${200+radius} ${200-radius*1.1} ${200+radius} 200 S ${200-radius} ${200+radius*1.1} ${200-radius} 200`,fill:'none',stroke:i===0?'#fff8da':i===1?'#e5b963':'#b86637','stroke-width':i===0?2.5:1.5,'stroke-linecap':'round','stroke-dasharray':i===0?'6 12':'none'},group);
-  animate(path,[{opacity:0,transform:'scale(.5) rotate(-24deg)'},{opacity:.95,transform:'scale(1) rotate(0deg)',offset:.4},{opacity:0,transform:'scale(1.45) rotate(18deg)'}],{duration:1150,delay:i*65});
- }
- for(let i=0;i<8;i++){
-  const a=i*Math.PI/4,rr=100;
-  const p=node('path',{d:`M ${200+Math.cos(a)*rr} ${200+Math.sin(a)*rr} q 8 -16 15 -2 q 7 14 15 -2`,fill:'none',stroke:i%2?'#e5b963':'#fff8da','stroke-width':2,'stroke-linecap':'round'},group);
-  animate(p,[{opacity:0,transform:'scale(.65)'},{opacity:1,offset:.45},{opacity:0,transform:'scale(1.2)'}],{duration:950,delay:i*35});
- }
- const jewel=node('path',{d:'M200 147 L214 187 L253 200 L214 213 L200 253 L186 213 L147 200 L186 187 Z',fill:'url(#kfx-core-gradient)',stroke:'#e5b963','stroke-width':1},group);
- animate(jewel,[{opacity:0,transform:'scale(.2)'},{opacity:1,transform:'scale(.95)',offset:.45},{opacity:0,transform:'scale(1.4)'}],{duration:1200});
-}
-function kharvek(svg){
- const drum=node('g',{},svg);
- const rim=node('ellipse',{cx:200,cy:200,rx:112,ry:69,fill:'#25151b',stroke:'#b86637','stroke-width':9},drum);
- node('ellipse',{cx:200,cy:200,rx:100,ry:58,fill:'#321c20',stroke:'#e5b963','stroke-width':1.5},drum);
- for(let i=0;i<9;i++){const a=i*2*Math.PI/9;node('path',{d:`M ${200+Math.cos(a)*70} ${200+Math.sin(a)*39} Q 200 200 ${200+Math.cos(a+.45)*94} ${200+Math.sin(a+.45)*52}`,fill:'none',stroke:i%2?'#b86637':'#872f35','stroke-width':2},drum);}
- const dragon=node('path',{d:'M121 215 C140 259 180 253 191 224 C206 187 170 163 186 146 C198 133 230 143 245 161 L264 153 L253 174 L278 182 L252 191 C259 220 238 241 217 231 C235 220 233 206 219 200 C202 192 204 216 195 225 C177 248 149 238 121 215 Z',fill:'none',stroke:'#e5b963','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':560,'stroke-dashoffset':560},drum);
- animate(dragon,[{strokeDashoffset:560,opacity:.2},{strokeDashoffset:0,opacity:1,offset:.57},{strokeDashoffset:0,opacity:.2}],{duration:1550});
- const pulse=node('ellipse',{cx:200,cy:200,rx:110,ry:69,fill:'none',stroke:'#e5b963','stroke-width':7,filter:'url(#kfx-glow)'},svg);
- animate(pulse,[{opacity:0,transform:'scale(.6)'},{opacity:1,transform:'scale(1)',offset:.48},{opacity:0,transform:'scale(2.4)'}],{duration:1450,delay:180});
- animate(rim,[{stroke:'#872f35'},{stroke:'#e5b963',offset:.5},{stroke:'#872f35'}],{duration:1600});
-}
-function allowed(){return typeof document!=='undefined'&&!document.documentElement.matches('[data-still="true"]')&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;}
-export function vfxForCommand(type,payload={}){
- if(type==='spell-cast'&&payload.spellId==='fireball')return 'fireball';
- if(type==='spell-cast'&&['fire-bolt','firebolt'].includes(payload.spellId))return 'firebolt';
- if(type==='mantle')return payload.survivors?'kharvek':'mantle';
- if(type==='kharvek-power'&&['pulse','rally'].includes(payload.power))return 'kharvek';
- return null;
-}
-// Approved original GIFs only. Files must be bundled locally and precached before enabling.
-const APPROVED_FIRE_ASSETS=Object.freeze({fireball:'./src/ui/fx/approved/fireball_clean_alpha.webp',firebolt:'./src/ui/fx/approved/firebolt.gif'});
-let fireController=null;
-function playApprovedFire(kind,intensity){
- const url=APPROVED_FIRE_ASSETS[kind];if(!url||!allowed())return false;
- if(fireController)fireController.abort();
- const controller=new AbortController();fireController=controller;
- // Image decode occurs asynchronously; the spell is already resolved by the combat engine.
- const image=new Image();image.decoding='async';image.src=new URL(url,document.baseURI).href;
- image.decode().then(()=>{
-  if(controller.signal.aborted)return;
-  active?.remove();if(timer)clearTimeout(timer);
-  const layer=document.createElement('div');layer.className='kobe-arcana-vfx kobe-arcana-vfx--'+kind;
-  layer.setAttribute('aria-hidden','true');
-  Object.assign(layer.style,{position:'fixed',inset:'0',zIndex:180,pointerEvents:'none',display:'grid',placeItems:'center',overflow:'hidden'});
-  const element=document.createElement('img');element.src=image.src;element.alt='';element.draggable=false;
-  const width=kind==='firebolt'?'min(88vw, 720px)':'min(76vw, 54vh, 440px)';
-  Object.assign(element.style,{display:'block',width,height:'auto',maxHeight:'65vh',objectFit:'contain',mixBlendMode:'screen',opacity:intensity==='subtle'?'0.7':'1'});
-  layer.append(element);document.body.append(layer);active=layer;
-  const clear=()=>{layer.remove();if(active===layer)active=null;if(fireController===controller)fireController=null;};
-  controller.signal.addEventListener('abort',clear,{once:true});
-  timer=setTimeout(clear,kind==='firebolt'?1100:1200);
- }).catch(()=>{if(fireController===controller)fireController=null;});
+/**
+ * Kobe FX v2 — short, pointer-transparent, presentation-only visual feedback.
+ * Inspired by Kentaro's #fxOverlay and rpg-combat-fx pulse patterns.
+ * No imported assets, gameplay state changes, sound, or network calls.
+ */
+const THEMES=Object.freeze({
+ fireball:{color:'#ff7a29',light:'#ffe6a1',dark:'#872f35',glyph:'✹',duration:850,burst:14},
+ firebolt:{color:'#ff7935',light:'#fff0c5',dark:'#9b3525',glyph:'✦',duration:620,burst:7},
+ mantle:{color:'#e5b963',light:'#fff5cf',dark:'#b86637',glyph:'✧',duration:900,burst:10},
+ majesty:{color:'#d5a9ff',light:'#f9e5ff',dark:'#872f35',glyph:'♛',duration:950,burst:8},
+ cry:{color:'#d34d42',light:'#ffd49a',dark:'#872f35',glyph:'♜',duration:710,burst:12},
+ kharvek:{color:'#e5b963',light:'#f0e5ce',dark:'#872f35',glyph:'♫',duration:920,burst:12},
+ rally:{color:'#e5b963',light:'#fff2b5',dark:'#b86637',glyph:'♪',duration:1040,burst:15},
+ survivors:{color:'#ecb961',light:'#fff0c5',dark:'#872f35',glyph:'✥',duration:1040,burst:12},
+ heal:{color:'#80d8a3',light:'#ebffe5',dark:'#31755f',glyph:'✚',duration:720,burst:8},
+ control:{color:'#bb90dc',light:'#f9e5ff',dark:'#643b86',glyph:'◇',duration:700,burst:7},
+ inspiration:{color:'#e5b963',light:'#f0e5ce',dark:'#b86637',glyph:'✧',duration:650,burst:7}
+});
+const REDUCED='(prefers-reduced-motion: reduce)';
+let active=null,cleanupTimer=null,styleReady=false;
+const isBrowser=()=>typeof document!=='undefined'&&typeof window!=='undefined';
+function enabled(){
+ if(!isBrowser())return false;
+ if(document.documentElement.dataset.still==='true')return false;
+ if(window.matchMedia?.(REDUCED).matches)return false;
+ try{if(localStorage.getItem('kobe-vfx-enabled')==='false')return false;}catch{}
  return true;
 }
-export function playKobeVfx(kind,{intensity}={}){
- if(kind==='fireball'||kind==='firebolt'){
-  // Never show the rejected vector fallback. Missing assets fail quietly.
-  return playApprovedFire(kind,intensity);
+export function vfxForCommand(type,payload={}){
+ if(type==='spell-cast'){
+  const id=String(payload.spellId||'').toLowerCase();
+  if(id==='fireball')return 'fireball';
+  if(id==='fire-bolt'||id==='firebolt')return 'firebolt';
+  if(['healing-word','cure-wounds','mass-cure-wounds','greater-restoration'].includes(id))return 'heal';
+  if(['command','suggestion','hypnotic-pattern','hold-person','dominate-person','fear'].includes(id))return 'control';
+  if(['power-word-heal'].includes(id))return 'heal';
+  return null;
  }
- if(!LABELS[kind]||!allowed())return false;
- const level=['subtle','normal','spectacular'].includes(intensity)?intensity:(typeof localStorage!=='undefined'&&localStorage.getItem('kobe-vfx-intensity'))||'normal';
- if(timer)clearTimeout(timer);
- active?.remove();
- const layer=document.createElement('div');
- layer.className='kobe-arcana-vfx kobe-arcana-vfx--'+kind;
- layer.setAttribute('aria-hidden','true');
- Object.assign(layer.style,{position:'fixed',inset:0,zIndex:180,pointerEvents:'none',display:'grid',placeItems:'center',overflow:'hidden',opacity:level==='subtle'?.7:1});
- const stage=document.createElement('div');
- Object.assign(stage.style,{position:'relative',width:'min(76vw, 54vh, 440px)',aspectRatio:'1',transform:level==='spectacular'?'scale(1.16)':'none'});
- const svg=node('svg',{viewBox:'0 0 400 400',width:'100%',height:'100%','aria-hidden':'true'},stage);
- svg.style.overflow='visible';defs(svg,kind);
- if(kind==='fireball')fire(svg);else if(kind==='mantle')mantle(svg);else kharvek(svg);
- layer.append(stage);document.body.append(layer);active=layer;
- timer=setTimeout(()=>{layer.remove();if(active===layer)active=null;timer=null;},DURATIONS[kind]+100);
+ if(type==='fire-bolt')return 'firebolt';
+ if(type==='mantle')return payload.survivors?'survivors':'mantle';
+ if(type==='inspiration')return 'inspiration';
+ if(type==='majesty')return 'majesty';
+ if(type==='majesty-command')return 'control';
+ if(type==='cry')return 'cry';
+ if(type==='kharvek-power'){
+  if(payload.power==='pulse')return 'kharvek';
+  if(payload.power==='rally')return 'rally';
+  if(payload.power==='survivors')return 'survivors';
+ }
+ return null;
+}
+function installStyle(){
+ if(styleReady||document.getElementById('kobe-fx-kentaro-v2')){styleReady=true;return;}
+ const css=`
+ .kfx-v2{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden;contain:layout style;isolation:isolate}
+ .kfx-v2 *{pointer-events:none}
+ .kfx-v2__wash{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--kfx-color) 24%,transparent),transparent 65%);animation:kfx-wash var(--kfx-duration) ease-out both}
+ .kfx-v2__focus{position:absolute;left:50%;top:45%;width:min(38vmin,270px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,var(--kfx-light) 0%,var(--kfx-color) 21%,color-mix(in srgb,var(--kfx-dark) 65%,transparent) 44%,transparent 70%);filter:drop-shadow(0 0 24px var(--kfx-color));animation:kfx-impact var(--kfx-duration) cubic-bezier(.12,.67,.24,1) both}
+ .kfx-v2__glyph{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font:800 clamp(60px,16vmin,138px) Georgia,serif;color:var(--kfx-light);text-shadow:0 0 17px var(--kfx-color),0 0 37px var(--kfx-color);animation:kfx-glyph var(--kfx-duration) ease-out both}
+ .kfx-v2__ring{position:absolute;left:50%;top:45%;width:min(28vmin,225px);aspect-ratio:1;border:3px solid var(--kfx-light);border-radius:50%;box-shadow:0 0 20px var(--kfx-color),inset 0 0 16px var(--kfx-color);animation:kfx-ring var(--kfx-duration) ease-out both}
+ .kfx-v2__ring:nth-of-type(4){animation-delay:120ms}
+ .kfx-v2__spark{position:absolute;left:50%;top:45%;width:4px;height:clamp(10px,2vmin,20px);border-radius:50%;background:var(--kfx-light);box-shadow:0 0 10px var(--kfx-color);transform:translate(-50%,-50%) rotate(var(--angle));animation:kfx-spark var(--kfx-duration) ease-out both;animation-delay:var(--delay)}
+ .kfx-v2--mantle .kfx-v2__focus,.kfx-v2--majesty .kfx-v2__focus,.kfx-v2--rally .kfx-v2__focus,.kfx-v2--survivors .kfx-v2__focus,.kfx-v2--heal .kfx-v2__focus,.kfx-v2--inspiration .kfx-v2__focus{opacity:.48}
+ .kfx-v2--firebolt .kfx-v2__ring,.kfx-v2--inspiration .kfx-v2__ring{border-width:2px}
+ @keyframes kfx-wash{0%,100%{opacity:0}20%{opacity:1}60%{opacity:.5}}
+ @keyframes kfx-impact{0%{opacity:0;scale:.13}24%{opacity:.95;scale:.63}46%{opacity:1;scale:1}100%{opacity:0;scale:2.8}}
+ @keyframes kfx-glyph{0%{opacity:0;scale:.4;rotate:-12deg}24%{opacity:1;scale:1.12;rotate:0deg}55%{opacity:.85;scale:1}100%{opacity:0;scale:1.6}}
+ @keyframes kfx-ring{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(3.1)}}
+ @keyframes kfx-spark{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--angle)) translateY(0) scale(.4)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--angle)) translateY(calc(var(--distance) * -1)) scale(.15)}}
+ @media(prefers-reduced-motion:reduce){.kfx-v2{display:none!important}}
+ `;
+ const st=document.createElement('style');st.id='kobe-fx-kentaro-v2';st.textContent=css;document.head.append(st);styleReady=true;
+}
+export function stopKobeVfx(){
+ if(cleanupTimer!==null){clearTimeout(cleanupTimer);cleanupTimer=null;}
+ active?.remove();active=null;
+}
+export function playKobeVfx(kind,{intensity='normal'}={}){
+ const theme=THEMES[kind];if(!theme||!enabled())return false;
+ installStyle();stopKobeVfx();
+ const root=document.createElement('div');
+ root.className='kfx-v2 kfx-v2--'+kind;
+ root.setAttribute('aria-hidden','true');
+ root.style.setProperty('--kfx-color',theme.color);
+ root.style.setProperty('--kfx-light',theme.light);
+ root.style.setProperty('--kfx-dark',theme.dark);
+ root.style.setProperty('--kfx-duration',theme.duration+'ms');
+ if(intensity==='subtle')root.style.opacity='.65';
+ for(const part of ['wash','focus','glyph','ring','ring']){
+  const node=document.createElement('div');node.className='kfx-v2__'+part;
+  if(part==='glyph')node.textContent=theme.glyph;
+  root.append(node);
+ }
+ const count=intensity==='subtle'?Math.ceil(theme.burst/2):theme.burst;
+ for(let i=0;i<count;i++){
+  const node=document.createElement('i');node.className='kfx-v2__spark';
+  node.style.setProperty('--angle',Math.round(i*360/count)+'deg');
+  node.style.setProperty('--distance',(55+(i%4)*14)+'vmin');
+  node.style.setProperty('--delay',((i%4)*24)+'ms');
+  root.append(node);
+ }
+ document.body.append(root);active=root;
+ cleanupTimer=setTimeout(()=>{if(active===root)stopKobeVfx();else root.remove();},theme.duration+240);
  return true;
 }
