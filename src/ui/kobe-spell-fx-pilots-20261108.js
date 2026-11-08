@@ -102,6 +102,7 @@ export function playSpellFx(id,{intensity='normal'}={}){
  const d=SPELL_FX.find(x=>x[0]===id);
  if(!d||typeof document==='undefined'||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return false;
  stopSpellFx();
+ if(['dissonant-whispers','mirror-image','circle-of-power'].includes(id))return playPilot(id);
  if(!document.querySelector('#ksp-v11-style')){const st=document.createElement('style');st.id='ksp-v11-style';st.textContent=CSS;document.head.append(st)}
  const duration=intensity==='subtle'?750:intensity==='spectacular'?1650:1150;
  const root=document.createElement('div');root.className='ksp-overlay';root.setAttribute('aria-hidden','true');
