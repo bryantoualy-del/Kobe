@@ -67,6 +67,11 @@ const PILOT_CSS=`
 `;
 
 const REFINED_CSS=`
+.ksp-proto .p-rune-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 5px #f9e8a9) drop-shadow(0 0 13px #e5b963);animation:p-rune-ring-glow 3500ms ease-in-out both}
+.ksp-proto .p-rune-glyph{fill:#fff0b6;font-family:Georgia,serif;font-weight:bold;font-size:5px;text-anchor:middle;dominant-baseline:middle;opacity:0;animation:p-rune-ignite 3500ms ease-in-out both;animation-delay:var(--rune-delay)}
+@keyframes p-rune-ignite{0%,13%{opacity:0}22%{opacity:.9}60%{opacity:1}83%{opacity:1;fill:#fff}100%{opacity:.85}}
+@keyframes p-rune-ring-glow{0%,15%{opacity:0}35%{opacity:1}80%{filter:drop-shadow(0 0 8px #fff6c9) drop-shadow(0 0 22px #e5b963)}90%{filter:drop-shadow(0 0 15px white) drop-shadow(0 0 36px #fff1aa)}100%{opacity:.9}}
+
 /* Frameless radiant mirrors: no copper border or metal rim. */
 .ksp-proto .p-mirror{border:0!important;border-radius:46% 46% 14% 14%/28% 28% 10% 10%;background:linear-gradient(115deg,rgba(136,222,249,.18),rgba(230,251,255,.88) 27%,rgba(255,255,255,.98) 46%,rgba(121,205,248,.62) 66%,rgba(223,249,255,.25));box-shadow:inset 0 0 26px rgba(255,255,255,.95),0 0 18px 5px rgba(199,241,255,.9),0 0 55px 15px rgba(111,202,255,.62)!important;filter:drop-shadow(0 0 18px rgba(215,250,255,.9));animation:p-mirror-glow 1850ms ease-out both!important}
 .ksp-proto .p-mirror:before{border:0!important;inset:0;box-shadow:inset 0 0 20px rgba(255,255,255,.95),0 0 20px rgba(255,255,255,.9);background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.45),transparent 65%)}
@@ -113,7 +118,7 @@ function playPilot(id){
  const add=(cls)=>{const n=document.createElement('div');n.className=cls;stage.append(n)};
  if(id==='dissonant-whispers'){for(let i=0;i<13;i++){const n=document.createElement('div');n.className='p-wonq-mist';n.style.cssText='--x:'+(8+i*31%85)+'%;--y:'+(25+i*17%65)+'%;--w:'+(65+i%4*26)+'px;--h:'+(100+i%5*32)+'px;--delay:'+(i%6*65)+'ms';stage.append(n)}for(let i=0;i<9;i++){const n=document.createElement('div');n.className='p-laugh';n.textContent=i%3===0?'Ha ha ha':i%3===1?'Ha ha':'HA HA HA';n.style.cssText='--x:'+(14+i*29%72)+'%;--y:'+(18+i*19%65)+'%;--dx:'+(i%2?40:-40)+'px;--delay:'+(i*125)+'ms';stage.append(n)}}
  if(id==='mirror-image'){add('p-mirror p-mirror--left');add('p-mirror p-mirror--middle');add('p-mirror p-mirror--right')}
- if(id==='circle-of-power'){add('p-halo-fill');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('class','p-halo-svg');const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('cx','50');circle.setAttribute('cy','50');circle.setAttribute('r','46');svg.append(circle);stage.append(svg)}
+ if(id==='circle-of-power'){add('p-halo-fill');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('class','p-halo-svg');const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('cx','50');circle.setAttribute('cy','50');circle.setAttribute('r','46');svg.append(circle);stage.append(svg);const runes=document.createElementNS('http://www.w3.org/2000/svg','svg');runes.setAttribute('viewBox','0 0 100 100');runes.setAttribute('class','p-rune-ring');const glyphs=['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ'];glyphs.forEach((glyph,i)=>{const angle=(-Math.PI/2)+(i*2*Math.PI/glyphs.length);const node=document.createElementNS('http://www.w3.org/2000/svg','text');node.setAttribute('x',(50+39*Math.cos(angle)).toFixed(2));node.setAttribute('y',(50+39*Math.sin(angle)).toFixed(2));node.setAttribute('class','p-rune-glyph');node.style.setProperty('--rune-delay',(i*88)+'ms');node.textContent=glyph;runes.append(node)});stage.append(runes)}
  document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?3700:id==='dissonant-whispers'?2450:1850);return true;
 }
 export function playSpellFx(id,{intensity='normal'}={}){
