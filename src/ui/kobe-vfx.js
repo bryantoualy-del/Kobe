@@ -95,7 +95,6 @@ function playApprovedFire(kind,intensity){
 export function playKobeVfx(kind,{intensity}={}){
  if(kind==='fireball'||kind==='firebolt'){
   // Never show the rejected vector fallback. Missing assets fail quietly.
-  const intensity=typeof localStorage!=='undefined'?localStorage.getItem('kobe-vfx-intensity')||'normal':'normal';
   return playApprovedFire(kind,intensity);
  }
  if(!LABELS[kind]||!allowed())return false;
