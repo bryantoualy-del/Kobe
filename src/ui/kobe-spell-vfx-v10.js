@@ -67,6 +67,14 @@ const PILOT_CSS=`
 `;
 
 const REFINED_CSS=`
+.ksp-proto .p-wonq-mist{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border-radius:50%;background:radial-gradient(ellipse,rgba(110,175,165,.58),rgba(92,63,116,.4) 48%,transparent 73%);filter:blur(13px);animation:p-wonq-mist 2250ms ease-out both;animation-delay:var(--delay)}
+.ksp-proto .p-wonq-face{position:absolute;left:var(--x);top:var(--y);width:clamp(22px,5vmin,45px);height:clamp(35px,8vmin,72px);border-radius:50% 50% 44% 44%;background:radial-gradient(ellipse at 38% 30%,rgba(195,239,225,.52),rgba(76,121,128,.4) 52%,transparent 75%);filter:blur(3px) drop-shadow(0 0 12px #8bc4b7);animation:p-wonq-face 2250ms ease-out both;animation-delay:var(--delay)}
+.ksp-proto .p-wonq-face:after{content:'';position:absolute;left:42%;top:55%;width:17%;height:26%;border-radius:50%;background:rgba(18,22,35,.7);box-shadow:-10px -13px 0 -2px rgba(18,22,35,.65),10px -13px 0 -2px rgba(18,22,35,.65)}
+.ksp-proto .p-wonq-echo{position:absolute;left:50%;top:50%;width:35%;aspect-ratio:1;border:5px solid rgba(137,196,183,.75);border-radius:50%;box-shadow:0 0 18px #9d7db2;animation:p-wonq-echo 2250ms ease-out both;animation-delay:var(--delay)}
+@keyframes p-wonq-mist{0%{opacity:0;transform:translate(-50%,40%) scale(.35)}25%{opacity:.8}65%{opacity:.65;transform:translate(-50%,-15%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-65%) scale(1.65)}}
+@keyframes p-wonq-face{0%,15%{opacity:0;transform:translateY(40px) scale(.4)}40%{opacity:.85;transform:translateY(0) scale(1)}75%{opacity:.8;transform:translateY(-20px) scale(1.05)}100%{opacity:0;transform:translateY(-65px) scale(1.2)}}
+@keyframes p-wonq-echo{0%,45%{opacity:0;transform:translate(-50%,-50%) scale(.2)}60%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(3)}}
+
 .ksp-proto .p-mirror{position:absolute;top:13%;width:28%;height:74%;border:clamp(5px,1vmin,10px) solid #b86637;border-radius:48% 48% 13% 13%/28% 28% 9% 9%;background:linear-gradient(115deg,rgba(21,20,25,.9),rgba(100,159,180,.6) 28%,rgba(231,249,255,.92) 46%,rgba(91,142,164,.65) 62%,rgba(20,25,38,.93));box-shadow:inset 0 0 20px #d4f7ff,0 0 16px #b86637,0 0 34px rgba(135,210,239,.4);overflow:hidden;animation:p-mirror-appear 1550ms ease-out both}
 .ksp-proto .p-mirror:before{content:'';position:absolute;inset:5%;border:2px solid rgba(240,229,206,.7);border-radius:inherit;box-shadow:inset 0 0 19px rgba(196,240,255,.75)}
 .ksp-proto .p-mirror:after{content:'';position:absolute;top:-40%;left:-60%;width:60%;height:190%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);transform:rotate(20deg);animation:p-mirror-sheen 1550ms ease-out both}
@@ -85,10 +93,10 @@ function playPilot(id){
  const root=document.createElement('div');root.className='ksp-proto';root.setAttribute('aria-hidden','true');
  const stage=document.createElement('div');stage.className='p-stage';root.append(stage);
  const add=(cls)=>{const n=document.createElement('div');n.className=cls;stage.append(n)};
- if(id==='dissonant-whispers'){add('p-smoke');add('p-smoke');add('p-distortion');add('p-distortion')}
+ if(id==='dissonant-whispers'){for(let i=0;i<16;i++){const n=document.createElement('div');n.className='p-wonq-mist';n.style.cssText='--x:'+(8+i*31%85)+'%;--y:'+(25+i*17%65)+'%;--w:'+(65+i%4*26)+'px;--h:'+(100+i%5*32)+'px;--delay:'+(i%6*65)+'ms';stage.append(n)}for(let i=0;i<7;i++){const n=document.createElement('div');n.className='p-wonq-face';n.style.cssText='--x:'+(15+i*29%70)+'%;--y:'+(24+i*13%52)+'%;--delay:'+(i*90)+'ms';stage.append(n)}for(let i=0;i<2;i++){const n=document.createElement('div');n.className='p-wonq-echo';n.style.setProperty('--delay',(850+i*220)+'ms');stage.append(n)}}
  if(id==='mirror-image'){add('p-mirror p-mirror--left');add('p-mirror p-mirror--middle');add('p-mirror p-mirror--right')}
  if(id==='circle-of-power'){add('p-halo-fill');add('p-halo')}
- document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?2500:1850);return true;
+ document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?2500:id==='dissonant-whispers'?2450:1850);return true;
 }
 export function playSpellFx(id,{intensity='normal'}={}){
  const d=SPELL_FX.find(x=>x[0]===id);
