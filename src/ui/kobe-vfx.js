@@ -77,6 +77,8 @@ export function stopKobeVfx(){
 }
 export function playKobeVfx(kind,{intensity='normal'}={}){
  const theme=THEMES[kind];if(!theme||!enabled())return false;
+ try{if(intensity==='normal')intensity=localStorage.getItem('kobe-vfx-intensity')||'normal';}catch{}
+ if(!['subtle','normal','spectacular'].includes(intensity))intensity='normal';
  installStyle();stopKobeVfx();
  const root=document.createElement('div');
  root.className='kfx-v2 kfx-v2--'+kind;
@@ -91,7 +93,7 @@ export function playKobeVfx(kind,{intensity='normal'}={}){
   if(part==='glyph')node.textContent=theme.glyph;
   root.append(node);
  }
- const count=intensity==='subtle'?Math.ceil(theme.burst/2):theme.burst;
+ const count=intensity==='subtle'?Math.ceil(theme.burst/2):intensity==='spectacular'?theme.burst+5:theme.burst;
  for(let i=0;i<count;i++){
   const node=document.createElement('i');node.className='kfx-v2__spark';
   node.style.setProperty('--angle',Math.round(i*360/count)+'deg');
