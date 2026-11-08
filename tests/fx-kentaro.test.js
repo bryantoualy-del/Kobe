@@ -5,8 +5,12 @@ import {vfxForCommand,playKobeVfx,stopKobeVfx} from '../src/ui/kobe-vfx.js';
 test('FX routes only real successful gameplay command categories',()=>{
  const cases=[
   ['spell-cast',{spellId:'fireball'},'fireball'],
-  ['spell-cast',{spellId:'fire-bolt'},'firebolt'],
-  ['fire-bolt',{},'firebolt'],
+  ['spell-cast',{spellId:'fire-bolt'},null],
+  ['fire-bolt',{},null],
+  ['spell-resolve',{spellId:'fire-bolt',result:'miss'},null],
+  ['spell-resolve',{spellId:'fire-bolt',result:'refused'},null],
+  ['spell-resolve',{spellId:'fire-bolt',result:'hit'},'firebolt'],
+  ['spell-resolve',{spellId:'fire-bolt',result:'critical'},'firebolt'],
   ['spell-cast',{spellId:'healing-word'},'heal'],
   ['spell-cast',{spellId:'suggestion'},'control'],
   ['inspiration',{},'inspiration'],
