@@ -1,7 +1,7 @@
 // Kobe's Theatre of Arcana: vector-painted, self-contained combat cinematics.
 // Pure presentation: no state mutation, audio, network, or RPG Connect events.
 const PALETTE={fireball:['#fff3c2','#ffb45b','#dc622c','#872f35'],mantle:['#fff8da','#e5b963','#b86637','#f0e5ce'],kharvek:['#f0e5ce','#e5b963','#b86637','#872f35']};
-const LABELS={fireball:'Boule de feu',mantle:'Manteau d’inspiration',kharvek:'Khar-Vek · Le Battement'};
+const LABELS={fireball:'Boule de feu',firebolt:'Trait de feu',mantle:'Manteau d’inspiration',kharvek:'Khar-Vek · Le Battement'};
 const DURATIONS={fireball:1450,mantle:1200,kharvek:1650};
 const NS='http://www.w3.org/2000/svg';
 let active=null,timer=null;
@@ -62,11 +62,13 @@ function kharvek(svg){
 function allowed(){return typeof document!=='undefined'&&!document.documentElement.matches('[data-still="true"]')&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;}
 export function vfxForCommand(type,payload={}){
  if(type==='spell-cast'&&payload.spellId==='fireball')return 'fireball';
+ if(type==='spell-cast'&&['fire-bolt','firebolt'].includes(payload.spellId))return 'firebolt';
  if(type==='mantle')return payload.survivors?'kharvek':'mantle';
  if(type==='kharvek-power'&&['pulse','rally'].includes(payload.power))return 'kharvek';
  return null;
 }
 export function playKobeVfx(kind,{intensity}={}){
+ if(kind==='firebolt')return false; // Await approved local sprite asset; never substitute rejected vector FX.
  if(!LABELS[kind]||!allowed())return false;
  const level=['subtle','normal','spectacular'].includes(intensity)?intensity:(typeof localStorage!=='undefined'&&localStorage.getItem('kobe-vfx-intensity'))||'normal';
  if(timer)clearTimeout(timer);
