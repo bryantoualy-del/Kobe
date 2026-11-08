@@ -67,6 +67,16 @@ const PILOT_CSS=`
 `;
 
 const REFINED_CSS=`
+/* Frameless radiant mirrors: no copper border or metal rim. */
+.ksp-proto .p-mirror{border:0!important;border-radius:46% 46% 14% 14%/28% 28% 10% 10%;background:linear-gradient(115deg,rgba(136,222,249,.18),rgba(230,251,255,.88) 27%,rgba(255,255,255,.98) 46%,rgba(121,205,248,.62) 66%,rgba(223,249,255,.25));box-shadow:inset 0 0 26px rgba(255,255,255,.95),0 0 18px 5px rgba(199,241,255,.9),0 0 55px 15px rgba(111,202,255,.62)!important;filter:drop-shadow(0 0 18px rgba(215,250,255,.9));animation:p-mirror-glow 1850ms ease-out both!important}
+.ksp-proto .p-mirror:before{border:0!important;inset:0;box-shadow:inset 0 0 20px rgba(255,255,255,.95),0 0 20px rgba(255,255,255,.9);background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.45),transparent 65%)}
+@keyframes p-mirror-glow{0%{opacity:0;transform:perspective(600px) rotateY(65deg) rotate(var(--rot)) scale(.6);filter:brightness(2)}30%{opacity:1;transform:perspective(600px) rotateY(0) rotate(var(--rot)) scale(1);filter:brightness(1.45)}75%{opacity:1;transform:perspective(600px) rotateY(-4deg) rotate(var(--rot)) scale(1);filter:brightness(1.7)}100%{opacity:0;transform:perspective(600px) rotateY(-15deg) rotate(var(--rot)) scale(1.04);filter:brightness(2)}}
+/* Complete 360-degree fill after the outline closes, then bloom to near-white. */
+.ksp-proto .p-halo-fill{background:radial-gradient(circle,rgba(255,255,255,.99) 0%,rgba(255,252,221,.96) 38%,rgba(255,228,148,.92) 72%,rgba(245,195,89,.8) 100%)!important;box-shadow:inset 0 0 35px white,0 0 65px 22px rgba(255,233,158,.8),0 0 120px 35px rgba(255,247,203,.65)!important;animation:p-halo-full-bloom 3500ms ease-in-out both!important}
+.ksp-proto .p-halo-svg{animation:p-halo-svg-bloom 3500ms ease-in-out both}
+@keyframes p-halo-full-bloom{0%,49%{opacity:0;clip-path:circle(0% at 50% 50%);filter:brightness(1)}51%{opacity:.55;clip-path:circle(0% at 50% 50%)}76%{opacity:.95;clip-path:circle(50% at 50% 50%);filter:brightness(1.7)}86%{opacity:1;clip-path:circle(50% at 50% 50%);filter:brightness(3.2)}100%{opacity:.9;clip-path:circle(50% at 50% 50%);filter:brightness(2.1)}}
+@keyframes p-halo-svg-bloom{0%,55%{filter:drop-shadow(0 0 8px #fff2bb)}85%{filter:drop-shadow(0 0 28px white) drop-shadow(0 0 55px #fff2bb)}100%{filter:drop-shadow(0 0 18px white) drop-shadow(0 0 35px #e5b963)}}
+
 .ksp-proto .p-laugh{position:absolute;left:var(--x);top:var(--y);font:italic 900 clamp(22px,5vmin,48px) Georgia,serif;letter-spacing:.04em;white-space:nowrap;color:#d6b7e6;text-shadow:0 0 10px #ad73d1,0 0 25px #76418f,0 0 40px #382046;filter:drop-shadow(0 0 9px #9c6fbc);animation:p-laugh-float 2100ms ease-out both;animation-delay:var(--delay)}
 @keyframes p-laugh-float{0%{opacity:0;transform:translate(-50%,20px) scale(.45) rotate(-10deg)}24%{opacity:1;transform:translate(-50%,0) scale(1) rotate(3deg)}58%{opacity:.92;transform:translate(calc(-50% + var(--dx)),-22px) scale(1.1) rotate(-3deg)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-105px) scale(1.35) rotate(8deg)}}
 .ksp-proto .p-halo-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 7px #f8e3a3) drop-shadow(0 0 20px #e5b963)}
@@ -104,7 +114,7 @@ function playPilot(id){
  if(id==='dissonant-whispers'){for(let i=0;i<13;i++){const n=document.createElement('div');n.className='p-wonq-mist';n.style.cssText='--x:'+(8+i*31%85)+'%;--y:'+(25+i*17%65)+'%;--w:'+(65+i%4*26)+'px;--h:'+(100+i%5*32)+'px;--delay:'+(i%6*65)+'ms';stage.append(n)}for(let i=0;i<9;i++){const n=document.createElement('div');n.className='p-laugh';n.textContent=i%3===0?'Ha ha ha':i%3===1?'Ha ha':'HA HA HA';n.style.cssText='--x:'+(14+i*29%72)+'%;--y:'+(18+i*19%65)+'%;--dx:'+(i%2?40:-40)+'px;--delay:'+(i*125)+'ms';stage.append(n)}}
  if(id==='mirror-image'){add('p-mirror p-mirror--left');add('p-mirror p-mirror--middle');add('p-mirror p-mirror--right')}
  if(id==='circle-of-power'){add('p-halo-fill');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('class','p-halo-svg');const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('cx','50');circle.setAttribute('cy','50');circle.setAttribute('r','46');svg.append(circle);stage.append(svg)}
- document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?3200:id==='dissonant-whispers'?2450:1850);return true;
+ document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?3700:id==='dissonant-whispers'?2450:1850);return true;
 }
 export function playSpellFx(id,{intensity='normal'}={}){
  const d=SPELL_FX.find(x=>x[0]===id);
