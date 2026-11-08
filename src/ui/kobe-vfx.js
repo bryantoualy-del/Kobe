@@ -67,8 +67,37 @@ export function vfxForCommand(type,payload={}){
  if(type==='kharvek-power'&&['pulse','rally'].includes(payload.power))return 'kharvek';
  return null;
 }
+// Approved original GIFs only. Files must be bundled locally and precached before enabling.
+const APPROVED_FIRE_ASSETS=Object.freeze({fireball:'./src/ui/fx/approved/fireball.gif',firebolt:'./src/ui/fx/approved/firebolt.gif'});
+let fireController=null;
+function playApprovedFire(kind,intensity){
+ const url=APPROVED_FIRE_ASSETS[kind];if(!url||!allowed())return false;
+ if(fireController)fireController.abort();
+ const controller=new AbortController();fireController=controller;
+ // Image decode occurs asynchronously; the spell is already resolved by the combat engine.
+ const image=new Image();image.decoding='async';image.src=new URL(url,document.baseURI).href;
+ image.decode().then(()=>{
+  if(controller.signal.aborted)return;
+  active?.remove();if(timer)clearTimeout(timer);
+  const layer=document.createElement('div');layer.className='kobe-arcana-vfx kobe-arcana-vfx--'+kind;
+  layer.setAttribute('aria-hidden','true');
+  Object.assign(layer.style,{position:'fixed',inset:'0',zIndex:180,pointerEvents:'none',display:'grid',placeItems:'center',overflow:'hidden'});
+  const element=document.createElement('img');element.src=image.src;element.alt='';element.draggable=false;
+  const width=kind==='firebolt'?'min(88vw, 720px)':'min(76vw, 54vh, 440px)';
+  Object.assign(element.style,{display:'block',width,height:'auto',maxHeight:'65vh',objectFit:'contain',opacity:intensity==='subtle'?'0.7':'1'});
+  layer.append(element);document.body.append(layer);active=layer;
+  const clear=()=>{layer.remove();if(active===layer)active=null;if(fireController===controller)fireController=null;};
+  controller.signal.addEventListener('abort',clear,{once:true});
+  timer=setTimeout(clear,kind==='firebolt'?1100:1200);
+ }).catch(()=>{if(fireController===controller)fireController=null;});
+ return true;
+}
 export function playKobeVfx(kind,{intensity}={}){
- if(kind==='firebolt')return false; // Await approved local sprite asset; never substitute rejected vector FX.
+ if(kind==='fireball'||kind==='firebolt'){
+  // Never show the rejected vector fallback. Missing assets fail quietly.
+  const intensity=typeof localStorage!=='undefined'?localStorage.getItem('kobe-vfx-intensity')||'normal':'normal';
+  return playApprovedFire(kind,intensity);
+ }
  if(!LABELS[kind]||!allowed())return false;
  const level=['subtle','normal','spectacular'].includes(intensity)?intensity:(typeof localStorage!=='undefined'&&localStorage.getItem('kobe-vfx-intensity'))||'normal';
  if(timer)clearTimeout(timer);
