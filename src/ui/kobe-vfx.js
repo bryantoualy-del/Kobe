@@ -84,7 +84,7 @@ function playApprovedFire(kind,intensity){
   Object.assign(layer.style,{position:'fixed',inset:'0',zIndex:180,pointerEvents:'none',display:'grid',placeItems:'center',overflow:'hidden'});
   const element=document.createElement('img');element.src=image.src;element.alt='';element.draggable=false;
   const width=kind==='firebolt'?'min(88vw, 720px)':'min(76vw, 54vh, 440px)';
-  Object.assign(element.style,{display:'block',width,height:'auto',maxHeight:'65vh',objectFit:'contain',opacity:intensity==='subtle'?'0.7':'1'});
+  Object.assign(element.style,{display:'block',width,height:'auto',maxHeight:'65vh',objectFit:'contain',mixBlendMode:'screen',opacity:intensity==='subtle'?'0.7':'1'});
   layer.append(element);document.body.append(layer);active=layer;
   const clear=()=>{layer.remove();if(active===layer)active=null;if(fireController===controller)fireController=null;};
   controller.signal.addEventListener('abort',clear,{once:true});
