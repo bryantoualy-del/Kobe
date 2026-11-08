@@ -68,7 +68,7 @@ export function vfxForCommand(type,payload={}){
  return null;
 }
 // Approved original GIFs only. Files must be bundled locally and precached before enabling.
-const APPROVED_FIRE_ASSETS=Object.freeze({fireball:'./src/ui/fx/approved/fireball.gif',firebolt:'./src/ui/fx/approved/firebolt.gif'});
+const APPROVED_FIRE_ASSETS=Object.freeze({fireball:'./src/ui/fx/approved/fireball_transparent.webp',firebolt:'./src/ui/fx/approved/firebolt.gif'});
 let fireController=null;
 function playApprovedFire(kind,intensity){
  const url=APPROVED_FIRE_ASSETS[kind];if(!url||!allowed())return false;
