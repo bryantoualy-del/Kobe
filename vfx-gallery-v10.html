@@ -9,7 +9,7 @@ for(const [id,name] of spells){
  button.onclick=async()=>{
   status.textContent='Chargement de '+name+'…';
   try{
-   const module=await import('./src/ui/kobe-spell-fx-pilots-20261108.js');
+   const module=await import('./src/ui/kobe-spell-fx-pilots-20261108.js?build=5d40ef1');
    const ok=module.playSpellFx(id,{intensity:document.getElementById('intensity').value});
    status.textContent=ok?'Lecture : '+name:'Animation désactivée par les réglages de mouvement.';
   }catch(err){status.textContent='Erreur de chargement du FX : '+String(err.message||err);}
