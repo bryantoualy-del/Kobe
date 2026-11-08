@@ -67,6 +67,14 @@ const PILOT_CSS=`
 `;
 
 const REFINED_CSS=`
+.ksp-proto .p-laugh{position:absolute;left:var(--x);top:var(--y);font:italic 900 clamp(22px,5vmin,48px) Georgia,serif;letter-spacing:.04em;white-space:nowrap;color:#d6b7e6;text-shadow:0 0 10px #ad73d1,0 0 25px #76418f,0 0 40px #382046;filter:drop-shadow(0 0 9px #9c6fbc);animation:p-laugh-float 2100ms ease-out both;animation-delay:var(--delay)}
+@keyframes p-laugh-float{0%{opacity:0;transform:translate(-50%,20px) scale(.45) rotate(-10deg)}24%{opacity:1;transform:translate(-50%,0) scale(1) rotate(3deg)}58%{opacity:.92;transform:translate(calc(-50% + var(--dx)),-22px) scale(1.1) rotate(-3deg)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-105px) scale(1.35) rotate(8deg)}}
+.ksp-proto .p-halo-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 7px #f8e3a3) drop-shadow(0 0 20px #e5b963)}
+.ksp-proto .p-halo-svg circle{fill:none;stroke:#f8e3a3;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:289.03;stroke-dashoffset:289.03;transform:rotate(-90deg);transform-origin:50% 50%;animation:p-circle-draw 1700ms linear forwards}
+@keyframes p-circle-draw{to{stroke-dashoffset:0}}
+.ksp-proto .p-halo-fill{animation:p-halo-fill-smooth 2600ms ease-out both!important}
+@keyframes p-halo-fill-smooth{0%,65%{opacity:0}78%{opacity:.92}100%{opacity:.82}}
+
 .ksp-proto .p-wonq-mist{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border-radius:50%;background:radial-gradient(ellipse,rgba(110,175,165,.58),rgba(92,63,116,.4) 48%,transparent 73%);filter:blur(13px);animation:p-wonq-mist 2250ms ease-out both;animation-delay:var(--delay)}
 .ksp-proto .p-wonq-face{position:absolute;left:var(--x);top:var(--y);width:clamp(22px,5vmin,45px);height:clamp(35px,8vmin,72px);border-radius:50% 50% 44% 44%;background:radial-gradient(ellipse at 38% 30%,rgba(195,239,225,.52),rgba(76,121,128,.4) 52%,transparent 75%);filter:blur(3px) drop-shadow(0 0 12px #8bc4b7);animation:p-wonq-face 2250ms ease-out both;animation-delay:var(--delay)}
 .ksp-proto .p-wonq-face:after{content:'';position:absolute;left:42%;top:55%;width:17%;height:26%;border-radius:50%;background:rgba(18,22,35,.7);box-shadow:-10px -13px 0 -2px rgba(18,22,35,.65),10px -13px 0 -2px rgba(18,22,35,.65)}
@@ -93,10 +101,10 @@ function playPilot(id){
  const root=document.createElement('div');root.className='ksp-proto';root.setAttribute('aria-hidden','true');
  const stage=document.createElement('div');stage.className='p-stage';root.append(stage);
  const add=(cls)=>{const n=document.createElement('div');n.className=cls;stage.append(n)};
- if(id==='dissonant-whispers'){for(let i=0;i<16;i++){const n=document.createElement('div');n.className='p-wonq-mist';n.style.cssText='--x:'+(8+i*31%85)+'%;--y:'+(25+i*17%65)+'%;--w:'+(65+i%4*26)+'px;--h:'+(100+i%5*32)+'px;--delay:'+(i%6*65)+'ms';stage.append(n)}for(let i=0;i<7;i++){const n=document.createElement('div');n.className='p-wonq-face';n.style.cssText='--x:'+(15+i*29%70)+'%;--y:'+(24+i*13%52)+'%;--delay:'+(i*90)+'ms';stage.append(n)}for(let i=0;i<2;i++){const n=document.createElement('div');n.className='p-wonq-echo';n.style.setProperty('--delay',(850+i*220)+'ms');stage.append(n)}}
+ if(id==='dissonant-whispers'){for(let i=0;i<13;i++){const n=document.createElement('div');n.className='p-wonq-mist';n.style.cssText='--x:'+(8+i*31%85)+'%;--y:'+(25+i*17%65)+'%;--w:'+(65+i%4*26)+'px;--h:'+(100+i%5*32)+'px;--delay:'+(i%6*65)+'ms';stage.append(n)}for(let i=0;i<9;i++){const n=document.createElement('div');n.className='p-laugh';n.textContent=i%3===0?'Ha ha ha':i%3===1?'Ha ha':'HA HA HA';n.style.cssText='--x:'+(14+i*29%72)+'%;--y:'+(18+i*19%65)+'%;--dx:'+(i%2?40:-40)+'px;--delay:'+(i*125)+'ms';stage.append(n)}}
  if(id==='mirror-image'){add('p-mirror p-mirror--left');add('p-mirror p-mirror--middle');add('p-mirror p-mirror--right')}
- if(id==='circle-of-power'){add('p-halo-fill');add('p-halo')}
- document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?2500:id==='dissonant-whispers'?2450:1850);return true;
+ if(id==='circle-of-power'){add('p-halo-fill');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('class','p-halo-svg');const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('cx','50');circle.setAttribute('cy','50');circle.setAttribute('r','46');svg.append(circle);stage.append(svg)}
+ document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?3200:id==='dissonant-whispers'?2450:1850);return true;
 }
 export function playSpellFx(id,{intensity='normal'}={}){
  const d=SPELL_FX.find(x=>x[0]===id);
