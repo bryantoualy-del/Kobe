@@ -6,6 +6,7 @@ await rm(out,{recursive:true,force:true});
 await mkdir(join(out,'src'),{recursive:true});
 await cp(join(root,'src'),join(out,'src'),{recursive:true});
 await copyFile(join(root,'index.html'),join(out,'index.html'));
+await copyFile(join(root,'vfx-gallery.html'),join(out,'vfx-gallery.html'));
 await copyFile(join(root,'offline-shell.js'),join(out,'offline-shell.js'));
 await copyFile(join(root,'sw.js'),join(out,'sw.js'));
 const html=await readFile(join(out,'index.html'),'utf8');
