@@ -1,5 +1,6 @@
 import {conditionButton, openConditions} from './condition-ui.js';
 import {playKobeVfx,vfxForCommand} from './kobe-vfx.js';
+import {playSpellFx} from './kobe-spell-fx-pilots-20261108.js';
 import {canAct} from '../kobe/combat.js';
 import {supportCockpit,comboAvailability,ardentStage} from './support-ui.js';
 import {initJournal} from '../companion/journal.js';
@@ -189,7 +190,8 @@ async function dispatch(type,payload){
       problem='';
       if(!r.replay){
         const effect=vfxForCommand(type,resolution?{...payload,spellId:resolution.spellId,kind:resolution.kind}:payload);
-        if(effect)playKobeVfx(effect);
+        if(type==='spell-cast' && ['dissonant-whispers','mirror-image','circle-of-power'].includes(String(payload.spellId||'').toLowerCase())) playSpellFx(String(payload.spellId).toLowerCase());
+        else if(effect)playKobeVfx(effect);
       }
     }
     return r;
