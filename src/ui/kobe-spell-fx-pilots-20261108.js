@@ -1,0 +1,138 @@
+/** V10 spell FX laboratory. Preview-only; never imported by the live companion. */
+export const SPELL_FX=[["vicious-mockery","Moquerie cruelle","mock","violet","#bd83f4","♜"],["minor-illusion","Illusion mineure","illusion","cyan","#82dce7","◇"],["prestidigitation","Prestidigitation","spark","gold","#e5b963","✦"],["mending","Réparation","mend","gold","#e5b963","✧"],["healing-word","Mot de guérison","music","green","#80d8a3","♫"],["dissonant-whispers","Murmures dissonants","whisper","violet","#c38cf2","◖"],["enhance-ability","Amélioration de caractéristique","ascend","gold","#e5b963","✦"],["suggestion","Suggestion","eye","violet","#d1a1ff","◉"],["mirror-image","Image miroir","mirror","cyan","#89d8ef","♙"],["aid","Aide","aid","gold","#e5b963","✚"],["slow","Lenteur","hourglass","violet","#b997ff","⌛"],["dispel-magic","Dissipation de la magie","shatter","cyan","#a7ecf2","✧"],["leomunds-tiny-hut","Refuge de Leomund","dome","ivory","#f0e5ce","⌂"],["hallucinatory-terrain","Terrain hallucinatoire","terrain","green","#8be0b5","⌁"],["charm-monster","Charme-monstre","charm","rose","#ed9fce","♥"],["circle-of-power","Cercle de pouvoir","ward","gold","#e5b963","✥"],["hold-monster","Immobilisation de monstre","bind","violet","#b68bea","⛓"]];
+let active=null,timer=null;
+const CSS=`
+.ksp-overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;isolation:isolate}
+.ksp-layer{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);border-radius:50%;opacity:0;animation:ksp-bloom var(--duration) cubic-bezier(.15,.7,.22,1) both;animation-delay:var(--delay,0ms)}
+.ksp-core{width:min(32vmin,240px);aspect-ratio:1;background:radial-gradient(circle at 40% 35%,#fff9e9 0%,var(--light) 17%,var(--fx) 42%,color-mix(in srgb,var(--fx) 40%,transparent) 64%,transparent 73%);box-shadow:0 0 35px var(--fx),0 0 85px color-mix(in srgb,var(--fx) 35%,transparent);filter:blur(1px)}
+.ksp-mist{width:min(65vmin,520px);aspect-ratio:1;background:radial-gradient(ellipse at 34% 47%,color-mix(in srgb,var(--fx) 55%,transparent),transparent 52%),radial-gradient(ellipse at 66% 59%,color-mix(in srgb,var(--light) 40%,transparent),transparent 58%);filter:blur(19px);animation-name:ksp-drift}
+.ksp-wave{width:min(35vmin,280px);aspect-ratio:1;border:clamp(2px,.6vmin,5px) solid var(--light);box-shadow:0 0 19px var(--fx),inset 0 0 20px var(--fx);animation-name:ksp-expand}
+.ksp-streak{width:min(52vw,460px);height:clamp(5px,1.4vmin,13px);border-radius:80% 25% 25% 80%;background:linear-gradient(90deg,transparent,var(--fx) 42%,var(--light) 92%,#fff9e5);box-shadow:0 0 16px var(--fx);animation-name:ksp-flight}
+.ksp-spark{position:absolute;left:50%;top:45%;width:var(--size);height:var(--size);border-radius:50%;background:var(--light);box-shadow:0 0 11px 3px var(--fx);animation:ksp-scatter var(--duration) ease-out both;animation-delay:var(--delay)}
+.ksp-veil{position:absolute;left:50%;top:45%;width:min(52vmin,390px);height:min(65vmin,480px);border-radius:48% 48% 35% 35%;background:linear-gradient(100deg,transparent,color-mix(in srgb,var(--fx) 30%,transparent) 25%,color-mix(in srgb,var(--light) 45%,transparent) 50%,color-mix(in srgb,var(--fx) 30%,transparent) 75%,transparent);filter:blur(12px);animation:ksp-veil var(--duration) ease-in-out both}
+.ksp-barrier{position:absolute;left:50%;top:45%;width:min(62vmin,480px);height:min(42vmin,330px);border-radius:52% 52% 12% 12%/92% 92% 8% 8%;border:3px solid color-mix(in srgb,var(--light) 70%,transparent);background:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx) 20%,transparent),transparent 75%);box-shadow:0 0 23px var(--fx),inset 0 0 35px color-mix(in srgb,var(--fx) 25%,transparent);animation:ksp-barrier var(--duration) ease-out both}
+.ksp-tether{position:absolute;left:50%;top:45%;height:clamp(3px,.65vmin,7px);width:min(50vmin,390px);border-radius:100%;background:linear-gradient(90deg,transparent,var(--fx),var(--light),transparent);box-shadow:0 0 15px var(--fx);animation:ksp-tether var(--duration) ease-in-out both;animation-delay:var(--delay,0ms)}
+@keyframes ksp-bloom{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}24%{opacity:1;transform:translate(-50%,-50%) scale(.75)}65%{opacity:.85;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.9)}}
+@keyframes ksp-drift{0%{opacity:0;transform:translate(-60%,-40%) rotate(-15deg) scale(.3)}35%{opacity:.8}70%{opacity:.65;transform:translate(-40%,-55%) rotate(12deg) scale(1.3)}100%{opacity:0;transform:translate(-35%,-65%) rotate(20deg) scale(1.7)}}
+@keyframes ksp-expand{0%,15%{opacity:0;transform:translate(-50%,-50%) scale(.1)}36%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) scale(3)}}
+@keyframes ksp-flight{0%{opacity:0;transform:translate(-160%,-50%) scaleX(.3)}20%{opacity:1}67%{opacity:1;transform:translate(20%,-50%) scaleX(1)}100%{opacity:0;transform:translate(65%,-50%) scaleX(.4)}}
+@keyframes ksp-scatter{0%,17%{opacity:0;transform:translate(-50%,-50%) scale(.2)}40%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.15)}}
+@keyframes ksp-veil{0%,100%{opacity:0;transform:translate(-50%,-50%) scale(.4) skewX(-14deg)}40%{opacity:.85;transform:translate(-50%,-50%) scale(1) skewX(8deg)}70%{opacity:.65;transform:translate(-50%,-50%) scale(1.2) skewX(-8deg)}}
+@keyframes ksp-barrier{0%,100%{opacity:0;transform:translate(-50%,-30%) scale(.3,.2)}45%{opacity:.95;transform:translate(-50%,-50%) scale(1)}75%{opacity:.85;transform:translate(-50%,-50%) scale(1.08)}}
+@keyframes ksp-tether{0%,100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--angle)) scaleX(.1)}40%{opacity:1;transform:translate(-50%,-50%) rotate(var(--angle)) scaleX(1)}75%{opacity:.75}}
+@media(prefers-reduced-motion:reduce){.ksp-overlay{display:none!important}}
+`;
+const FAMILIES={
+mock:['mist','streak','spark'],illusion:['veil','mist','spark'],spark:['spark','core'],mend:['tether','spark','core'],
+music:['wave','spark','mist'],whisper:['mist','streak','wave'],ascend:['veil','streak','spark'],
+eye:['core','wave','mist'],mirror:['veil','veil','veil','spark'],aid:['barrier','spark','wave'],
+hourglass:['mist','spark','tether'],shatter:['core','spark','streak'],dome:['barrier','wave','spark'],
+terrain:['mist','veil','wave'],charm:['mist','core','spark'],ward:['barrier','wave','spark'],
+bind:['tether','tether','tether','mist']
+};
+const PALETTE={violet:'#e8c8ff',cyan:'#dcfcff',gold:'#fff1b5',green:'#d6ffe3',ivory:'#fff8e9',rose:'#ffe0f3'};
+function part(root,kind,delay=0,extra={}){
+ const el=document.createElement('div');el.className='ksp-'+(kind==='spark'?'spark':'layer ksp-'+kind);el.style.setProperty('--delay',delay+'ms');
+ for(const [k,v] of Object.entries(extra))el.style.setProperty(k,String(v));
+ root.append(el);
+}
+export function stopSpellFx(){if(timer)clearTimeout(timer);timer=null;active?.remove();active=null}
+
+/* Three dedicated cinematic prototypes. Visual language follows the accepted Kobe signature FX. */
+const PILOT_CSS=`
+.ksp-proto{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;isolation:isolate}
+.ksp-proto *{pointer-events:none}
+.ksp-proto .p-stage{position:absolute;left:50%;top:45%;width:min(72vmin,560px);aspect-ratio:1;transform:translate(-50%,-50%)}
+.ksp-proto .p-smoke{position:absolute;inset:8%;border-radius:47% 53% 43% 57%;background:radial-gradient(ellipse at 36% 45%,rgba(183,109,213,.7),transparent 38%),radial-gradient(ellipse at 68% 58%,rgba(69,31,98,.96),transparent 61%),radial-gradient(circle at 50% 55%,#29152f 5%,rgba(72,29,91,.8) 48%,transparent 74%);filter:blur(15px) drop-shadow(0 0 20px #a75dbd);animation:p-smoke 1450ms cubic-bezier(.14,.7,.25,1) both}
+.ksp-proto .p-smoke:nth-child(2){animation-delay:130ms;transform:rotate(65deg)}
+.ksp-proto .p-distortion{position:absolute;inset:27%;border:8px solid rgba(227,168,255,.75);border-radius:50%;box-shadow:0 0 27px #9e65bf,inset 0 0 19px #a36bce;filter:blur(3px);animation:p-distort 1450ms ease-out both}
+.ksp-proto .p-distortion:nth-child(4){animation-delay:130ms}
+.ksp-proto .p-figure{position:absolute;left:50%;top:50%;width:24%;height:55%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 16px #9ceaf3);animation:p-figure 1550ms ease-out both;opacity:0}
+.ksp-proto .p-figure:before{content:'';position:absolute;top:0;left:30%;width:40%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f5ffff,#9ee2f2 55%,#408ba5);box-shadow:0 0 18px #89d8ef}
+.ksp-proto .p-figure:after{content:'';position:absolute;top:24%;left:5%;width:90%;height:75%;border-radius:45% 45% 17% 17%;clip-path:polygon(35% 0,65% 0,100% 90%,73% 100%,50% 89%,27% 100%,0 90%);background:linear-gradient(95deg,rgba(43,109,143,.55),#c3f7ff 45%,rgba(53,133,161,.8));box-shadow:inset 0 0 25px #d9fcff}
+.ksp-proto .p-figure--left{--shift:-85%;animation-delay:120ms}
+.ksp-proto .p-figure--right{--shift:85%;animation-delay:170ms}
+.ksp-proto .p-figure--center{--shift:0%;animation-delay:0ms}
+.ksp-proto .p-shimmer{position:absolute;inset:10%;border-radius:50%;background:radial-gradient(circle,rgba(193,244,255,.2),transparent 67%);filter:blur(20px);animation:p-shimmer 1550ms ease-out both}
+.ksp-proto .p-shield{position:absolute;inset:13%;border-radius:50%;background:radial-gradient(circle at 45% 38%,rgba(255,244,183,.13),rgba(229,185,99,.08) 40%,transparent 72%);border:clamp(3px,.65vmin,7px) solid rgba(250,223,150,.88);box-shadow:0 0 30px #e5b963,inset 0 0 42px rgba(229,185,99,.5),0 0 100px rgba(229,185,99,.26);animation:p-shield 1650ms cubic-bezier(.16,.72,.2,1) both}
+.ksp-proto .p-shield:before{content:'';position:absolute;inset:6%;border-radius:50%;border:2px solid rgba(255,243,197,.55);box-shadow:inset 0 0 26px rgba(229,185,99,.22)}
+.ksp-proto .p-shield:nth-child(2){animation-delay:110ms}
+.ksp-proto .p-glow{position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,223,145,.27),transparent 55%);animation:p-shimmer 1650ms both}
+@keyframes p-smoke{0%{opacity:0;transform:scale(.12) rotate(-25deg)}28%{opacity:1;transform:scale(.85) rotate(0deg)}47%{opacity:1;transform:scale(.53) rotate(18deg)}65%{opacity:.85;transform:scale(1.1) rotate(35deg)}100%{opacity:0;transform:scale(2.3) rotate(70deg)}}
+@keyframes p-distort{0%,37%{opacity:0;transform:scale(.12)}49%{opacity:1}100%{opacity:0;transform:scale(3.3)}}
+@keyframes p-figure{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}24%{opacity:1;transform:translate(-50%,-50%) scale(1)}45%{opacity:1;transform:translate(calc(-50% + var(--shift) * .35),-50%) scale(1)}70%{opacity:.82;transform:translate(calc(-50% + var(--shift)),-50%) scale(1)}100%{opacity:0;transform:translate(calc(-50% + var(--shift) * 1.3),-50%) scale(1.06)}}
+@keyframes p-shimmer{0%,100%{opacity:0}35%{opacity:1}75%{opacity:.55}}
+@keyframes p-shield{0%{opacity:0;transform:scale(.08);filter:brightness(1.8)}24%{opacity:1;transform:scale(.65)}48%{opacity:1;transform:scale(1.04)}78%{opacity:.95;transform:scale(1.2)}100%{opacity:0;transform:scale(1.55)}}
+@media(prefers-reduced-motion:reduce){.ksp-proto{display:none!important}}
+`;
+
+const REFINED_CSS=`
+.ksp-proto .p-rune-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:9;pointer-events:none;filter:drop-shadow(0 0 5px #f9e8a9) drop-shadow(0 0 13px #e5b963);animation:p-rune-ring-glow 3500ms ease-in-out both}
+.ksp-proto .p-rune-glyph{fill:#fff0b6;font-family:Georgia,serif;font-weight:bold;font-size:5.2px;stroke:rgba(60,26,58,.8);stroke-width:.35px;paint-order:stroke fill;text-anchor:middle;dominant-baseline:middle;opacity:0;animation:p-rune-ignite 3500ms ease-in-out both;animation-delay:var(--rune-delay)}
+@keyframes p-rune-ignite{0%,13%{opacity:0}22%{opacity:.9}60%{opacity:1}83%{opacity:1;fill:#fff}100%{opacity:.85}}
+@keyframes p-rune-ring-glow{0%,15%{opacity:0}35%{opacity:1}80%{filter:drop-shadow(0 0 8px #fff6c9) drop-shadow(0 0 22px #e5b963)}90%{filter:drop-shadow(0 0 15px white) drop-shadow(0 0 36px #fff1aa)}100%{opacity:.9}}
+
+/* Frameless radiant mirrors: no copper border or metal rim. */
+.ksp-proto .p-mirror{border:0!important;border-radius:46% 46% 14% 14%/28% 28% 10% 10%;background:linear-gradient(115deg,rgba(136,222,249,.18),rgba(230,251,255,.88) 27%,rgba(255,255,255,.98) 46%,rgba(121,205,248,.62) 66%,rgba(223,249,255,.25));box-shadow:inset 0 0 26px rgba(255,255,255,.95),0 0 18px 5px rgba(199,241,255,.9),0 0 55px 15px rgba(111,202,255,.62)!important;filter:drop-shadow(0 0 18px rgba(215,250,255,.9));animation:p-mirror-glow 1850ms ease-out both!important}
+.ksp-proto .p-mirror:before{border:0!important;inset:0;box-shadow:inset 0 0 20px rgba(255,255,255,.95),0 0 20px rgba(255,255,255,.9);background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.45),transparent 65%)}
+@keyframes p-mirror-glow{0%{opacity:0;transform:perspective(600px) rotateY(65deg) rotate(var(--rot)) scale(.6);filter:brightness(2)}30%{opacity:1;transform:perspective(600px) rotateY(0) rotate(var(--rot)) scale(1);filter:brightness(1.45)}75%{opacity:1;transform:perspective(600px) rotateY(-4deg) rotate(var(--rot)) scale(1);filter:brightness(1.7)}100%{opacity:0;transform:perspective(600px) rotateY(-15deg) rotate(var(--rot)) scale(1.04);filter:brightness(2)}}
+/* Complete 360-degree fill after the outline closes, then bloom to near-white. */
+.ksp-proto .p-halo-fill{background:radial-gradient(circle,rgba(255,255,255,.99) 0%,rgba(255,252,221,.96) 38%,rgba(255,228,148,.92) 72%,rgba(245,195,89,.8) 100%)!important;box-shadow:inset 0 0 35px white,0 0 65px 22px rgba(255,233,158,.8),0 0 120px 35px rgba(255,247,203,.65)!important;animation:p-halo-full-bloom 3500ms ease-in-out both!important}
+.ksp-proto .p-halo-svg{animation:p-halo-svg-bloom 3500ms ease-in-out both}
+@keyframes p-halo-full-bloom{0%,49%{opacity:0;clip-path:circle(0% at 50% 50%);filter:brightness(1)}51%{opacity:.55;clip-path:circle(0% at 50% 50%)}76%{opacity:.95;clip-path:circle(50% at 50% 50%);filter:brightness(1.7)}86%{opacity:1;clip-path:circle(50% at 50% 50%);filter:brightness(3.2)}100%{opacity:.9;clip-path:circle(50% at 50% 50%);filter:brightness(2.1)}}
+@keyframes p-halo-svg-bloom{0%,55%{filter:drop-shadow(0 0 8px #fff2bb)}85%{filter:drop-shadow(0 0 28px white) drop-shadow(0 0 55px #fff2bb)}100%{filter:drop-shadow(0 0 18px white) drop-shadow(0 0 35px #e5b963)}}
+
+.ksp-proto .p-laugh{position:absolute;left:var(--x);top:var(--y);font:italic 900 clamp(22px,5vmin,48px) Georgia,serif;letter-spacing:.04em;white-space:nowrap;color:#d6b7e6;text-shadow:0 0 10px #ad73d1,0 0 25px #76418f,0 0 40px #382046;filter:drop-shadow(0 0 9px #9c6fbc);animation:p-laugh-float 2100ms ease-out both;animation-delay:var(--delay)}
+@keyframes p-laugh-float{0%{opacity:0;transform:translate(-50%,20px) scale(.45) rotate(-10deg)}24%{opacity:1;transform:translate(-50%,0) scale(1) rotate(3deg)}58%{opacity:.92;transform:translate(calc(-50% + var(--dx)),-22px) scale(1.1) rotate(-3deg)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-105px) scale(1.35) rotate(8deg)}}
+.ksp-proto .p-halo-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 7px #f8e3a3) drop-shadow(0 0 20px #e5b963)}
+.ksp-proto .p-halo-svg circle{fill:none;stroke:#f8e3a3;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:289.03;stroke-dashoffset:289.03;transform:rotate(-90deg);transform-origin:50% 50%;animation:p-circle-draw 1700ms linear forwards}
+@keyframes p-circle-draw{to{stroke-dashoffset:0}}
+.ksp-proto .p-halo-fill{animation:p-halo-fill-smooth 2600ms ease-out both!important}
+@keyframes p-halo-fill-smooth{0%,65%{opacity:0}78%{opacity:.92}100%{opacity:.82}}
+
+.ksp-proto .p-wonq-mist{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border-radius:50%;background:radial-gradient(ellipse,rgba(110,175,165,.58),rgba(92,63,116,.4) 48%,transparent 73%);filter:blur(13px);animation:p-wonq-mist 2250ms ease-out both;animation-delay:var(--delay)}
+.ksp-proto .p-wonq-face{position:absolute;left:var(--x);top:var(--y);width:clamp(22px,5vmin,45px);height:clamp(35px,8vmin,72px);border-radius:50% 50% 44% 44%;background:radial-gradient(ellipse at 38% 30%,rgba(195,239,225,.52),rgba(76,121,128,.4) 52%,transparent 75%);filter:blur(3px) drop-shadow(0 0 12px #8bc4b7);animation:p-wonq-face 2250ms ease-out both;animation-delay:var(--delay)}
+.ksp-proto .p-wonq-face:after{content:'';position:absolute;left:42%;top:55%;width:17%;height:26%;border-radius:50%;background:rgba(18,22,35,.7);box-shadow:-10px -13px 0 -2px rgba(18,22,35,.65),10px -13px 0 -2px rgba(18,22,35,.65)}
+.ksp-proto .p-wonq-echo{position:absolute;left:50%;top:50%;width:35%;aspect-ratio:1;border:5px solid rgba(137,196,183,.75);border-radius:50%;box-shadow:0 0 18px #9d7db2;animation:p-wonq-echo 2250ms ease-out both;animation-delay:var(--delay)}
+@keyframes p-wonq-mist{0%{opacity:0;transform:translate(-50%,40%) scale(.35)}25%{opacity:.8}65%{opacity:.65;transform:translate(-50%,-15%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-65%) scale(1.65)}}
+@keyframes p-wonq-face{0%,15%{opacity:0;transform:translateY(40px) scale(.4)}40%{opacity:.85;transform:translateY(0) scale(1)}75%{opacity:.8;transform:translateY(-20px) scale(1.05)}100%{opacity:0;transform:translateY(-65px) scale(1.2)}}
+@keyframes p-wonq-echo{0%,45%{opacity:0;transform:translate(-50%,-50%) scale(.2)}60%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(3)}}
+
+.ksp-proto .p-mirror{position:absolute;top:13%;width:28%;height:74%;border:clamp(5px,1vmin,10px) solid #b86637;border-radius:48% 48% 13% 13%/28% 28% 9% 9%;background:linear-gradient(115deg,rgba(21,20,25,.9),rgba(100,159,180,.6) 28%,rgba(231,249,255,.92) 46%,rgba(91,142,164,.65) 62%,rgba(20,25,38,.93));box-shadow:inset 0 0 20px #d4f7ff,0 0 16px #b86637,0 0 34px rgba(135,210,239,.4);overflow:hidden;animation:p-mirror-appear 1550ms ease-out both}
+.ksp-proto .p-mirror:before{content:'';position:absolute;inset:5%;border:2px solid rgba(240,229,206,.7);border-radius:inherit;box-shadow:inset 0 0 19px rgba(196,240,255,.75)}
+.ksp-proto .p-mirror:after{content:'';position:absolute;top:-40%;left:-60%;width:60%;height:190%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);transform:rotate(20deg);animation:p-mirror-sheen 1550ms ease-out both}
+.ksp-proto .p-mirror--left{left:4%;--rot:-11deg;animation-delay:130ms}
+.ksp-proto .p-mirror--middle{left:36%;--rot:0deg;animation-delay:0ms}
+.ksp-proto .p-mirror--right{right:4%;--rot:11deg;animation-delay:230ms}
+.ksp-proto .p-halo{position:absolute;left:50%;top:50%;width:75%;aspect-ratio:1;border:clamp(5px,1.1vmin,11px) solid #f8e3a3;border-radius:50%;box-shadow:0 0 18px #e5b963,0 0 55px rgba(229,185,99,.55),inset 0 0 20px rgba(229,185,99,.5);transform:translate(-50%,-50%) rotate(-90deg);clip-path:polygon(50% 50%,50% 0,50% 0);animation:p-halo-trace 2200ms ease-in-out both}
+.ksp-proto .p-halo-fill{position:absolute;left:50%;top:50%;width:75%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 45%,rgba(255,249,209,.52),rgba(229,185,99,.3) 47%,rgba(229,185,99,.1) 75%);box-shadow:inset 0 0 45px rgba(255,242,184,.5),0 0 45px rgba(229,185,99,.3);transform:translate(-50%,-50%);animation:p-halo-fill 2200ms ease-out both}
+@keyframes p-mirror-appear{0%{opacity:0;transform:perspective(600px) rotateY(85deg) rotate(var(--rot)) scale(.6)}30%{opacity:1;transform:perspective(600px) rotateY(0deg) rotate(var(--rot)) scale(1)}75%{opacity:1;transform:perspective(600px) rotateY(-5deg) rotate(var(--rot)) scale(1)}100%{opacity:0;transform:perspective(600px) rotateY(-20deg) rotate(var(--rot)) scale(1.05)}}
+@keyframes p-mirror-sheen{0%,20%{left:-80%;opacity:0}42%{opacity:1}80%,100%{left:130%;opacity:0}}
+@keyframes p-halo-trace{0%{opacity:0;clip-path:polygon(50% 50%,50% 0,50% 0)}12%{opacity:1}20%{clip-path:polygon(50% 50%,50% 0,100% 0,100% 40%)}37%{clip-path:polygon(50% 50%,50% 0,100% 0,100% 100%,55% 100%)}53%{clip-path:polygon(50% 50%,50% 0,100% 0,100% 100%,0 100%,0 55%)}66%,100%{opacity:1;clip-path:circle(50% at 50% 50%)}}
+@keyframes p-halo-fill{0%,64%{opacity:0;filter:brightness(2)}72%{opacity:.95;filter:brightness(1.4)}100%{opacity:.82;filter:brightness(1)}}
+`;
+function playPilot(id){
+ if(!document.querySelector('#ksp-pilot-css')){const st=document.createElement('style');st.id='ksp-pilot-css';st.textContent=PILOT_CSS+REFINED_CSS;document.head.append(st)}
+ const root=document.createElement('div');root.className='ksp-proto';root.setAttribute('aria-hidden','true');
+ const stage=document.createElement('div');stage.className='p-stage';root.append(stage);
+ const add=(cls)=>{const n=document.createElement('div');n.className=cls;stage.append(n)};
+ if(id==='dissonant-whispers'){for(let i=0;i<13;i++){const n=document.createElement('div');n.className='p-wonq-mist';n.style.cssText='--x:'+(8+i*31%85)+'%;--y:'+(25+i*17%65)+'%;--w:'+(65+i%4*26)+'px;--h:'+(100+i%5*32)+'px;--delay:'+(i%6*65)+'ms';stage.append(n)}for(let i=0;i<9;i++){const n=document.createElement('div');n.className='p-laugh';n.textContent=i%3===0?'Ha ha ha':i%3===1?'Ha ha':'HA HA HA';n.style.cssText='--x:'+(14+i*29%72)+'%;--y:'+(18+i*19%65)+'%;--dx:'+(i%2?40:-40)+'px;--delay:'+(i*125)+'ms';stage.append(n)}}
+ if(id==='mirror-image'){add('p-mirror p-mirror--left');add('p-mirror p-mirror--middle');add('p-mirror p-mirror--right')}
+ if(id==='circle-of-power'){add('p-halo-fill');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 100 100');svg.setAttribute('class','p-halo-svg');const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('cx','50');circle.setAttribute('cy','50');circle.setAttribute('r','46');svg.append(circle);stage.append(svg);const runes=document.createElementNS('http://www.w3.org/2000/svg','svg');runes.setAttribute('viewBox','0 0 100 100');runes.setAttribute('class','p-rune-ring');const glyphs=['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ'];glyphs.forEach((glyph,i)=>{const angle=(-Math.PI/2)+(i*2*Math.PI/glyphs.length);const node=document.createElementNS('http://www.w3.org/2000/svg','text');node.setAttribute('x',(50+41.5*Math.cos(angle)).toFixed(2));node.setAttribute('y',(50+41.5*Math.sin(angle)).toFixed(2));node.setAttribute('class','p-rune-glyph');node.style.setProperty('--rune-delay',(i*60)+'ms');node.textContent=glyph;runes.append(node)});stage.append(runes)}
+ document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},id==='circle-of-power'?3700:id==='dissonant-whispers'?2450:1850);return true;
+}
+export function playSpellFx(id,{intensity='normal'}={}){
+ const d=SPELL_FX.find(x=>x[0]===id);
+ if(!d||typeof document==='undefined'||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return false;
+ stopSpellFx();
+ if(['dissonant-whispers','mirror-image','circle-of-power'].includes(id))return playPilot(id);
+ if(!document.querySelector('#ksp-v11-style')){const st=document.createElement('style');st.id='ksp-v11-style';st.textContent=CSS;document.head.append(st)}
+ const duration=intensity==='subtle'?750:intensity==='spectacular'?1650:1150;
+ const root=document.createElement('div');root.className='ksp-overlay';root.setAttribute('aria-hidden','true');
+ root.style.setProperty('--fx',d[4]);root.style.setProperty('--light',PALETTE[d[3]]||'#fff1b5');root.style.setProperty('--duration',duration+'ms');
+ const family=FAMILIES[d[2]]||['core','spark'];
+ family.forEach((kind,i)=>part(root,kind,i*85,kind==='tether'?{'--angle':(i*60-60)+'deg'}:{}));
+ const count=intensity==='subtle'?9:intensity==='spectacular'?32:19;
+ for(let i=0;i<count;i++){const angle=i*2.3999632297,dist=75+(i%6)*24;part(root,'spark',Math.round(i%9*50),{'--dx':Math.round(Math.cos(angle)*dist)+'px','--dy':Math.round(Math.sin(angle)*dist)+'px','--size':(2+i%4)+'px'})}
+ document.body.append(root);active=root;timer=setTimeout(()=>{if(active===root)stopSpellFx()},duration+180);return true;
+}
