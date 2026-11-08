@@ -127,9 +127,9 @@ function installStyle(){
 
 
  /* Solar fireball: a single expanding, crackling sphere (no outward flame jets). */
- .kfx-v2__sun{position:absolute;left:50%;top:45%;width:min(59vmin,450px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 43% 37%,#ffffeb 0 8%,#fff6b4 18%,#ffcf58 38%,#ff8a24 61%,#f34218 80%,#9d271a 98%);box-shadow:0 0 32px 7px rgba(255,173,53,.86),0 0 90px 26px rgba(255,79,20,.45),inset -17px -16px 38px rgba(158,26,18,.5);animation:kfx-sun-grow var(--kfx-duration) cubic-bezier(.14,.62,.24,1) both;overflow:hidden}
- .kfx-v2__sun:before{content:'';position:absolute;inset:-12%;border-radius:50%;background:radial-gradient(ellipse at 30% 23%,rgba(255,255,233,.4),transparent 29%),radial-gradient(ellipse at 74% 42%,rgba(255,100,21,.35),transparent 35%),radial-gradient(ellipse at 38% 78%,rgba(255,239,163,.29),transparent 34%);mix-blend-mode:screen;animation:kfx-sun-boil 430ms ease-in-out infinite alternate}
- .kfx-v2__sun:after{content:'';position:absolute;inset:7%;border-radius:50%;background:radial-gradient(ellipse at 28% 32%,rgba(255,251,217,.38),transparent 38%),radial-gradient(ellipse at 75% 62%,rgba(231,71,22,.36),transparent 48%),radial-gradient(ellipse at 53% 78%,rgba(255,197,87,.32),transparent 42%);filter:blur(9px);animation:kfx-sun-swirl 870ms linear infinite}
+ .kfx-v2__sun{position:absolute;left:50%;top:45%;width:min(59vmin,450px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 43% 37%,#ffffeb 0 8%,#fff6b4 18%,#ffcf58 38%,#ff8a24 61%,#f34218 80%,#9d271a 98%);box-shadow:0 0 32px 7px rgba(255,173,53,.86),0 0 90px 26px rgba(255,79,20,.45),inset -17px -16px 38px rgba(158,26,18,.5);animation:kfx-sun-grow var(--kfx-duration) cubic-bezier(.14,.62,.24,1) both;overflow:hidden;isolation:isolate}
+ .kfx-v2__sun:before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 30% 23%,rgba(255,255,233,.4),transparent 29%),radial-gradient(ellipse at 74% 42%,rgba(255,100,21,.35),transparent 35%),radial-gradient(ellipse at 38% 78%,rgba(255,239,163,.29),transparent 34%);animation:kfx-sun-boil 430ms ease-in-out infinite alternate}
+ .kfx-v2__sun:after{content:'';position:absolute;inset:7%;border-radius:50%;background:radial-gradient(ellipse at 28% 32%,rgba(255,251,217,.38),transparent 38%),radial-gradient(ellipse at 75% 62%,rgba(231,71,22,.36),transparent 48%),radial-gradient(ellipse at 53% 78%,rgba(255,197,87,.32),transparent 42%);animation:kfx-sun-swirl 870ms linear infinite}
  .kfx-v2__solar-spark{position:absolute;left:50%;top:45%;height:var(--spark-size);width:var(--spark-size);border-radius:50%;background:#fff6bd;box-shadow:0 0 9px 3px #ff8b20;animation:kfx-solar-crackle var(--kfx-duration) ease-out both;animation-delay:var(--spark-delay)}
  @keyframes kfx-sun-grow{0%{opacity:0;transform:translate(-50%,-50%) scale(.08);filter:brightness(1.7)}15%{opacity:1;transform:translate(-50%,-50%) scale(.22)}43%{opacity:1;transform:translate(-50%,-50%) scale(.61);filter:brightness(1.14)}72%{opacity:1;transform:translate(-50%,-50%) scale(1.06);filter:brightness(1.3)}84%{opacity:1;transform:translate(-50%,-50%) scale(1.23);filter:brightness(1.65)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.42);filter:brightness(1.9)}}
  @keyframes kfx-sun-boil{from{transform:rotate(-8deg) scale(1);opacity:.65}to{transform:rotate(9deg) scale(1.13);opacity:1}}
@@ -212,7 +212,6 @@ function buildSignature(root,kind,intensity){
  if(kind==='cry'){buildCry(root,intensity);return true;}
  if(!isFire&&!isBolt)return false;
  if(isFire){
-  addPart(root,'kfx-v2__heat');
   addPart(root,'kfx-v2__sun');
   const count=intensity==='subtle'?14:intensity==='spectacular'?48:28;
   for(let i=0;i<count;i++){
