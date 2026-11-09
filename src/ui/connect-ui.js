@@ -13,6 +13,24 @@ function healthChangeLabel(change){
   return change.name+' · '+[[change.delta,'PV'],[change.maximum,'PV max'],[change.temporary,'PV temp.']]
     .filter(([value])=>value).map(([value,unit])=>signed(value)+' '+unit).join(' · ');
 }
+/**
+ * One initiative die is used for both the authoritative V5 event and the visible
+ * d20 animation. The presentation is intentionally after a successful submission:
+ * publish() closes the modal dialog so it cannot obscure the full-screen overlay.
+ * Visual failures must never replay or invalidate an already submitted initiative.
+ */
+export async function submitInitiativeWithDice(client,eventId,manualValue,{presenter=globalThis.CompanionSocialDice,random=Math.random}={}){
+  const raw=String(manualValue??'').trim();
+  const die=raw===''?1+Math.floor(random()*20):Number(raw);
+  if(!Number.isInteger(die)||die<1||die>20)return {ok:false,message:'Un d20 de 1 à 20 est requis.'};
+  const result=await client.initiative(eventId,die);
+  if(result.ok){
+    try{presenter?.show?.({label:'Initiative',dice:[die],bonus:4,total:die+4,mode:'normal'});}
+    catch(error){console.warn('Animation d’initiative indisponible, résultat conservé.',error);}
+  }
+  return result;
+}
+
 export function mountConnect(store,quickActions,dispatch,onStatus){
   const root=document.createElement('section');root.className='group-surface';root.id='rpg-connect';document.body.append(root);
   const shell=document.createElement('div');shell.className='rpg-connect kobe-connect';shell.innerHTML=connectFrame;document.body.append(shell);
@@ -146,8 +164,7 @@ export function mountConnect(store,quickActions,dispatch,onStatus){
     const button=initiative.querySelector('[data-init-roll]');if(button.disabled)return;button.disabled=true;
     try{
       const value=initiative.querySelector('[data-init-manual]').value;
-      const die=value===''?1+Math.floor(Math.random()*20):Number(value);
-      const r=await client.initiative(initiative.dataset.request,die);
+      const r=await submitInitiativeWithDice(client,initiative.dataset.request,value);
       notice=r.message||'Initiative envoyée';render(client.status());
       if(!r.ok)initiative.querySelector('[data-init-result]').textContent=notice;
     }finally{button.disabled=false;}
