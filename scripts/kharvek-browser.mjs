@@ -27,7 +27,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  await page.locator('[data-kharvek=pulse]').evaluate(b=>{b.click();b.click();});
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===5);
  assert.equal((await state()).economy.actionAvailable,false);
- await page.locator('[data-ribbon-undo]').click();
+ await page.locator('.last-action summary').click();await page.locator('.last-action [data-action=undo]').click();
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===6);
  assert.equal((await state()).economy.actionAvailable,true);
  await fire('pulse',5);
