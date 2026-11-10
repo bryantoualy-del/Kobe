@@ -2,7 +2,12 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 const names=['favorites-viewport','spellbook-viewport','casting-modal','kharvek-0','kharvek-3','kharvek-6'];
-const captures=await Promise.all(names.map(async n=>({name:n,image:'data:image/png;base64,'+(await readFile('screenshots/webkit-'+n+'.png')).toString('base64')})));
+const captures=(await Promise.all(names.map(async n=>{
+ try{return {name:n,image:'data:image/png;base64,'+(await readFile('screenshots/webkit-'+n+'.png')).toString('base64')};}
+ catch(error){if(error.code==='ENOENT')return null;throw error;}
+}))).filter(Boolean);
+if(!captures.length)console.log('Aucune capture WebKit disponible dans ce groupe ; revue visuelle ignorée.');
+else {
 const browser=await chromium.launch();try{
  const page=await browser.newPage();
  const jpg=await page.evaluate(async captures=>{
@@ -18,3 +23,5 @@ const browser=await chromium.launch();try{
  },captures);
  await writeFile('screenshots/lot5-review.jpg',Buffer.from(jpg,'base64'));
 }finally{await browser.close();}
+
+}
