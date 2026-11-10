@@ -185,6 +185,18 @@ async function dispatch(type,payload){
   try{
     const r=await store.dispatch(make(type,payload));
     updateRibbon(r,type);
+    // Show only dice already accepted by the engine; no reroll or second journal write.
+    if(r.ok&&!r.replay&&(type==='kharvek-power'||(type==='mantle'&&payload?.survivors===true))){
+      const event=r.events?.at(-1),dice=event?.rolls;
+      const power=type==='mantle'?'survivors':payload.power;
+      const faces=power==='survivors'?10:8,count=power==='pulse'?3:power==='rally'?2:1;
+      if(event&&Array.isArray(dice)&&dice.length===count&&dice.every(x=>Number.isSafeInteger(x)&&x>=1&&x<=faces)){
+        const healing={kind:'healing',amount:dice.reduce((sum,x)=>sum+x,5),formula:count+'d'+faces,dice,bonus:5};
+        const heals=power==='survivors'?[healing,{kind:'temporary',amount:11}]:[healing];
+        const shown=window.CompanionResultFocus?.showStructured?.({eventId:event.id,title:event.label.split(' · ')[0],heals});
+        if(shown)resultRibbon.hidden=true;
+      }
+    }
     if(!r.ok)problem=r.message||r.code;
     else{
       problem='';

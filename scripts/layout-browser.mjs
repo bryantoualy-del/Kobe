@@ -67,7 +67,7 @@ try{for(const engine of [chromium,webkit]){
  await tab('Combat');await page.locator('[data-combat-view=kharvek]').click();
  await page.locator('[data-charge-value="3"]').click();await page.evaluate(()=>scrollTo(0,0));await shot('kharvek');
  if(phase==='after'){
-  await page.locator('[data-kharvek=pulse]').click();await page.locator('#ribbon:not([hidden])').waitFor();
+  await page.locator('[data-kharvek=pulse]').click();await page.locator('#companion-result-focus:not([hidden])').waitFor();
   await tab('Sorts & pouvoirs');
   // Ribbon is intentionally hidden when changing tabs. Native Undo persists
   // under the original "Dernière action" details in the Combat cockpit.
