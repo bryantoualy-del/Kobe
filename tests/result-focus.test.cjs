@@ -91,3 +91,15 @@ test('structured actual dice, typed mixed damage, one display per event, social 
  assert.equal(card.children[2].children[0].children[1].textContent,'24');
  assert.equal(card.children[2].children[1].children[1].textContent,'11');
 });
+
+test('Kobe Khar-Vek reads accepted healing dice, preserves charges and hides only duplicate ribbon',()=>{
+ const app=fs.readFileSync(path.join(root,'src/ui/app.js'),'utf8');
+ const engine=fs.readFileSync(path.join(root,'src/kobe/kharvek.js'),'utf8');
+ assert.match(app,/r\.ok&&!r\.replay&&\(type==='kharvek-power'/);
+ assert.match(app,/dice=event\?\.rolls/);
+ assert.match(app,/amount:dice\.reduce\(\(sum,x\)=>sum\+x,5\)/);
+ assert.match(app,/if\(shown\)resultRibbon\.hidden=true/);
+ assert.match(app,/eventId:event\.id/);
+ assert.match(engine,/costs\.charges=spec\.charges/);
+ assert.match(engine,/rolls:\[\.\.\.p\.healRolls\]/);
+});
