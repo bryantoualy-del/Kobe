@@ -68,7 +68,13 @@ try{for(const engine of [chromium,webkit]){
  await page.locator('[data-charge-value="3"]').click();await page.evaluate(()=>scrollTo(0,0));await shot('kharvek');
  if(phase==='after'){
   await page.locator('[data-kharvek=pulse]').click();await page.locator('#ribbon:not([hidden])').waitFor();
-  await tab('Sorts & pouvoirs');await page.locator('[data-ribbon-undo]').click();
+  await tab('Sorts & pouvoirs');
+  // Ribbon is intentionally hidden when changing tabs. Native Undo persists
+  // under the original "Dernière action" details in the Combat cockpit.
+  await tab('Combat');await page.locator('[data-combat-view=offense]').click();
+  await page.locator('.last-action summary').click();
+  await page.locator('.last-action [data-action=undo]').click();
+  await page.locator('[data-combat-view=kharvek]').click();
   await tab('Combat');await page.locator('[data-charge-count]').waitFor();assert.equal(await page.locator('[data-charge-count]').innerText(),'3 / 6','undo available after navigation');
  }
  await context.close();

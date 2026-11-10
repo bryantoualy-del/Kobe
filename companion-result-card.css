@@ -18,3 +18,6 @@
 
 /* Native confirmation remains above the presentation; never block Touché/Raté. */
 #hitModal:not([hidden]),.hit-modal.show,#kentaro-hit-modal.show{z-index:10050!important}
+
+/* Native ribbon stays hidden after tab changes. */
+#ribbon[hidden]{display:none!important}

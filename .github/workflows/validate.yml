@@ -4,7 +4,7 @@ on:
     branches: [main, feat/kobe-lot1-ui, feat/kobe-lot2-combat, feat/kobe-lot3-spellbook, feat/kobe-lot4-kharvek]
   pull_request:
 concurrency:
-  group: validate-kobe-${{ github.event.pull_request.number || github.ref }}
+  group: validate-kobe-${{ github.event.pull_request.number || github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   test-build:
