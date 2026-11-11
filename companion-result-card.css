@@ -29,3 +29,7 @@
 #companion-result-focus .crf-temp{background:rgba(56,189,248,.12);border-color:#38BDF8;}
 #companion-result-focus .crf-temp span,
 #companion-result-focus .crf-temp strong{color:#38BDF8;}
+
+/* One visible result: keep undo/close controls accessible but suppress duplicate native ribbon text. */
+body:has(#companion-result-focus:not([hidden])) #ribbon:not([hidden]) .rt,
+body:has(#companion-result-focus:not([hidden])) #ribbon:not([hidden]) .rb {display:none!important}
