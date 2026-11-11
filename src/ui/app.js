@@ -163,6 +163,12 @@ function updateRibbon(result,type){
  if(!result.ok||result.replay)return;
   if(type==='preferences'){resultRibbon.hidden=true;return;}
   if(['notes','favorites','private-roll'].includes(type))return;
+  // An attack roll is not a confirmed hit: never reveal its pre-rolled damage.
+  if(type==='spell-cast'&&result.state?.pendingResolutions?.some(item=>item.spellId==='fire-bolt'&&item.sourceId===result.events?.[0]?.id)){
+    resultRibbon.hidden=true;
+    window.CompanionResultFocus?.hide?.();
+    return;
+  }
  resultRibbon.hidden=true;
  if(type==='condition')return; // The panel and header already show the result.
  const event=result.events?.at(-1);
@@ -185,6 +191,22 @@ async function dispatch(type,payload){
   try{
     const r=await store.dispatch(make(type,payload));
     updateRibbon(r,type);
+    // The hit/miss decision owns damage presentation, never the preceding attack roll.
+    if(r.ok&&!r.replay&&type==='spell-resolve'&&resolution?.spellId==='fire-bolt'){
+      window.CompanionResultFocus?.hide?.();
+      const event=r.events?.at(-1);
+      const outcome=payload?.result;
+      if(event&&['hit','critical'].includes(outcome)){
+        const effective=event.label?.match(/·\\s*(\\d+)\\s+dégâts\\s+\\S+\\s+effectifs/i);
+        if(effective){
+          const shown=window.CompanionResultFocus?.showStructured?.({
+            eventId:event.id,title:'Trait de feu · '+(outcome==='critical'?'Critique':'Touché'),
+            damages:[{amount:Number(effective[1]),type:spellById('fire-bolt')?.damageType||'fire'}]
+          });
+          if(shown)resultRibbon.hidden=true;
+        }
+      }
+    }
     // Show only dice already accepted by the engine; no reroll or second journal write.
     if(r.ok&&!r.replay&&(type==='kharvek-power'||(type==='mantle'&&payload?.survivors===true))){
       const event=r.events?.at(-1),dice=event?.rolls;
