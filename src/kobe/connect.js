@@ -12,7 +12,7 @@ export function parseInvite(text) {
 export function tacticalState(s,epoch) {
   return {characterId:'kobe',characterName:s.profile.name,portrait:'',stateEpoch:epoch,stateRevision:s.revision,
     hp:{current:s.hp.current,max:s.hp.max,temp:s.hp.temp},ac:s.profile.ac,statuses:[...s.combat.conditions],
-    concentration:!!s.concentration,turn:{reaction:s.economy.reactionAvailable}};
+    concentration:!!s.concentration,turn:{action:s.economy.actionAvailable,bonus:s.economy.bonusAvailable,reaction:s.economy.reactionAvailable}};
 }
 export function publicGroup(rows) {
   return (Array.isArray(rows)?rows:[]).slice(0,100).map(r=>{
@@ -23,6 +23,8 @@ export function publicGroup(rows) {
     if(['player','ally'].includes(r.kind)){
       if(Number.isFinite(r.ac))row.ac=r.ac;
       if(typeof r.concentration==='boolean')row.concentration=r.concentration;
+      if(typeof r.action==='boolean')row.action=r.action;
+      if(typeof r.bonus==='boolean')row.bonus=r.bonus;
       if(typeof r.reaction==='boolean')row.reaction=r.reaction;
     }
     // No enemy health is retained, even if a malformed upstream message includes it.

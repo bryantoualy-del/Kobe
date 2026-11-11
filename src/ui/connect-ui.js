@@ -93,6 +93,7 @@ export function mountConnect(store,quickActions,dispatch,onStatus){
       lastHealthChange=recent.id;
     }
     const list=root.querySelector('[data-initiative-list]');
+    list.style.setProperty('--rpg-group-count',String(Math.max(1,rows.length)));
     for(const actor of rows){
       const row=document.createElement('article');
       row.className='rpg-initiative-row';
@@ -111,17 +112,10 @@ export function mountConnect(store,quickActions,dispatch,onStatus){
       if(active)identity.append(text('small',own?'À toi de jouer':'Tour actif','rpg-active-label'));
       const meta=[];
       if(Number.isFinite(actor.ac))meta.push('CA '+actor.ac);
-      if(actor.kind!=='enemy'&&actor.reaction!=null)meta.push(actor.reaction?'Réaction disponible':'Réaction utilisée');
-      if(actor.kind!=='enemy'&&actor.concentration)meta.push('Concentration');
+            if(actor.kind!=='enemy'&&actor.concentration)meta.push('Concentration');
       if(meta.length)identity.append(text('small',meta.join(' · '),'rpg-actor-meta'));
-      const states=document.createElement('div');
-      states.className='rpg-group-states';
-      for(const condition of actor.conditions||[]){
-        const name=typeof condition==='string'?condition:condition.name;
-        if(name)states.insertAdjacentHTML('beforeend',conditionBadge(name));
-      }
-      if(states.childElementCount)identity.append(states);
-      row.append(identity);
+      const main=document.createElement('div');main.className='rpg-kobe-row-main';main.append(identity);
+      row.append(main);
       if(actor.health){
         const {current,max,temp}=actor.health;
         const health=document.createElement('div');
@@ -136,8 +130,41 @@ export function mountConnect(store,quickActions,dispatch,onStatus){
         bar.classList.toggle('is-empty',current===0);
         bar.setAttribute('aria-label','PV de '+actor.name);
         health.append(bar);
-        row.append(health);
+        main.append(health);
       }
+      const right=document.createElement('div');right.className='rpg-kobe-row-right';
+      const conditions=(actor.conditions||[]).filter(Boolean);
+      if(conditions.length){
+        const states=document.createElement('div');states.className='rpg-group-states rpg-compact-states';
+        for(const condition of conditions.slice(0,3)){
+          const name=typeof condition==='string'?condition:condition?.name;
+          if(!name)continue;
+          const content=conditionBadge(name);
+          const holder=document.createElement('span');holder.innerHTML=content;
+          const badge=holder.firstElementChild;badge.classList.add('rpg-compact-state');
+          badge.title=badge.textContent.trim()||name;
+          badge.setAttribute('aria-label',badge.title);
+          badge.style.fontSize='0';
+          states.append(badge);
+        }
+        if(conditions.length>3){
+          const more=text('span','+'+(conditions.length-3),'rpg-state-more');
+          more.title=conditions.slice(3).map(c=>typeof c==='string'?c:c.name).join(', ');states.append(more);
+        }
+        right.append(states);
+      }
+      if(actor.kind!=='enemy'){
+        const economy=document.createElement('div');economy.className='rpg-group-economy';
+        for(const [code,title,key] of [['A','Action','action'],['B','Action bonus','bonus'],['R','Réaction','reaction']]){
+          const value=own?self.economy[{action:'actionAvailable',bonus:'bonusAvailable',reaction:'reactionAvailable'}[key]]:actor[key];
+          const indicator=text('span',code,'rpg-economy-indicator');
+          indicator.dataset.economy=code;indicator.dataset.available=value===true?'yes':value===false?'no':'unknown';
+          indicator.title=title+' · '+(value===true?'disponible':value===false?'utilisée':'non communiquée');
+          indicator.setAttribute('aria-label',indicator.title);economy.append(indicator);
+        }
+        right.append(economy);
+      }
+      row.append(right);
       list.append(row);
     }
     list.scrollTop=listScroll;

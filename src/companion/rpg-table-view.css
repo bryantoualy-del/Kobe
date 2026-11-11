@@ -21,3 +21,31 @@ body.rpg-table-free .cc-turn-next{display:flex!important}
 .nav:has(>[data-rpg-group-tab]),.samoth-desktop-nav:has(>[data-rpg-group-tab]),.mobile-nav:has(>[data-rpg-group-tab]),.v3-dock:has(>[data-rpg-group-tab]),.kentaro-dock:has(>[data-rpg-group-tab]){grid-template-columns:repeat(var(--rpg-nav-count,5),minmax(0,1fr))}
 .rpg-self-editor input:not([type=checkbox]),.rpg-self-editor button{background:var(--panel,#17191b);color:inherit;border:1px solid currentColor;border-radius:8px;padding:7px}
 @media(max-width:767px){#rpgGroupView>.rpg-quick-column,#rpgGroupView>.rpg-initiative{grid-column:1!important}#rpgGroupView [data-initiative-list]{max-height:65dvh}}
+
+/* Recette 11/11 — états dans la colonne droite et économie A/B/R visible. */
+.app #rpgGroupView [data-initiative-list]{max-height:none!important;min-height:0!important;overflow:visible!important}
+.app #rpgGroupView .rpg-initiative-row{
+  min-height:clamp(62px,calc((100dvh - 260px)/var(--rpg-group-count,7)),90px);
+  display:flex;gap:8px;padding:7px;align-items:center
+}
+.app #rpgGroupView .rpg-kobe-row-main{display:flex;flex:1;min-width:0;gap:10px;align-items:center}
+.app #rpgGroupView .rpg-actor-name{min-width:0;flex:1}
+.app #rpgGroupView .rpg-actor-name>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.app #rpgGroupView .rpg-actor-health{flex:1;min-width:95px}
+.app #rpgGroupView .rpg-kobe-row-right{flex:none;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:4px;max-width:100px;min-height:40px}
+.app #rpgGroupView .rpg-compact-states{display:flex;align-items:center;justify-content:flex-end;gap:3px;max-height:26px;overflow:hidden;flex-wrap:nowrap}
+.app #rpgGroupView .rpg-compact-state{display:inline-flex!important;align-items:center;justify-content:center;width:24px;height:24px;padding:0;overflow:hidden;flex:none}
+.app #rpgGroupView .rpg-compact-state svg,.app #rpgGroupView .rpg-compact-state img{width:22px;height:22px;max-width:22px;max-height:22px}
+.app #rpgGroupView .rpg-state-more{font-size:11px;font-weight:700}
+.app #rpgGroupView .rpg-group-economy{display:flex;align-items:center;gap:3px}
+.app #rpgGroupView .rpg-economy-indicator{display:inline-flex!important;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid currentColor;border-radius:7px;font-size:13px;font-weight:900}
+.app #rpgGroupView .rpg-economy-indicator[data-economy=A]{color:#e5b963}
+.app #rpgGroupView .rpg-economy-indicator[data-economy=B]{color:#55b9e7}
+.app #rpgGroupView .rpg-economy-indicator[data-economy=R]{color:#e777c5}
+.app #rpgGroupView .rpg-economy-indicator[data-available=no]{opacity:.28;text-decoration:line-through}
+.app #rpgGroupView .rpg-economy-indicator[data-available=unknown]{opacity:.45;border-style:dashed}
+@media(max-width:800px){
+  .app #rpgGroupView .rpg-kobe-row-main{gap:4px;flex-wrap:wrap}
+  .app #rpgGroupView .rpg-actor-health{flex-basis:100%}
+  .app #rpgGroupView .rpg-kobe-row-right{max-width:90px}
+}
