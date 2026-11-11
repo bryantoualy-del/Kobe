@@ -87,6 +87,12 @@
     const parent=source.closest('[hidden]');
     if(parent)return;
     if(isSocial(sourceTitle(),source)){hide();return;}
+    // Passive toggles change future attacks, but do not resolve a roll.
+    // Do not extract their numeric attack/damage modifiers into a popup.
+    const title=sourceTitle();
+    const configuration=/(?:cogneur lourd|great weapon master|attaque t[eé]m[eé]raire|posture|mode d.attaque)/i.test(title+' '+raw);
+    const resolved=/(?:\bd20\b|\bjet\s*[:=]|touch[eé](?!r)|rat[eé](?!e)|critique|d[eé]g[aâ]ts?\s*(?:inflig[eé]s?|obtenus?)\s*[:=])/i.test(raw);
+    if(configuration&&!resolved)return;
     const value=read(raw);
     if(value.hasValue)show(sourceTitle(),value,raw);
   }
