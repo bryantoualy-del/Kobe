@@ -7,7 +7,7 @@ test('mixed typed damage sums separately stated components',()=>{assert.equal(re
 test('healing never confused with damage',()=>{const v=read('Soins reçus : +12 PV');assert.equal(v.heal,12);assert.equal(v.damage,null);assert.equal(read('Khar-Vek : 18 PV').heal,18)});
 test('d20 total extracted instead of natural d20',()=>{assert.equal(read('Jet : 18 + 9 = 27 · Touché').roll,27);assert.equal(read('attaque 18+9 = 27').roll,27)});
 test('potential semantics and irrelevant messages',()=>{assert.equal(read('Dégâts potentiels : 25').potential,true);assert.equal(read('Pas de ressource disponible').hasValue,false)});
-test('presentation links are isolated from journal code',()=>{const h=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(h,/companion-result-card\.js\?v=20261110/);assert.match(h,/companion-result-card\.css\?v=20261110/);assert.match(h,/CompanionResultFocusConfig/);});
+test('presentation links are isolated from journal code',()=>{const h=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(h,/companion-result-card\.js\?v=20261111-audit/);assert.match(h,/companion-result-card\.css\?v=20261111-audit/);assert.match(h,/CompanionResultFocusConfig/);});
 
 
 test('temporary DOM card displays amounts and closes without editing any history',()=>{
@@ -182,3 +182,12 @@ test('PASSIVE TOGGLE: Cogneur lourd does not render a result, actual dice do, jo
 });
 
 test('abbreviated temporary HP is not healing',()=>{const parsed=read('Écorce du Serment : 20 PV temp · échardes 1d6');assert.equal(parsed.temp,20);assert.equal(parsed.heal,null)});
+
+
+test('fire bolt: damage is revealed only after hit, with fire type',()=>{
+ const app=fs.readFileSync(path.join(root,'src/ui/app.js'),'utf8');
+ assert.match(app,/type==='spell-cast'&&result\.state\?\.pendingResolutions/);
+ assert.match(app,/type==='spell-resolve'&&resolution\?\.spellId==='fire-bolt'/);
+ assert.match(app,/\['hit','critical'\]\.includes\(outcome\)/);
+ assert.match(app,/damages:\[\{amount:Number\(effective\[1\]\),type:'fire'\}\]/);
+});
