@@ -201,7 +201,7 @@ async function dispatch(type,payload){
         if(effective){
           const shown=window.CompanionResultFocus?.showStructured?.({
             eventId:event.id,title:'Trait de feu · '+(outcome==='critical'?'Critique':'Touché'),
-            damages:[{amount:Number(effective[1]),type:spellById('fire-bolt')?.damageType||'fire'}]
+            damages:[{amount:Number(effective[1]),type:'fire'}]
           });
           if(shown)resultRibbon.hidden=true;
         }
