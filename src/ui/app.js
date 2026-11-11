@@ -166,7 +166,13 @@ function updateRibbon(result,type){
   // An attack roll is not a confirmed hit: never reveal its pre-rolled damage.
   if(type==='spell-cast'&&result.state?.pendingResolutions?.some(item=>item.spellId==='fire-bolt'&&item.sourceId===result.events?.[0]?.id)){
     resultRibbon.hidden=true;
-    window.CompanionResultFocus?.hide?.();
+    const pending=result.state.pendingResolutions.find(item=>item.spellId==='fire-bolt'&&item.sourceId===result.events?.[0]?.id);
+    if(pending){
+      window.CompanionResultFocus?.showStructured?.({
+        eventId:result.events[0].id,title:'Trait de feu · Jet d’attaque',
+        attack:{dice:[pending.natural],bonus:9,total:pending.attackTotal}
+      });
+    }
     return;
   }
  resultRibbon.hidden=true;
