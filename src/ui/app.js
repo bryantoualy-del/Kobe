@@ -197,7 +197,7 @@ async function dispatch(type,payload){
       const event=r.events?.at(-1);
       const outcome=payload?.result;
       if(event&&['hit','critical'].includes(outcome)){
-        const effective=event.label?.match(/·\\s*(\\d+)\\s+dégâts\\s+\\S+\\s+effectifs/i);
+        const effective=event.label?.match(/·\s*(\d+)\s+dégâts\s+\S+\s+effectifs/i);
         if(effective){
           const shown=window.CompanionResultFocus?.showStructured?.({
             eventId:event.id,title:'Trait de feu · '+(outcome==='critical'?'Critique':'Touché'),
