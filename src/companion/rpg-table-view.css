@@ -49,3 +49,11 @@ body.rpg-table-free .cc-turn-next{display:flex!important}
   .app #rpgGroupView .rpg-actor-health{flex-basis:100%}
   .app #rpgGroupView .rpg-kobe-row-right{max-width:90px}
 }
+
+/* Landscape group roster: bound vertical growth and retain access to all state icons. */
+@media (min-width:801px) and (orientation:landscape){
+ .app #rpgGroupView>.rpg-initiative{min-height:0;min-width:0;overflow:hidden}
+ .app #rpgGroupView [data-initiative-list]{max-height:clamp(190px,55dvh,640px)!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain}
+ .app #rpgGroupView .rpg-compact-states{max-width:100px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+ .app #rpgGroupView .rpg-actor-name>strong{display:block}
+}
