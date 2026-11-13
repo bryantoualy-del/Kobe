@@ -18,7 +18,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  for(const tone of ['action','bonus','reaction']){const item=page.locator('[data-rpg-economy-glow="'+tone+'"]');assert.equal(await item.count(),1);assert.equal(await item.evaluate(el=>getComputedStyle(el).outlineWidth),'2px');assert.notEqual(await item.evaluate(el=>getComputedStyle(el).boxShadow),'none');}
  assert.equal(await page.locator('[data-rpg-economy-glow="concentration"]').count(),0,'no false concentration glow');
  await page.locator('[data-action=spend-reaction]').click();
- await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.economy.reactionAvailable===false);
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')||'null')?.state?.economy.reactionAvailable===false);
  assert.equal(await page.locator('[data-rpg-economy-glow="reaction"]').count(),0,'reaction glow disappears when spent');
  assert.equal(await page.locator('[data-action=spend-reaction]').isDisabled(),true);
  await next();
