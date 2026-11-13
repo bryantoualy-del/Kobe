@@ -14,7 +14,10 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const next=async()=>{await page.getByRole('button',{name:'Fin de tour',exact:true}).click();await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();};
  const correct=async value=>{await page.locator('[data-charge-value="'+value+'"]').click();await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===n,value);assert.equal(await page.locator('dialog[open]').count(),0);};
  await page.goto('http://127.0.0.1:'+server.address().port);await page.getByText(/Sauvegardé/).waitFor();
- await page.locator('[data-combat-view=kharvek]').click();assert.equal(await page.locator('[data-charge-count]').innerText(),'0 / 6');await mkdir('screenshots',{recursive:true});
+ await page.locator('[data-combat-view=kharvek]').click();assert.equal(await page.locator('[data-charge-count]').innerText(),'6 / 6');
+ for(const tone of ['action','bonus']){const item=page.locator('[data-rpg-economy-glow="'+tone+'"]');assert.equal(await item.count(),1);assert.equal(await item.evaluate(el=>getComputedStyle(el).outlineWidth),'2px');assert.notEqual(await item.evaluate(el=>getComputedStyle(el).boxShadow),'none');}
+ assert.equal(await page.locator('[data-rpg-economy-glow="concentration"]').count(),0,'no false concentration glow');
+ await mkdir('screenshots',{recursive:true});
  for(const charges of [0,1,2,3,4,5,6]){await correct(charges);assert.equal(await page.locator('.charge-mark.lit').count(),charges);assert.equal(await page.locator('#dragon-fill path').count(),charges);assert.equal(await page.locator('[data-charge-count]').textContent(),`${charges} / 6`);assert.equal(await page.locator('svg[data-dragon]').getAttribute('data-dragon'),charges<2?'dormant':charges<4?'awakening':charges<6?'coiling':'complete');if([0,3,6].includes(charges)){await page.locator('#kharvek').evaluate(el=>el.scrollIntoView({block:'center'}));await page.locator('#kharvek').screenshot({path:`screenshots/${name}-kharvek-${charges}.png`});}}
  assert.equal(await page.locator('.dragon-illustration').evaluate(e=>getComputedStyle(e).animationName),'none');
 
