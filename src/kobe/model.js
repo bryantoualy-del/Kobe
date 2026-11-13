@@ -8,7 +8,7 @@ export const freshEconomy = () => ({actionAvailable: true, bonusAvailable: true,
 export function initialState() {
   return {combat: freshCombat(), schemaVersion: SCHEMA, characterId: 'kobe', revision: 0,
     profile: {name: 'Kobe Kozzo', ac: 15}, hp: {current: 83, max: 83, temp: 0, source: null},
-    resources: {...LIMITS, charges: 0}, slots: [...SLOT_MAX], economy: freshEconomy(),
+    resources: {...LIMITS}, slots: [...SLOT_MAX], economy: freshEconomy(),
     turn: {epoch: 'local', combatId: 'local', startRevision: 0, actorId: 'kobe'},
     concentration: null, effects: [], pendingResolutions: [], receipts: {}, journal: [],
     preferences: {tab: 'combat', favorites: []}, notes: '', undo: null};
