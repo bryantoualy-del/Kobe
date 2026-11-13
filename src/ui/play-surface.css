@@ -544,6 +544,7 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
 .app #cc-turnbar-standard .turn-eco-state.is-used{opacity:.55;filter:saturate(.6)}
 .app #cc-turnbar-standard [data-rpg-economy-glow=action]{--rpg-economy-glow:#f5c542}
 .app #cc-turnbar-standard [data-rpg-economy-glow=bonus]{--rpg-economy-glow:#22d3ee}
+.app #cc-turnbar-standard [data-rpg-economy-glow=reaction]{--rpg-economy-glow:#b58aff}
 .app #cc-turnbar-standard [data-rpg-economy-glow=concentration]{--rpg-economy-glow:#10b981}
-.app #cc-turnbar-standard [data-rpg-economy-glow]{outline:2px solid var(--rpg-economy-glow)!important;outline-offset:1px;box-shadow:0 0 9px var(--rpg-economy-glow)!important}
+.app #cc-turnbar-standard [data-rpg-economy-glow]{outline:2px solid var(--rpg-economy-glow)!important;outline-offset:1px;border-color:var(--rpg-economy-glow)!important;background:linear-gradient(145deg,color-mix(in srgb,var(--rpg-economy-glow) 12%,#1a171d),#151419)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rpg-economy-glow) 35%,transparent),0 0 12px color-mix(in srgb,var(--rpg-economy-glow) 65%,transparent),0 0 2px var(--rpg-economy-glow)!important}
 .app #cc-turnbar-standard .turn-concentration.is-channeling{color:#b0f6cf}

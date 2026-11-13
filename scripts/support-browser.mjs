@@ -37,7 +37,7 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  assert.equal(await page.locator('[data-spell-filter=Soins]').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('.catalog-kharvek [data-kharvek]:visible').count(),3);
  assert.equal(await page.locator('[data-spell-card]:visible').count(),2);
- assert(await page.locator('.catalog-kharvek [data-kharvek=pulse]').isDisabled(),'zero charges disables healing');
+ assert(await page.locator('.catalog-kharvek [data-kharvek=pulse]').isEnabled(),'fresh six charges enable Khar-Vek healing');
  await page.locator('.spell-slots>summary').click();await page.locator('[data-slot="1"][data-slot-value="3"]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[1]===3);await page.locator('[data-ribbon-undo]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.slots[1]===4);
  await shot('soins');
  await tab('Combat');await page.locator('[data-combat-view=kharvek]').click();await page.locator('[data-charge-value="6"]').click();await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===6);

@@ -6,6 +6,7 @@ import {dragonStage,kharvekAvailability} from '../src/kobe/kharvek.js';
 let n=0;const command=(s,type,payload={})=>({id:'kv-'+(++n),actorId:'kobe',origin:'player',expectedRevision:s.revision,type,payload});
 function run(s,type,payload){const r=transition(s,command(s,type,payload));assert.equal(r.ok,true,r.message);return r.state;}
 const payload=(power='pulse',targetIds=['kobe'])=>({power,targetIds,drumReady:true,healingEligible:true,healRolls:power==='pulse'?[4,5,6]:[4,5]});
+test('Fresh vestige is charged; saved spent charges are never silently reset',()=>{const fresh=initialState();assert.equal(fresh.resources.charges,6);assert.equal(decode(JSON.stringify(envelope(fresh))).state.resources.charges,6);fresh.resources.charges=0;assert.equal(decode(JSON.stringify(envelope(fresh))).state.resources.charges,0);});
 function setup(){let s=initialState();s.resources.charges=6;s.hp.current=40;s.hp.temp=20;for(const id of ['a','b','c']){s=run(s,'target-save',{id,name:id,side:'ally',temp:0,reaction:true});s=run(s,'target-hp',{targetId:id,max:50,current:id==='b'?49:0,temp:0,confirmed:true});}return s;}
 const mantle={targetIds:['a','b'],eligible:true,choices:{a:{temp:'replace',move:false},b:{temp:'keep',move:false}},survivorTargetId:'a',healRolls:[8],healingEligible:true,drumReady:true};
 test('0–6 charge stages are exactly derived, no extra persistent visual state',()=>{assert.deepEqual(Array.from({length:7},(_,i)=>dragonStage(i)),['dormant','dormant','awakening','awakening','coiling','coiling','complete']);assert.throws(()=>dragonStage(7));});

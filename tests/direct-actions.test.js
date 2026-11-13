@@ -50,7 +50,7 @@ test('Direct Khar-Vek rolls once and spends atomically, without changing ally HP
  }
 });
 test('Table actions retain resource, silence, incapacitation and dice guards',()=>{
- const s=initialState();
+ const s=initialState();s.resources.charges=0; // Explicitly model a depleted saved vestige.
  assert.equal(transition(s,command(s,'kharvek-power',{table:true,power:'rally',healRolls:[4,4]})).ok,false);
  s.combat.conditions=['silenced'];
  assert.equal(transition(s,command(s,'cry',{table:true})).ok,false);
