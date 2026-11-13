@@ -33,3 +33,6 @@
 /* One visible result: keep undo/close controls accessible but suppress duplicate native ribbon text. */
 body:has(#companion-result-focus:not([hidden])) #ribbon:not([hidden]) .rt,
 body:has(#companion-result-focus:not([hidden])) #ribbon:not([hidden]) .rb {display:none!important}
+
+/* Legacy damage ribbons remain hidden until the FX lead-in finishes. */
+body.cc-result-fx-pending :is(#ribbon,#resultRibbon,#kentaro-ribbon,#resultText,#lastResult,#rb){visibility:hidden!important;pointer-events:none!important}
