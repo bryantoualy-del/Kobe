@@ -11,7 +11,12 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  page.on('pageerror',e=>errors.push(e.message));
  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state);
  const confirm=async()=>{await page.locator('dialog[open] [type=submit]').click();await page.locator('dialog[open]').waitFor({state:'detached'});};
- const next=async()=>{await page.getByRole('button',{name:'Fin de tour',exact:true}).click();await page.getByRole('button',{name:'Fin de tour',exact:true}).waitFor();};
+ const next=async()=>{
+   const {turn:{startRevision}}=await state();
+   await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+   await page.waitForFunction(revision=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.turn.startRevision>revision,startRevision);
+   await page.locator('[data-rpg-economy-glow="reaction"]').waitFor();
+ };
  const correct=async value=>{await page.locator('[data-charge-value="'+value+'"]').click();await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.charges===n,value);assert.equal(await page.locator('dialog[open]').count(),0);};
  await page.goto('http://127.0.0.1:'+server.address().port);await page.getByText(/Sauvegardé/).waitFor();
  await page.locator('[data-combat-view=kharvek]').click();assert.equal(await page.locator('[data-charge-count]').innerText(),'6 / 6');
@@ -19,6 +24,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  assert.equal(await page.locator('[data-rpg-economy-glow="concentration"]').count(),0,'no false concentration glow');
  await page.locator('[data-action=spend-reaction]').click();
  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')||'null')?.state?.economy.reactionAvailable===false);
+ await page.locator('[data-rpg-economy-glow="reaction"]').waitFor({state:'detached'});
  assert.equal(await page.locator('[data-rpg-economy-glow="reaction"]').count(),0,'reaction glow disappears when spent');
  assert.equal(await page.locator('[data-action=spend-reaction]').isDisabled(),true);
  await next();

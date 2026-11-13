@@ -5,10 +5,15 @@ import {join,extname,normalize,sep} from 'node:path';
 import {chromium,webkit} from 'playwright';
 
 const root=join(process.cwd(),'dist');
-const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.json':'application/json'};
+const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css', ".svg": "image/svg+xml",'.json':'application/json','.png':'image/png','.webmanifest':'application/manifest+json'};
+let iconsUnavailable=false;
 const server=createServer(async(req,res)=>{
  try{
   const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+  if(iconsUnavailable&&(path==='/site.webmanifest'||path.startsWith('/assets/icons/'))){
+    res.writeHead(503).end();
+    return;
+  }
   const safe=normalize(path).replace(/^[/\\]+/,'');
   if(safe.startsWith('..')||safe.split(sep).includes('..')){res.writeHead(403).end();return;}
   const file=join(root,safe||'index.html');
@@ -49,6 +54,28 @@ try{
    await page.locator('.rpg-journal-action > p').filter({hasText:'10 dégâts reçus'}).first().waitFor();
    // Ensure app shell is cached and local state survives loss of network after initial installation.
    await page.waitForFunction(()=>navigator.serviceWorker.controller!==null,{timeout:15000});
+   // Test the actual versioned installation URLs while the origin refuses to serve them.
+   iconsUnavailable=true;
+   try{
+    const resources=await page.evaluate(async()=>{
+     const links=Object.fromEntries(['manifest','apple-touch-icon','icon'].map(rel=>[rel,document.querySelector('link[rel="'+rel+'"]').href]));
+     const manifestResponse=await fetch(links.manifest,{cache:'no-store'});
+     if(!manifestResponse.ok)throw new Error('Manifest unavailable: '+manifestResponse.status);
+     const manifest=await manifestResponse.json();
+     const urls=[links['apple-touch-icon'],links.icon,...manifest.icons.map(icon=>new URL(icon.src,links.manifest).href)];
+     const dimensions=await Promise.all(urls.map(async url=>{
+      const response=await fetch(url,{cache:'no-store'});
+      if(!response.ok)throw new Error('Icon unavailable: '+response.status+' '+url);
+      const bitmap=await createImageBitmap(await response.blob());
+      const size=bitmap.width+'x'+bitmap.height;
+      bitmap.close();
+      return size;
+     }));
+     return {display:manifest.display,name:manifest.short_name,dimensions};
+    });
+    assert.deepEqual(resources,{display:'standalone',name:'Kobe Kozzo',dimensions:['180x180','32x32','192x192','512x512','512x512']});
+    console.log(label+': installation manifest and five icon assets served by the service worker with origin HTTP 503 PASS');
+   }finally{iconsUnavailable=false;}
    if(label==='chromium'){
     await context.setOffline(true);
     await page.reload();
