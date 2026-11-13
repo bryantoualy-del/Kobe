@@ -7,11 +7,11 @@ test('mixed typed damage sums separately stated components',()=>{assert.equal(re
 test('healing never confused with damage',()=>{const v=read('Soins reçus : +12 PV');assert.equal(v.heal,12);assert.equal(v.damage,null);assert.equal(read('Khar-Vek : 18 PV').heal,18)});
 test('d20 total extracted instead of natural d20',()=>{assert.equal(read('Jet : 18 + 9 = 27 · Touché').roll,27);assert.equal(read('attaque 18+9 = 27').roll,27)});
 test('potential semantics and irrelevant messages',()=>{assert.equal(read('Dégâts potentiels : 25').potential,true);assert.equal(read('Pas de ressource disponible').hasValue,false)});
-test('presentation links are isolated from journal code',()=>{const h=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(h,/companion-result-card\.js\?v=20261111-audit/);assert.match(h,/companion-result-card\.css\?v=20261111-audit/);assert.match(h,/CompanionResultFocusConfig/);});
+test('presentation links are isolated from journal code',()=>{const h=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(h,/companion-result-card\.js\?v=[\w-]+/);assert.match(h,/companion-result-card\.css\?v=[\w-]+/);assert.match(h,/CompanionResultFocusConfig/);});
 
 
 test('temporary DOM card displays amounts and closes without editing any history',()=>{
- let mutation;
+ let mutation,reveal;
  class Node{
   constructor(){this.children=[];this.textContent='';this.hidden=false;this.parentElement=null;this.className='';}
   append(...nodes){this.children.push(...nodes)}
@@ -24,11 +24,11 @@ test('temporary DOM card displays amounts and closes without editing any history
  const title=new Node();title.textContent='Frappe';
  const body=new Node();
  const doc={readyState:'complete',body,querySelector:selector=>selector==='#source'?sourceNode:selector==='#title'?title:null,createElement:()=>new Node(),addEventListener(){}};
- const w={document:doc,CompanionResultFocusConfig:{name:'Essai',sources:['#source'],labels:['#title']},setTimeout:()=>1,clearTimeout:()=>{}};
+ const w={document:doc,CompanionResultFocusConfig:{name:'Essai',sources:['#source'],labels:['#title']},setTimeout:(callback)=>{reveal=callback;return 1},clearTimeout:()=>{}};
  vm.runInNewContext(source,{window:w,document:doc,Date,MutationObserver:class{constructor(callback){mutation=callback}observe(){}}});
  sourceNode.textContent='Jet : 18 + 9 = 27 · 22 dégâts';mutation();
  assert.equal(body.children.length,1);const popup=body.children[0];
- assert.equal(popup.hidden,false);
+ assert.equal(popup.hidden,true);reveal();assert.equal(popup.hidden,false);
  const blocks=popup.children[2].children;
  assert.equal(blocks.length,2);assert.equal(blocks[0].children[1].textContent,'27');assert.equal(blocks[1].children[1].textContent,'22');
  w.CompanionResultFocus.hide();assert.equal(popup.hidden,true);
@@ -173,7 +173,7 @@ test('PASSIVE TOGGLE: Cogneur lourd does not render a result, actual dice do, jo
  sourceNode.textContent='Jet : 12 + 7 = 19 · 21 dégâts';
  mutation();
  assert.equal(page.children.length,1,'a real roll must produce one card');
- assert.equal(page.children[0].hidden,false);
+ assert.equal(page.children[0].hidden,true,'damage result must wait for the FX lead-in');
  assert.equal(page.children[0].children[2].children[0].children[1].textContent,'19');
  titleNode.textContent='Cogneur lourd';
  sourceNode.textContent='Cogneur lourd désactivé : -5 au toucher, +10 dégâts';

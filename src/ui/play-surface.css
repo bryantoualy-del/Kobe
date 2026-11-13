@@ -175,7 +175,7 @@
 .turn-conditions small{color:inherit;font-size:11px}
 .turn-conditions .rpg-condition-icon{width:14px;height:14px}
 .app #cc-turnbar-standard.turn-strip{
-  display:grid!important;position:static;grid-template-columns:auto minmax(104px,.9fr) 1fr .9fr 1.25fr auto;
+  display:grid!important;position:static;grid-template-columns:auto minmax(90px,.85fr) repeat(3,minmax(78px,.85fr)) minmax(87px,.9fr) minmax(122px,1.3fr) auto;
   align-items:center;gap:4px;margin:6px 0;padding:4px;box-shadow:none;
 }
 .app #cc-turnbar-standard.turn-strip>*{min-height:44px;min-width:0;padding:4px 8px;font-size:14px;line-height:1.18;white-space:normal;overflow-wrap:anywhere}
@@ -537,3 +537,13 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
   .support-cockpit .combo-steps{flex:1;grid-auto-rows:1fr}
   .app:has(>.support-cockpit)>.footer{padding:6px 0 0}
 }
+
+/* Compagnie Créole · économie visible sans commandes factices. */
+.app #cc-turnbar-standard .turn-eco-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;font-weight:800;font-size:12px;border:1px solid #49434c;border-radius:8px;padding:5px 7px}
+.app #cc-turnbar-standard .turn-eco-state small{font-size:10px;color:var(--muted);font-weight:650}
+.app #cc-turnbar-standard .turn-eco-state.is-used{opacity:.55;filter:saturate(.6)}
+.app #cc-turnbar-standard [data-rpg-economy-glow=action]{--rpg-economy-glow:#f5c542}
+.app #cc-turnbar-standard [data-rpg-economy-glow=bonus]{--rpg-economy-glow:#22d3ee}
+.app #cc-turnbar-standard [data-rpg-economy-glow=concentration]{--rpg-economy-glow:#10b981}
+.app #cc-turnbar-standard [data-rpg-economy-glow]{outline:2px solid var(--rpg-economy-glow)!important;outline-offset:1px;box-shadow:0 0 9px var(--rpg-economy-glow)!important}
+.app #cc-turnbar-standard .turn-concentration.is-channeling{color:#b0f6cf}

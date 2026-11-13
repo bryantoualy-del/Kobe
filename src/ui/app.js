@@ -98,9 +98,11 @@ function turnbar(){
  return `<section id="cc-turnbar-standard" class="turnbar turn-strip" aria-label="Barre de tour">
    <strong class="turn-number">Tour ${state.turn.startRevision+1}</strong>
    <button data-action="initiative" aria-label="Lancer l’initiative">Initiative +4</button>
+   <span class="turn-eco-state ${state.economy.actionAvailable?'':'is-used'}" ${state.economy.actionAvailable?'data-rpg-economy-glow="action"':''} aria-label="Action ${state.economy.actionAvailable?'disponible':'utilisée'}">⚔ Action <small>${state.economy.actionAvailable?'Disponible':'Utilisée'}</small></span>
+   <span class="turn-eco-state ${state.economy.bonusAvailable?'':'is-used'}" ${state.economy.bonusAvailable?'data-rpg-economy-glow="bonus"':''} aria-label="Action bonus ${state.economy.bonusAvailable?'disponible':'utilisée'}">✦ Bonus <small>${state.economy.bonusAvailable?'Disponible':'Utilisée'}</small></span>
    <button data-action="spend-reaction" ${able&&state.economy.reactionAvailable?'':'disabled'}>Réaction <small>${state.economy.reactionAvailable?'disponible':'dépensée'}</small></button>
    <button data-combat="move" ${active&&able&&state.economy.movementRemaining?'':'disabled'}>${state.economy.movementRemaining} m <small>restants</small></button>
-   <button data-combat="${state.concentration?'concentration-end':'concentration'}">Concentration <small>${escapeHTML(state.concentration?.name??'aucune')}</small></button>
+   <button class="turn-concentration ${state.concentration?'is-channeling':''}" ${state.concentration?'data-rpg-economy-glow="concentration"':''} data-combat="${state.concentration?'concentration-end':'concentration'}">Concentration <small>${escapeHTML(state.concentration?.name??'aucune')}</small></button>
    <div class="turn-rests" aria-label="Repos">
      <button type="button" class="restquick" data-combat="rest" data-rest-kind="short" aria-label="Repos court"><span aria-hidden="true">↻</span> Court</button>
      <button type="button" class="restquick long" data-combat="rest" data-rest-kind="long" aria-label="Repos long"><span aria-hidden="true">☾</span> Long</button>
