@@ -17,6 +17,12 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  await page.locator('[data-combat-view=kharvek]').click();assert.equal(await page.locator('[data-charge-count]').innerText(),'6 / 6');
  for(const tone of ['action','bonus','reaction']){const item=page.locator('[data-rpg-economy-glow="'+tone+'"]');assert.equal(await item.count(),1);assert.equal(await item.evaluate(el=>getComputedStyle(el).outlineWidth),'2px');assert.notEqual(await item.evaluate(el=>getComputedStyle(el).boxShadow),'none');}
  assert.equal(await page.locator('[data-rpg-economy-glow="concentration"]').count(),0,'no false concentration glow');
+ await page.locator('[data-action=spend-reaction]').click();
+ await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.economy.reactionAvailable===false);
+ assert.equal(await page.locator('[data-rpg-economy-glow="reaction"]').count(),0,'reaction glow disappears when spent');
+ assert.equal(await page.locator('[data-action=spend-reaction]').isDisabled(),true);
+ await next();
+ assert.equal(await page.locator('[data-rpg-economy-glow="reaction"]').count(),1,'reaction glow returns next turn');
  await mkdir('screenshots',{recursive:true});
  for(const charges of [0,1,2,3,4,5,6]){await correct(charges);assert.equal(await page.locator('.charge-mark.lit').count(),charges);assert.equal(await page.locator('#dragon-fill path').count(),charges);assert.equal(await page.locator('[data-charge-count]').textContent(),`${charges} / 6`);assert.equal(await page.locator('svg[data-dragon]').getAttribute('data-dragon'),charges<2?'dormant':charges<4?'awakening':charges<6?'coiling':'complete');if([0,3,6].includes(charges)){await page.locator('#kharvek').evaluate(el=>el.scrollIntoView({block:'center'}));await page.locator('#kharvek').screenshot({path:`screenshots/${name}-kharvek-${charges}.png`});}}
  assert.equal(await page.locator('.dragon-illustration').evaluate(e=>getComputedStyle(e).animationName),'none');
