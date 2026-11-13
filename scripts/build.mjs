@@ -6,6 +6,8 @@ await rm(out,{recursive:true,force:true});
 await mkdir(join(out,'src'),{recursive:true});
 await cp(join(root,'src'),join(out,'src'),{recursive:true});
 await copyFile(join(root,'index.html'),join(out,'index.html'));
+await copyFile(join(root,'site.webmanifest'),join(out,'site.webmanifest'));
+await cp(join(root,'assets/icons'),join(out,'assets/icons'),{recursive:true});
 for(const asset of ['companion-result-card.js','companion-result-card.css'])await copyFile(join(root,asset),join(out,asset));
 await copyFile(join(root,'vfx-gallery.html'),join(out,'vfx-gallery.html'));
 await copyFile(join(root,'vfx-gallery-v10.html'),join(out,'vfx-gallery-v10.html'));
