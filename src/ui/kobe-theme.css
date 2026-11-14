@@ -1,0 +1,267 @@
+/* Obsidian, engraved copper and gold across Kobe's play surfaces. */
+body {
+  --kobe-edge: #8d5236;
+  --kobe-trim: #482719;
+  --kobe-serif: Georgia, "Times New Roman", serif;
+  --kobe-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.73' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='.12'/%3E%3C/svg%3E");
+  --kobe-metal: var(--kobe-grain), linear-gradient(145deg, #1e1818, #111013 55%, #1a1314);
+  background: var(--kobe-grain), radial-gradient(ellipse at 53% 86%, #301913, #100e11 66%);
+}
+
+.app :is(.turn-header, .compact-header, .turn-strip, .turn-lane, .ardent-combo,
+.grimoire-list, .grimoire-detail, .kharvek-panel, .panel, #rpgGroupView > .card, .turn-dock) {
+  position: relative;
+  border: 1px solid var(--kobe-edge);
+  background: var(--kobe-metal);
+  box-shadow: inset 0 0 0 2px #100b0a, inset 0 0 0 3px var(--kobe-trim);
+}
+
+.app :is(.turn-header, .turn-lane, .ardent-combo, .grimoire-list, .grimoire-detail, .kharvek-panel)::before {
+  position: absolute;
+  z-index: 1;
+  inset: 4px;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at top left, transparent 62%, #d89962 66%, transparent 73%) top left,
+    radial-gradient(ellipse at top right, transparent 62%, #d89962 66%, transparent 73%) top right,
+    radial-gradient(ellipse at bottom left, transparent 62%, #d89962 66%, transparent 73%) bottom left,
+    radial-gradient(ellipse at bottom right, transparent 62%, #d89962 66%, transparent 73%) bottom right;
+  background-size: 19px 13px;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  content: "";
+}
+
+.app :is(.turn-lane h2, .ardent-combo h2, .grimoire > h2, .grimoire-sheet h3,
+.grimoire-name strong, #kharvek h2, #kharvek .power-copy strong, #sessionDesk h2,
+.panel > h2, #rpgGroupView h2) {
+  font-family: var(--kobe-serif);
+  color: var(--ivory);
+  text-shadow: 0 2px 3px #080605;
+}
+
+.app :is(.turn-value, .turn-conditions, .turn-strip .turn-rests button, .hp-actions .mini,
+.turn-shortcuts button, .turn-last-result, .grimoire-search input, .grimoire .spell-slots,
+.grimoire-reference button, .grimoire-tags span) {
+  border-color: #76513e;
+  background: var(--kobe-grain), linear-gradient(145deg, #291e19, #141214 68%);
+}
+
+.app .turn-board {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.app .turn-lane {
+  padding: 12px;
+}
+
+.app .turn-command {
+  border-color: #795743;
+  box-shadow: inset 0 0 0 2px #130e0d80;
+}
+
+.app .turn-command strong {
+  font-family: var(--kobe-serif);
+}
+
+.app .turn-command.tone-fire:not(:disabled) {
+  background: var(--kobe-grain), linear-gradient(120deg, #401b1b, #29171a 65%, #1b1114);
+}
+
+.app .turn-command.tone-music:not(:disabled) {
+  background: var(--kobe-grain), linear-gradient(120deg, #392919, #241b13 65%, #191514);
+}
+
+.app .turn-command.tone-heal:not(:disabled) {
+  background: var(--kobe-grain), linear-gradient(120deg, #263826, #18251e 65%, #161b16);
+}
+
+.turn-command :is(.turn-icon, .catalog-icon) {
+  filter: drop-shadow(0 2px 3px #0b0806);
+}
+
+.app .ardent-combo {
+  background: var(--kobe-grain), radial-gradient(ellipse at top right, #542021, #281419 48%, #161012 87%);
+}
+
+.ardent-combo h2 {
+  color: #ffd79d;
+}
+
+.app .combo-steps li {
+  border-color: #76513e;
+  background: #120e10a8;
+}
+
+.app .combo-steps li[aria-current=step] {
+  border-color: #d7a05b;
+  background: #382116;
+}
+
+.app :is(.combo-next, .grimoire-cast .primary):not(:disabled) {
+  border-color: #df9b61;
+  background: var(--kobe-grain), linear-gradient(#b86e44, #894023);
+  color: #fff1d5;
+  box-shadow: inset 0 0 0 2px #5f2a19;
+}
+
+.app .grimoire > h2 {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: clamp(29px, 4.2vw, 52px);
+}
+
+.grimoire > h2::after {
+  flex: 1;
+  height: 23px;
+  background: repeating-linear-gradient(to bottom, #a46a464f 0 1px, transparent 1px 5px);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 76%, transparent);
+  content: "";
+}
+
+.app .grimoire-row {
+  border-color: #584033;
+  background: var(--kobe-grain), linear-gradient(100deg, #251c19, #121114);
+}
+
+.app .grimoire-row.selected {
+  border-color: #df955e;
+  background: var(--kobe-grain), linear-gradient(100deg, #4a251b, #281719);
+  box-shadow: inset 0 0 0 2px #a85938, 0 0 12px #a44a2d40;
+}
+
+.app .grimoire-glyph {
+  border-color: #92623f;
+  background: radial-gradient(ellipse at 50% 80%, #472519, #160e10 80%);
+}
+
+.app .grimoire-grid {
+  align-items: stretch;
+}
+
+.app .grimoire-summary {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--kobe-trim);
+}
+
+#kharvek {
+  align-items: center;
+  background: var(--kobe-grain), radial-gradient(ellipse at 29% 49%, #451b1b, #211216 37%, #111013 70%);
+}
+
+#kharvek .kharvek-art {
+  padding: 16px 4px;
+  background: repeating-radial-gradient(circle at center, transparent 0 23%, #bf693319 23.2% 23.5%, transparent 23.8% 27%, #ae694640 27.2% 27.6%, transparent 27.9% 34%);
+}
+
+#kharvek .kharvek-art h2 {
+  color: var(--gold);
+  font-size: clamp(32px, 4.5vw, 59px);
+}
+
+#kharvek .charge-total {
+  display: inline-block;
+  margin: 5px 0 0;
+  padding: 5px 16px;
+  border: 1px solid var(--kobe-edge);
+  border-radius: 24px;
+  background: #1b1212;
+  color: var(--ivory);
+}
+
+#kharvek .charge-mark.lit {
+  border-color: #f0b867;
+  background: radial-gradient(circle at 46% 28%, #ffe0a1, #dd963d 80%);
+  color: #25160e;
+  box-shadow: inset 0 0 0 2px #97562d, 0 2px 7px #140908;
+}
+
+#kharvek .power-list button {
+  border: 1px solid var(--kobe-edge);
+  background: var(--kobe-grain), linear-gradient(125deg, #3d1c1c, #1a1115);
+  box-shadow: inset 0 0 0 2px #1b0e0e;
+}
+
+#kharvek .kharvek-controls > .actions {
+  justify-content: center;
+}
+
+#kharvek [data-kharvek=dawn] {
+  padding-inline: 18px;
+  border-color: #a57347;
+  background: var(--kobe-grain), linear-gradient(#453023, #261914);
+  color: var(--ivory);
+  text-align: center;
+}
+
+.app nav.turn-dock {
+  background: var(--kobe-metal);
+}
+
+.app nav.turn-dock :is(.tab, .turn-rpg) {
+  border-color: #76513e;
+  background: linear-gradient(#2b211d, #181417);
+}
+
+.app nav.turn-dock :is(.tab.active, .turn-finish:not(:disabled)) {
+  border: 1px solid #efbd76;
+  background: var(--kobe-grain), linear-gradient(#ffda91, #d79043);
+  box-shadow: inset 0 0 0 2px #a5602f;
+  color: #201208;
+  font-weight: 800;
+}
+
+.app :where(button, input, select, a, summary):focus-visible {
+  outline: 2px solid #ffcf80;
+  outline-offset: 2px;
+}
+
+@media (min-width: 960px) and (orientation: landscape) {
+  .app .support-cockpit {
+    gap: 10px;
+  }
+
+  .app .turn-command {
+    grid-template-columns: clamp(42px, 5vw, 72px) minmax(0, 1fr) auto;
+  }
+
+  .app .turn-command :is(.turn-icon, .catalog-icon) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    padding: 5px;
+    border: 1px solid #a5724c;
+    border-radius: 9px;
+    background: #170d0e;
+  }
+
+  .app .turn-command small {
+    font-size: 13px;
+  }
+
+  .app .grimoire-name strong, #kharvek .power-copy strong {
+    font-size: clamp(16px, 1.7vw, 25px);
+  }
+
+  #kharvek .power-list button {
+    min-height: 84px;
+  }
+}
+
+@media (max-width: 720px) {
+  .app .compact-header {
+    padding: 10px 12px;
+  }
+
+  .app .turn-lane {
+    padding: 7px;
+  }
+
+  #kharvek .charge-marks {
+    display: flex;
+    gap: 4px;
+  }
+}
