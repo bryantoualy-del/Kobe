@@ -305,7 +305,7 @@ body > #ribbon{bottom:calc(72px + env(safe-area-inset-bottom));z-index:39}
  .kobe-connect.rpg-connect{bottom:calc(111px + env(safe-area-inset-bottom))}
  .kobe-connect .rpg-connect-panel{max-height:calc(100dvh - 135px - env(safe-area-inset-bottom))}
  .app nav.turn-dock .turn-finish{grid-row:1;grid-column:2/-1;justify-self:end;width:100%;max-width:190px;font-size:14px!important}
- .app[data-secondary=true] nav.turn-dock .turn-finish[data-shared=false]{display:none}
+ /* Le passage de tour reste accessible dans le grimoire et sur les vues secondaires. */
  body:has(.app) > #ribbon{bottom:calc(118px + env(safe-area-inset-bottom))}
 }
 
