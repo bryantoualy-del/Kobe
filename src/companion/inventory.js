@@ -1,8 +1,9 @@
 export function initInventory(){
 'use strict';
 const key='kobe-inventory-v1';
-const state={inventory:JSON.parse(localStorage.getItem(key)||'null')};
-const save=()=>localStorage.setItem(key,JSON.stringify(state.inventory));
+let restored=null;try{restored=JSON.parse(localStorage.getItem(key)||'null');if(restored!==null&&(typeof restored!=='object'||Array.isArray(restored)))throw Error('Inventaire invalide');}catch{window.CompanionStorage.block(key);}
+const state={inventory:restored};
+const save=()=>window.CompanionStorage.write(key,JSON.stringify(state.inventory));
 const d=document,$=s=>d.querySelector(s),$$=s=>[...d.querySelectorAll(s)];
 const notify=text=>{document.getElementById('inventoryStatus').textContent=text};
 const categories={heritage:'Objet magique',social:'Instrument',travel:'Équipement',memory:'Souvenir',consumable:'Consommable',misc:'Divers'};
@@ -118,7 +119,7 @@ async function importInventory(file){
  try{
   const parsed=JSON.parse(await file.text()),clean=cleanImportedInventory(parsed);
   if(!(await window.RPGDialogs.confirm('Remplacer l’inventaire actuel par celui de ce fichier ? L’état de combat ne sera pas modifié.')))return;
-  state.inventory=clean;save();render();notify(`↑ Inventaire importé : ${allItems().filter(x=>Number(x.qty)>0).length} objets recensés. L’état de combat est inchangé.`);
+  const original=localStorage.getItem(key);if(original!==null)localStorage.setItem(key+':backup',original);localStorage.setItem(key,JSON.stringify(clean));window.CompanionStorage.recover(key);state.inventory=clean;render();notify(`↑ Inventaire importé : ${allItems().filter(x=>Number(x.qty)>0).length} objets recensés. L’état de combat est inchangé.`);
  }catch(error){RPGDialogs.alert(error?.message||'Impossible d’importer ce fichier.');notify('❌ Import de l’inventaire impossible : fichier invalide.')}
 }
 $$('[data-inventory-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.inventoryView)));

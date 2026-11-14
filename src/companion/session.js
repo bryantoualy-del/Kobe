@@ -16,7 +16,7 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const journal=()=>api.events().map(e=>e.label);
 const blank=start=>({id:`kobe-session-${uid()}`,title:`Session du ${new Date().toLocaleDateString('fr-FR')}`,date:isoDate(),startedAt:new Date().toISOString(),startIndex:start,notes:'',entries:[],people:[]});
 
-function read(key,fallback=null){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback}catch(_){return fallback}}
+function read(key,fallback=null){try{return JSON.parse(localStorage.getItem(key)||'null')??fallback}catch(_){if(key===KEY)window.CompanionStorage.block(KEY);return fallback}}
 function migrate(){
  const v2=read(LEGACY_V2);
  if(v2?.active){
@@ -34,8 +34,9 @@ function migrate(){
  return{version:3,active:{...active,people:[]},archives:[]};
 }
 let data=read(KEY)||migrate();
-if(data.version!==3)data=migrate();if(!data.active)data.active={...blank(0),lastRevision:api.events().at(-1)?.revision??0};if(!Array.isArray(data.active.entries))data.active.entries=[];if(!Array.isArray(data.active.people))data.active.people=[];if(!Array.isArray(data.archives))data.archives=[];
-const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));document.dispatchEvent(new CustomEvent('kobe-session-updated'))};
+if(data.version!==3){window.CompanionStorage.block(KEY);data=migrate();}if(!data.active)data.active={...blank(0),lastRevision:api.events().at(-1)?.revision??0};if(!Array.isArray(data.active.entries))data.active.entries=[];if(!Array.isArray(data.active.people))data.active.people=[];if(!Array.isArray(data.archives))data.archives=[];
+let lastSaveOK=!window.CompanionStorage.isBlocked(KEY);
+const save=()=>{lastSaveOK=window.CompanionStorage.write(KEY,JSON.stringify(data));if(lastSaveOK)document.dispatchEvent(new CustomEvent('kobe-session-updated'));return lastSaveOK};
 function syncMechanical(){
  const current=data.active, entries=api.events().filter(e=>e.revision>(current.lastRevision??0));
  if(!entries.length)return;
@@ -116,7 +117,7 @@ entryType.addEventListener('change',()=>renderPnjCapture());
 function notify(text){const toast=q('#sessionToast');toast.textContent=text;toast.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>toast.classList.remove('show'),1700)}
 function flash(button,label){const old=button.textContent;button.textContent=label;setTimeout(()=>button.textContent=old,1400)}
 async function copyText(text,button){try{await navigator.clipboard.writeText(text)}catch(_){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}if(button)flash(button,'Copié ✓')}
-function saved(){q('#sessionSaveState').textContent=`Sauvegardé · ${new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`}
+function saved(){if(!lastSaveOK){q('#sessionSaveState').textContent='Non sauvegardé · exportez avant de fermer';return;}q('#sessionSaveState').textContent=`Sauvegardé · ${new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`}
 function persist(){save();saved()}
 function selectJournalView(name){const current=name==='mechanical'?'mechanical':'notes';$$('[data-journal-view]',subnav).forEach(b=>{const on=b.dataset.journalView===current;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});$$('[data-journal-pane]',panel).forEach(p=>p.hidden=p.dataset.journalPane!==current);try{localStorage.setItem('kobe-journal-view',current)}catch{}}
 subnav.onclick=e=>{const b=e.target.closest('[data-journal-view]');if(b)selectJournalView(b.dataset.journalView)};
