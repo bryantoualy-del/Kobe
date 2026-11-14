@@ -1,5 +1,5 @@
 importScripts('./offline-shell.js');
-const CACHE='kobe-v13-result-focus-'+self.KobeShellRevision;
+const CACHE='kobe-v14-damage-icons-'+self.KobeShellRevision;
 const FX_FILES=['flame_02.png','magic_03.png','circle_05.png','spark_04.png'].map(name=>'./src/ui/fx/kenney/'+name);
 const FILES=[...new Set(['./',...Object.keys(self.KobeShellAssets).map(path=>'./'+path),...FX_FILES,'./src/ui/fx/approved/fireball_clean_alpha.webp','./companion-result-card.js','./companion-result-card.css'])];
 const root=new URL('./',self.registration.scope);
@@ -7,7 +7,7 @@ const known=new Set(FILES.map(path=>new URL(path,root).pathname));
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(CACHE);
  // Fetch fresh bytes for every entry on install; activate only after the entire shell is ready.
- await cache.addAll(FILES.map(file=>new Request(new URL(file,root),{cache:'reload'})));
+ // Large image packs live in KobeShellAssets and are served by the fetch fallback.\n // Precache only the minimal navigation shell to make installation reliable on iOS/WebKit.\n const essentials=['./','./index.html','./site.webmanifest','./rpg-visual-types.js','./companion-result-card.js','./companion-result-card.css'];\n await cache.addAll(essentials.map(file=>new Request(new URL(file,root),{cache:'reload'})));
 })()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
  await Promise.all((await caches.keys()).filter(k=>k.startsWith('kobe-')&&k!==CACHE).map(k=>caches.delete(k)));
