@@ -1,4 +1,4 @@
-import {glyph as icon, spellGlyph} from './icons.js';
+import {powerGlyph, spellGlyph, utilityGlyph} from './icons.js';
 import {assertCanAct, bardicAvailability} from '../kobe/combat.js';
 import {kharvekAvailability} from '../kobe/kharvek.js';
 import {availableLevels, spellAvailability} from '../kobe/spells.js';
@@ -45,11 +45,10 @@ function command(attribute, label, description, availability, glyph, tone) {
 }
 
 function spellCommand(state, spell) {
-  const art = {'fire-bolt':'flame', fireball:'fireball'}[spell.id];
   const tone = spell.categories.includes('Soins') ? 'heal' : spell.categories.includes('Dégâts') ? 'fire' : 'neutral';
   const description = spell.id === 'fire-bolt' ? '+9 · sans emplacement' :
     spell.level ? `N${spell.level}–5 · 1 emplacement` : 'Sans emplacement';
-  return command(`data-cast="${spell.id}"`, spell.name, description, usableSpell(state, spell), art?icon(art):spellGlyph(spell.id), tone);
+  return command(`data-cast="${spell.id}"`, spell.name, description, usableSpell(state, spell), spellGlyph(spell.id), tone);
 }
 
 function lane(state, title, key, favorites, defaults) {
@@ -83,15 +82,15 @@ function combo(state, addHeal) {
   const button = stage === 'complete' ? '<p class="combo-complete">Combo terminé pour ce tour</p>' :
     `<button type="button" class="combo-next" data-combo="${stage}" ${availability.ok?'':'disabled'}>${stage==='mantle'?'Jouer le Manteau':'Lancer Boule de feu'}</button>
     ${availability.ok?'':`<p class="combo-blocked">${escape(availability.label)}</p>`}`;
-  const steps = ['Manteau', 'Boule de feu'].map((label, index) => {
+  const steps = [['Manteau', powerGlyph('mantle')], ['Boule de feu', spellGlyph('fireball')]].map(([label, glyph], index) => {
     const completed = stage === 'complete' || (index === 0 && stage === 'fireball');
     const current = stage === (index === 0 ? 'mantle' : 'fireball');
     return `<li data-step="${index+1}" data-done="${completed}" ${current?'aria-current="step"':''}>
-      <span aria-hidden="true">${completed?'✓':index+1}</span>${label}${completed?'<span class="sr-only"> joué</span>':''}
+      <span aria-hidden="true">${completed?'✓':index+1}</span>${glyph}${label}${completed?'<span class="sr-only"> joué</span>':''}
     </li>`;
   }).join('');
   return `<section class="ardent-combo" aria-labelledby="ardent-title">
-    <h2 id="ardent-title">${icon('music')}Le Battement Ardent</h2>
+    <h2 id="ardent-title">${powerGlyph('inspiration')}Le Battement Ardent</h2>
     <ol class="combo-steps">${steps}</ol>
     ${stage==='mantle'?toggle:stage==='fireball'?levelPicker:''}${button}
     <details class="combo-rules"><summary>Effets à appliquer à la table</summary><p>Jusqu’à 5 alliés visibles à 18 m reçoivent 11 PV temporaires. Ils peuvent dépenser leur réaction pour se déplacer sans attaque d’opportunité. Avec le soin, un bénéficiaire récupère 1d10 + 5 PV.</p></details>
@@ -105,11 +104,11 @@ export function supportCockpit(state, addHeal = false) {
   const actionDefaults = ['fire-bolt','fireball'].filter(id => !actionFavorites.some(spell => spell.id === id))
     .map(id => spellCommand(state, spellById(id)));
   actionDefaults.push(command('data-kharvek="pulse"', 'Pulsation réparatrice', 'Khar-Vek · 1 charge',
-    kharvekAvailability(state, 'pulse'), icon('heal'), 'heal'));
+    kharvekAvailability(state, 'pulse'), powerGlyph('pulse'), 'heal'));
   const bonusDefaults = [
-    command('data-combat="inspiration"', 'Inspiration', '1 inspiration · d10', bardicAvailability(state, 'inspiration'), icon('music'), 'music'),
-    command('data-combat="mantle"', 'Manteau', '1 inspiration · 11 PV temp.', bardicAvailability(state, 'mantle'), icon('mantle'), 'music'),
-    command('data-kharvek="survivors"', 'Manteau + soin', '1 inspiration · 1 charge', kharvekAvailability(state, 'survivors'), icon('mantle-heal'), 'music'),
+    command('data-combat="inspiration"', 'Inspiration', '1 inspiration · d10', bardicAvailability(state, 'inspiration'), powerGlyph('inspiration'), 'music'),
+    command('data-combat="mantle"', 'Manteau', '1 inspiration · 11 PV temp.', bardicAvailability(state, 'mantle'), powerGlyph('mantle'), 'music'),
+    command('data-kharvek="survivors"', 'Manteau + soin', '1 inspiration · 1 charge', kharvekAvailability(state, 'survivors'), powerGlyph('survivors'), 'music'),
   ];
   return `<section class="support-cockpit" aria-label="Cockpit du tour">
     <div class="turn-board">
@@ -118,12 +117,12 @@ export function supportCockpit(state, addHeal = false) {
         ${lane(state, 'Action bonus', 'bonusAvailable', bonusFavorites, bonusDefaults)}
       </div>
       <div class="turn-shortcuts">
-        <button type="button" data-intent="Soins">♥ Soigner</button>
-        <button type="button" data-intent="Offensif">Attaquer</button>
-        <button type="button" data-intent="Contrôle & Défense">✦ Contrôler</button>
-        <button type="button" data-combat-view="kharvek">Khar-Vek ${state.resources.charges}/6</button>
-        <button type="button" data-tab="spells" aria-label="Gérer les favoris dans Sorts & pouvoirs">★ Favoris</button>
-        <span class="inspiration-count">${icon('music')}${state.resources.inspiration}/5</span>
+        <button type="button" data-intent="Soins">${spellGlyph('healing-word')} Soigner</button>
+        <button type="button" data-intent="Offensif">${spellGlyph('fire-bolt')} Attaquer</button>
+        <button type="button" data-intent="Contrôle & Défense">${spellGlyph('circle-of-power')} Contrôler</button>
+        <button type="button" data-combat-view="kharvek">${powerGlyph('rally')} Khar-Vek ${state.resources.charges}/6</button>
+        <button type="button" data-tab="spells" aria-label="Gérer les favoris dans Sorts & pouvoirs">${utilityGlyph('star')} Favoris</button>
+        <span class="inspiration-count">${powerGlyph('inspiration')}${state.resources.inspiration}/5</span>
       </div>
     </div>
     <aside class="turn-sidebar">
