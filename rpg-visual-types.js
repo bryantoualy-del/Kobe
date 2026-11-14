@@ -54,7 +54,7 @@
     if (!entry) return null;
     const icon = root.document.createElement('img');
     icon.className = 'rpg-damage-icon';
-    icon.src = './assets/icons/damage/' + entry.filename_256;
+    icon.src = './assets/icons/damage/' + entry.filename_64;
     icon.width = icon.height = size;
     icon.alt = entry.name_fr;
     icon.title = entry.name_fr;
