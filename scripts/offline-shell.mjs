@@ -7,8 +7,9 @@ import {gzipSync} from 'node:zlib';
 
 const sourceMime={'.html':'text/html;charset=utf-8','.js':'text/javascript','.css':'text/css','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml'};
 const mime={...sourceMime,'.png':'image/png','.webmanifest':'application/manifest+json'};
-const icons=(await readdir('assets/icons')).filter(name=>extname(name)==='.png').sort();
-const paths=['index.html','site.webmanifest',...icons.map(name=>'assets/icons/'+name),'companion-result-card.js','companion-result-card.css','vfx-gallery.html',...(await readdir('src',{recursive:true})).filter(p=>sourceMime[extname(p)]).map(p=>'src/'+p).sort()];
+// Bundle only compact battle icons; 800px source artwork remains in the repository.
+const icons=(await readdir('assets/icons',{recursive:true})).filter(name=>extname(name)==='.png' && (!name.includes('/') || (name.startsWith('damage/') && name.endsWith('_64.png')))).sort();
+const paths=['index.html','rpg-visual-types.js','site.webmanifest',...icons.map(name=>'assets/icons/'+name),'companion-result-card.js','companion-result-card.css','vfx-gallery.html',...(await readdir('src',{recursive:true})).filter(p=>sourceMime[extname(p)]).map(p=>'src/'+p).sort()];
 const digest=createHash('sha256'),assets={};
 for(const path of paths){
  const bytes=await readFile(path),type=mime[extname(path)],compressed=type.startsWith('text/')||type==='application/manifest+json';
