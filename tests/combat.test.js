@@ -20,7 +20,7 @@ test('Damage with temp HP requires concentration CON check; no assumed resistanc
 test('Cri lasts through end of turn, expires at next start, uses one of four',()=>{let s=run(setup(),'cry',enemy);assert.equal(s.resources.cry,3);s=run(s,'turn-end');assert.equal(s.effects.length,1);s=next(s);assert.equal(s.effects.length,0);});
 test('Fire bolt action 2d10 fire: no inferred hit, manual result, no slot',()=>{let s=run(setup(),'fire-bolt',{...enemy,handFree:true});const r=s.pendingResolutions[0];assert.equal(r.dice,2);assert.equal(s.economy.actionAvailable,false);assert.equal(s.slots[1],4);s=run(s,'resolve',{id:r.id,result:'hit',damage:12});assert.equal(s.pendingResolutions.length,0);assert.equal(s.journal.at(-1).rolls[0],12);assert.equal(s.hp.current,83);});
 test('Fire bolt allowed with Majesty bonus spell; silenced casting denied',()=>{let s=run(setup(),'majesty',maj);s=run(s,'fire-bolt',{...enemy,handFree:true});s=next(s);s=run(s,'condition',{name:'silenced',enabled:true});assert.equal(transition(s,command(s,'fire-bolt',{...enemy,handFree:true})).ok,false);});
-test('Short rest spends physical hit dice, song requires dice; long restores five dice, not charges',()=>{let s=setup();s.hp.current=40;s.resources.inspiration=0;s.resources.cry=0;s.resources.majesty=0;s.resources.charges=2;s.combat.hitDice=4;s.combat.performance=0;s=run(s,'rest',{kind:'short',confirmed:true,dice:[4,5],song:3,songEligible:true});assert.equal(s.hp.current,58);assert.equal(s.combat.hitDice,2);assert.equal(s.resources.inspiration,5);assert.equal(s.resources.cry,0);assert.equal(s.resources.majesty,0);assert.equal(s.combat.performance,1);s=run(s,'rest',{kind:'long',confirmed:true,longEligible:true});assert.equal(s.hp.current,83);assert.equal(s.combat.hitDice,7);assert.equal(s.resources.cry,4);assert.equal(s.resources.majesty,1);assert.equal(s.resources.charges,2);});
+test('Short rest spends physical hit dice, song requires dice; both rests restore Khar-Vek at dawn',()=>{let s=setup();s.hp.current=40;s.resources.inspiration=0;s.resources.cry=0;s.resources.majesty=0;s.resources.charges=2;s.combat.hitDice=4;s.combat.performance=0;s=run(s,'rest',{kind:'short',confirmed:true,dice:[4,5],song:3,songEligible:true});assert.equal(s.hp.current,58);assert.equal(s.combat.hitDice,2);assert.equal(s.resources.inspiration,5);assert.equal(s.resources.cry,0);assert.equal(s.resources.majesty,0);assert.equal(s.combat.performance,1);assert.equal(s.resources.charges,6);s.resources.charges=1;s=run(s,'rest',{kind:'long',confirmed:true,longEligible:true});assert.equal(s.hp.current,83);assert.equal(s.combat.hitDice,7);assert.equal(s.resources.cry,4);assert.equal(s.resources.majesty,1);assert.equal(s.resources.charges,6);});
 test('Double activation and undo retain durable tombstone, exact one event',()=>{const s=setup(),c=command(s,'majesty',maj);const a=transition(s,c);assert.equal(a.ok,true);const r=transition(a.state,c);assert.equal(r.replay,true);assert.equal(r.events.length,0);let u=run(a.state,'undo',{commandId:c.id});assert.equal(u.resources.majesty,1);assert.equal(u.concentration,null);u=decode(JSON.stringify(envelope(u))).state;assert.equal(transition(u,c).replay,true);assert.equal(u.journal.filter(e=>e.commandId===c.id).length,1);});
 test('Mid combat reload retains targets, pending rolls, timers, concentration and action',()=>{let s=run(setup(),'majesty',maj);s=run(s,'damage',{amount:5});assert.deepEqual(decode(JSON.stringify(envelope(s))).state,s);});
 test('Manual economy/resource correction is auditable and reversible',()=>{let s=run(setup(),'cry',enemy);s=run(s,'combat-correct',{field:'bonusAvailable',value:true,reason:'Refus MJ'});assert.equal(s.economy.bonusAvailable,true);assert.match(s.journal.at(-1).label,/Refus MJ/);s=run(s,'correct',{field:'cry',value:4,reason:'Refus MJ'});assert.equal(s.resources.cry,4);});
@@ -61,4 +61,16 @@ test('A timed condition survives reload and expires only on the requested start 
  assert.match(s.journal.at(-1).label,/Fin : Étourdi/);
  s=run(s,'inspiration',{table:true});
  assert.equal(s.resources.inspiration,4);
+});
+
+// L’économie est manipulable directement depuis le bandeau, sans recharger les ressources.
+test('An action, bonus action or reaction can be restored with one audited click',()=>{
+ let s=initialState();s.resources.inspiration=2;s.resources.charges=3;
+ for(const key of ['actionAvailable','bonusAvailable','reactionAvailable']){
+  s=run(s,'spend',{economy:key});assert.equal(s.economy[key],false);
+  s=run(s,'combat-correct',{field:key,value:true,reason:'Restauration manuelle en mode table libre'});
+  assert.equal(s.economy[key],true);
+ }
+ assert.equal(s.resources.inspiration,2);assert.equal(s.resources.charges,3);
+ assert.match(s.journal.at(-1).label,/Restauration manuelle/);
 });

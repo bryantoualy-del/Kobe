@@ -42,7 +42,7 @@ test('one continuous five-turn session: mixed saves, concentration, Glamour, all
  assert.deepEqual(state(),before);
  await play('turn-end');await play('rest',{kind:'short',confirmed:true,dice:[3]});
  await play('rest',{kind:'long',confirmed:true,longEligible:true});
- assert.equal(state().hp.current,83);assert.equal(state().resources.charges,1);
+ assert.equal(state().hp.current,83);assert.equal(state().resources.charges,6);
  assert.equal(state().resources.inspiration,5);assert.deepEqual(state().slots,[0,4,3,3,3,2]);
  assert.equal(state().preferences.favorites.length,4);
 });
