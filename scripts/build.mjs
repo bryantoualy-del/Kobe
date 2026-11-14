@@ -8,7 +8,7 @@ await cp(join(root,'src'),join(out,'src'),{recursive:true});
 await copyFile(join(root,'index.html'),join(out,'index.html'));
 await copyFile(join(root,'site.webmanifest'),join(out,'site.webmanifest'));
 await cp(join(root,'assets/icons'),join(out,'assets/icons'),{recursive:true});
-for(const asset of ['companion-result-card.js','companion-result-card.css'])await copyFile(join(root,asset),join(out,asset));
+for(const asset of ['rpg-visual-types.js','companion-result-card.js','companion-result-card.css'])await copyFile(join(root,asset),join(out,asset));
 await copyFile(join(root,'vfx-gallery.html'),join(out,'vfx-gallery.html'));
 await copyFile(join(root,'vfx-gallery-v10.html'),join(out,'vfx-gallery-v10.html'));
 await copyFile(join(root,'kobe-fx-direct-20261108.html'),join(out,'kobe-fx-direct-20261108.html'));

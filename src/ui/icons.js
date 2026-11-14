@@ -28,18 +28,8 @@ export function utilityGlyph(name) {
   return `<svg class="utility-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${utilityPaths[name]}</svg>`;
 }
 
-// Art from the shared RPG Connect condition registry, bundled for offline use.
-const conditionArt = {
-  blinded:'aveugle', charmed:'charme', deafened:'assourdi', frightened:'effraye',
-  grappled:'agrippe', incapacitated:'incapacite', invisible:'invisible', paralyzed:'paralyse',
-  petrified:'petrifie', poisoned:'empoisonne', prone:'a_terre', restrained:'entrave',
-  stunned:'etourdi', unconscious:'inconscient', exhaustion:'epuisement',
-};
-
+// Use the supplied PNGs. Custom effects without artwork remain text-only.
 export function conditionGlyph(id) {
-  if(Object.hasOwn(conditionArt,id))return `<img class="rpg-condition-icon" src="./src/ui/icons/conditions/${conditionArt[id]}.webp" alt="" width="17" height="17">`;
-  const paths=id==='silenced'
-    ? '<path d="M3 3l18 18M4 10h4l4-4v5m0 5v2l-4-4H4Zm12-8a5 5 0 0 1 2 6"/>'
-    : '<circle cx="12" cy="12" r="8"/><path d="M12 8v5m0 3h.01"/>';
-  return `<svg class="rpg-condition-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+  const entry=globalThis.RPGVisualTypes?.condition(id);
+  return entry ? `<img class="rpg-condition-icon" src="./assets/icons/conditions/${entry.file}.png" alt="${entry.label}" width="24" height="24">` : '';
 }
