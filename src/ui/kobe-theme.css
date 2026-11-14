@@ -265,3 +265,26 @@ body {
     gap: 4px;
   }
 }
+
+.turn-shortcuts button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.turn-shortcuts :is(.catalog-icon, .utility-icon),
+.inspiration-count .catalog-icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.combo-steps .catalog-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.ardent-combo h2 .catalog-icon {
+  width: 27px;
+  height: 27px;
+}
