@@ -135,7 +135,7 @@ try{
    await page.locator('#entryText').fill('Indice corrigé');
    await page.locator('#addEntry').click();
 
-   await page.locator('[data-delete-entry]').click();await page.locator('[data-dialog-accept]').click();
+   await page.locator('[data-delete-entry]').click();await page.locator('[data-delete-entry]').waitFor({state:'detached'});
    await page.locator('[data-touch-person="Roark"]').click();
    await page.locator('#entryType').selectOption('PNJ');
    await page.locator('#entryPerson').selectOption('Roark');
