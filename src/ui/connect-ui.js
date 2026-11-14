@@ -108,12 +108,21 @@ export function mountConnect(store,quickActions,dispatch,onStatus){
       row.append(monogram);
       const identity=document.createElement('div');
       identity.className='rpg-actor-name';
-      identity.append(text('strong',actor.name));
-      if(active)identity.append(text('small',own?'À toi de jouer':'Tour actif','rpg-active-label'));
-      const meta=[];
-      if(Number.isFinite(actor.ac))meta.push('CA '+actor.ac);
-            if(actor.kind!=='enemy'&&actor.concentration)meta.push('Concentration');
-      if(meta.length)identity.append(text('small',meta.join(' · '),'rpg-actor-meta'));
+      const heading=document.createElement('div');heading.className='rpg-group-heading';
+      heading.append(text('strong',actor.name));
+      if(active)heading.append(text('small',own?'À toi de jouer':'Tour actif','rpg-active-label'));
+      const states=document.createElement('div');states.className='rpg-group-states';
+      const conditions=own?self.combat.conditions:actor.conditions;
+      for(const name of conditions||[]){
+        if(!name)continue;
+        const holder=document.createElement('span');holder.innerHTML=conditionBadge(name);
+        const badge=holder.firstElementChild;
+        badge.title=badge.textContent.trim()||name;
+        if(badge.querySelector('img'))badge.lastChild.remove();
+        states.append(badge);
+      }
+      if(states.childElementCount)heading.append(states);
+      identity.append(heading);
       const main=document.createElement('div');main.className='rpg-kobe-row-main';main.append(identity);
       row.append(main);
       if(actor.health){
@@ -133,26 +142,10 @@ export function mountConnect(store,quickActions,dispatch,onStatus){
         main.append(health);
       }
       const right=document.createElement('div');right.className='rpg-kobe-row-right';
-      const conditions=(actor.conditions||[]).filter(Boolean);
-      if(conditions.length){
-        const states=document.createElement('div');states.className='rpg-group-states rpg-compact-states';
-        for(const condition of conditions.slice(0,3)){
-          const name=typeof condition==='string'?condition:condition?.name;
-          if(!name)continue;
-          const content=conditionBadge(name);
-          const holder=document.createElement('span');holder.innerHTML=content;
-          const badge=holder.firstElementChild;badge.classList.add('rpg-compact-state');
-          badge.title=badge.textContent.trim()||name;
-          badge.setAttribute('aria-label',badge.title);
-          badge.style.fontSize='0';
-          states.append(badge);
-        }
-        if(conditions.length>3){
-          const more=text('span','+'+(conditions.length-3),'rpg-state-more');
-          more.title=conditions.slice(3).map(c=>typeof c==='string'?c:c.name).join(', ');states.append(more);
-        }
-        right.append(states);
-      }
+      const meta=[];
+      if(Number.isFinite(actor.ac))meta.push('CA '+actor.ac);
+      if(actor.kind!=='enemy'&&actor.concentration)meta.push('Concentration');
+      if(meta.length)right.append(text('small',meta.join(' · '),'rpg-actor-meta'));
       if(actor.kind!=='enemy'){
         const economy=document.createElement('div');economy.className='rpg-group-economy';
         for(const [code,title,key] of [['A','Action','action'],['B','Action bonus','bonus'],['R','Réaction','reaction']]){
