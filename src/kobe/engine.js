@@ -68,6 +68,9 @@ export function transition(state, command, context = {}) {
           if(command.origin!=='gm'||command.type!=='turn-start'||p.tableKey!==command.id||!/^net-[a-f0-9]{64}$/.test(p.tableKey))
             fail('INVALID_COMMAND','Repère de tour partagé invalide.');
           s.turn.tableKey=p.tableKey;
+        } else {
+          // Avance manuelle : ne pas conserver l'autorité d'un ancien tour Encounter.
+          delete s.turn.tableKey;
         }
         const expired=expireTurnEffects(s,p.turn);
         advance(s,6); s.combat.round++;s.combat.turnDamage=0;s.combat.phase='active';s.combat.bonusSpell=false;s.combat.leveledAction=false; s.turn.startRevision = p.turn; s.economy = freshEconomy(); label = `Début du tour ${p.turn+1}`;
