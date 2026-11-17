@@ -68,7 +68,7 @@ try{
    await addState('paralyzed','turns');
    await closeStates();
    assert.equal(await attack.isDisabled(),true);
-   await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+   await page.getByRole('button',{name:'Nouveau tour local',exact:true}).click();
    await page.locator('.turn-header [data-action=conditions]').getByText('Aucun').waitFor();
    assert.equal(await attack.isEnabled(),true);
    await page.locator('[data-ribbon-close]').click();
@@ -159,7 +159,7 @@ try{
    await (await archive).saveAs('screenshots/'+engine.name()+'-kobe-session.zip');
    for(const width of [375,390,430]){
     await page.setViewportSize({width,height:844});await tab('Combat');
-    const next=await page.locator('[data-action=end-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width,'end turn visible');
+    const next=await page.locator('[data-action=local-next-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width,'end turn visible');
     const heal=await page.locator('[data-action=heal]').boundingBox(),temp=await page.locator('.tempstat').boundingBox();assert(heal.x+heal.width<=temp.x||heal.y>=temp.y+temp.height,'heal must not overlap temporary HP');
     await page.locator('[data-combat-view=kharvek]').click();
     const marks=await page.locator('.charge-mark').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().y));assert.equal(new Set(marks).size,1,'seven charges on one row');
