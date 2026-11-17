@@ -98,7 +98,7 @@ try{
    await page.locator('.turn-commands [data-combat=inspiration]').click();
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===4);
    assert.equal(await page.locator('dialog[open]').count(),0);
-   await page.reload();await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+   await page.reload();await page.getByRole('button',{name:'Nouveau tour local',exact:true}).click();
    await page.locator('#ribbon:not([hidden])').waitFor();
    await page.getByRole('tab',{name:'Sorts & pouvoirs',exact:true}).click();
    assert.equal(await page.locator('#ribbon').isVisible(),false,'the previous turn result must close on tab navigation');

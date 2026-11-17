@@ -91,7 +91,7 @@ try {
       await page.screenshot({path:'screenshots/'+name+'-favorites-viewport.png'});
       const next=async()=>{
         const before=(await state()).turn.startRevision;
-        await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+        await page.getByRole('button',{name:'Nouveau tour local',exact:true}).click();
         await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.turn.startRevision===n+1,before);
       };
       await next();await page.locator('[data-cast=circle-of-power]').click();

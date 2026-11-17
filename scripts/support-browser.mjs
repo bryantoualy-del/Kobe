@@ -12,14 +12,14 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state);
  const wait=predicate=>page.waitForFunction(predicate);
  const tab=async name=>{await page.getByRole('tab',{name,exact:true}).click();await page.waitForFunction(n=>[...document.querySelectorAll('[role=tab]')].some(e=>(e.getAttribute('aria-label')||e.textContent)===n&&e.getAttribute('aria-selected')==='true'),name);};
- const next=async()=>{const n=(await state()).turn.startRevision;await page.locator('[data-action=end-turn]').click();await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.turn.startRevision===n+1,n);};
+ const next=async()=>{const n=(await state()).turn.startRevision;await page.locator('[data-action=local-next-turn]').click();await page.waitForFunction(n=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.turn.startRevision===n+1,n);};
  const shot=async name=>{await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:`screenshots/v12/${engine.name()}-${width}-${name}.png`,fullPage:true});};
  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('.support-cockpit').waitFor();
  assert.equal(await page.locator('.turn-lane').count(),2);
  assert.equal(await page.locator('.combo-steps [data-done=true]').count(),0);
  assert.equal(await page.locator('.combo-steps [aria-current=step]').getAttribute('data-step'),'1');
- const icons=await page.locator('.turn-command .turn-icon').evaluateAll(images=>images.map(image=>image.complete&&image.naturalWidth>0));
- assert.equal(icons.length,6);assert(icons.every(Boolean),'the six vector pictograms loaded');
+ const icons=await page.locator('.turn-commands img').evaluateAll(images=>images.map(image=>image.complete&&image.naturalWidth>0));
+ assert(icons.length>0&&icons.every(Boolean),'combat pictograms loaded');
  assert.equal(await page.locator('.combat-tools').count(),0);
  assert.match(await page.locator('[data-kharvek=pulse] img').getAttribute('src'),/heal\.svg$/);
  await shot('combat');

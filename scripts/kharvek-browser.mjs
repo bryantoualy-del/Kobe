@@ -13,7 +13,7 @@ try{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const confirm=async()=>{await page.locator('dialog[open] [type=submit]').click();await page.locator('dialog[open]').waitFor({state:'detached'});};
  const next=async()=>{
    const {turn:{startRevision}}=await state();
-   await page.getByRole('button',{name:'Fin de tour',exact:true}).click();
+   await page.getByRole('button',{name:'Nouveau tour local',exact:true}).click();
    await page.waitForFunction(revision=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.turn.startRevision>revision,startRevision);
    await page.locator('[data-rpg-economy-glow="reaction"]').waitFor();
  };
