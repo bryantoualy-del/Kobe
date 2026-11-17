@@ -66,7 +66,7 @@ try{
    assert.equal(await page.locator('[data-group-actor=s] .rpg-monogram').textContent(),'S');
    assert.equal(await page.locator('[data-group-actor=s] progress').getAttribute('value'),'45');
    const prone=page.locator('[data-group-actor=s] .rpg-group-state');
-   assert.equal(await prone.textContent(),'À terre');
+   assert.equal(await prone.getAttribute('title'),'À terre');
    await page.waitForFunction(()=>document.querySelector('[data-group-actor=s] .rpg-group-state img')?.naturalWidth>0);
    assert.equal(await page.locator('.rpg-health-changes').count(),0,'initial roster is silent');
    const bar=page.locator('[data-group-actor=s] progress');
@@ -87,7 +87,7 @@ try{
       activeCharacterId:id,activeParticipantId:'cc-'+id,activeName:id==='kobe'?'Kobe Kozzo':'Kentaro',turnStartRevision},
    });
    turn(1,'kobe',1,1);
-   const signal=page.getByRole('button',{name:'Signaler la fin du tour',exact:true});
+   const signal=page.locator('.turn-finish[data-action=signal-turn-end]');
    await signal.waitFor();
    assert.equal(await page.locator('.rpg-session-banner,.rpg-connect-launch').count(),0);
    assert.equal(await page.locator('.turn-dock [aria-label="RPG Connect"]').count(),1);
@@ -97,7 +97,7 @@ try{
    await signalled.waitFor();assert.equal(await signalled.isDisabled(),true);
    assert.equal(await page.locator('.turn-number').textContent(),'Round 1 · Fin signalée au MJ');
    turn(2,'kentaro',1,1);
-   await page.getByRole('button',{name:'Tour de Kentaro',exact:true}).waitFor();
+   await page.locator('.turn-number').getByText('Round 1 · Tour de Kentaro',{exact:true}).waitFor();
    turn(3,'kobe',2,2);
    await signal.waitFor();
    assert.equal(await page.locator('.turn-number').textContent(),'Round 2 · À toi de jouer');

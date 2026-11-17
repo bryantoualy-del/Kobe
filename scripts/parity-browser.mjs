@@ -162,7 +162,8 @@ try{
     const next=await page.locator('[data-action=local-next-turn]').boundingBox();assert(next.x>=0&&next.x+next.width<=width,'end turn visible');
     const heal=await page.locator('[data-action=heal]').boundingBox(),temp=await page.locator('.tempstat').boundingBox();assert(heal.x+heal.width<=temp.x||heal.y>=temp.y+temp.height,'heal must not overlap temporary HP');
     await page.locator('[data-combat-view=kharvek]').click();
-    const marks=await page.locator('.charge-mark').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().y));assert.equal(new Set(marks).size,1,'seven charges on one row');
+    const marks=await page.locator('.charge-mark').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().toJSON()));
+    assert.equal(marks.length,7);assert(marks.every(r=>r.width>=44&&r.height>=44&&r.left>=0&&r.right<=width),'seven accessible charge controls');
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile horizontal overflow');
     await capture('mobile-'+width);
     await tab('Journal');assert((await page.locator('#entryText').boundingBox()).y<600,'capture reachable without long header');
