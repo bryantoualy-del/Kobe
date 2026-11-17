@@ -53,7 +53,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     const shared=active&&(view.connected||Boolean(view.session));
     const signalled=Boolean(key&&(sent.has('end-'+key)||Object.hasOwn(state.receipts,'end-'+key)));
     const canSignal=Boolean(shared&&view.connected&&view.gmOnline&&!view.sessionStale&&key&&
-      state.turn.tableKey===key&&state.combat.phase==='active'&&!signalled);
+      state.combat.phase==='active'&&!signalled);
     return {...view,shared,canSignal,signalled,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]};
   }
   const publish=()=>onChange(status());
@@ -195,9 +195,10 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
       const run=async()=>{
         if(!status().canSignal)return false;
         const key=turnKey,id='end-'+key,state=store.getState();
-        if(!this.sendEvent('turn:end-request',{turn:state.turn.startRevision,actionId:key},id))return false;
-        const result=await store.dispatch({id,actorId:'kobe',origin:'player',expectedRevision:state.revision,type:'turn-end',payload:{tableKey:key}});
-        if(!result.ok)note('Fin signalée au MJ · sauvegarde du tour local indisponible.');
+        const result=await store.dispatch({id,actorId:'kobe',origin:'player',expectedRevision:state.revision,type:'turn-end',payload:state.turn.tableKey===key?{tableKey:key}:{}});
+        if(!result.ok)return false;
+        if(!this.sendEvent('turn:end-request',{turn:state.turn.startRevision,actionId:key},id))
+          note('Tour terminé localement · signal au MJ indisponible.');
         return true;
       };
       const result=chain.then(run);
