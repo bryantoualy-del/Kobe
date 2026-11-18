@@ -6,7 +6,7 @@ import {supportCockpit,comboAvailability,ardentStage} from './support-ui.js';
 import {initJournal} from '../companion/journal.js';
 import {initSession} from '../companion/session.js';
 import {initInventory} from '../companion/inventory.js';
-import {rollPanel,roll,selectRollControl} from './social.js';
+import {rollPanel,roll,selectRollControl,combatSavePanel,rollCombatSave} from './social.js';
 import {mountConnect} from './connect-ui.js';
 import {kharvekPanel,openKharvekForm} from "./kharvek-ui.js";
 import {quickAttack,spellbookPanel,filterSpells,handleBookClick,handleBookControl,openSpellCast,openSpellDetail,openSpellResolve,openSpellControl} from './spell-ui.js';
@@ -30,7 +30,7 @@ if(['combat','kharvek'].includes(state.preferences.tab)){
  const bar=combatView==='kharvek'
    ? sectionButtons({offense:'← Retour au cockpit',kharvek:'Khar-Vek'},combatView,'combat-view')
    : '';
- return bar+(combatView==='kharvek'?kharvekPanel(state):supportCockpit(state,comboHeal));
+ return bar+combatSavePanel()+(combatView==='kharvek'?kharvekPanel(state):supportCockpit(state,comboHeal));
 }
 if(state.preferences.tab==='spells')return spellbookPanel(state);
 if(state.preferences.tab==='social')return sectionButtons({profile:'Profil',inventory:'Inventaire'},socialView,'social-view')+(socialView==='inventory'?'<div id="inventory-slot"></div>':`${rollPanel(state)}<section class="panel"><h2>Social · notes privées</h2><p class="muted">Carnet conservé localement. Les décisions et résultats restent annoncés à la table.</p>${socialPanel(state)}<label for="notes">Notes de Kobe</label><textarea id="notes" maxlength="20000">${escapeHTML(state.notes)}</textarea><small id="notes-status">Sauvegarde automatique</small></section>`);
@@ -314,3 +314,10 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 
 
 table=mountConnect(store,quickActions,dispatch,renderTableControls);render();
+
+document.addEventListener('submit', event => {
+ const form = event.target.closest('[data-combat-save-form]');
+ if (!form) return;
+ event.preventDefault();
+ void rollCombatSave(form);
+});

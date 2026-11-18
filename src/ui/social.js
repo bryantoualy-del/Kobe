@@ -45,3 +45,41 @@ export async function roll(name,dispatch){
   if((await dispatch('private-roll',{name,mode,dice}))?.ok)window.CompanionSocialDice.show(result);
  }catch(error){await RPGDialogs.alert(error.message)}
 }
+
+export function combatSavePanel() {
+ const abilities = ['FOR','DEX','CON','INT','SAG','CHA'];
+ const options = groups.Sauvegardes.map(([name,bonus], index) =>
+  `<option value="${name}">${abilities[index]} ${bonus >= 0 ? '+' : ''}${bonus}</option>`
+ ).join('');
+ return `<details><summary>JDS</summary><form data-combat-save-form>
+  <label>Sauvegarde <select name="ability">${options}</select></label>
+  <label>Mode <select name="mode"><option value="normal">Normal</option><option value="adv">Avantage</option><option value="dis">Désavantage</option></select></label>
+  <label>Dé physique <input name="physical" placeholder="d20 ou deux d20 séparés par un espace"></label>
+  <label><input type="checkbox" name="aura"> Aura de Zéphyr (+4 à 3 m)</label>
+  <label><input type="checkbox" name="bless"> Bénédiction (+1d4)</label>
+  <button type="submit">Lancer</button><output role="status"></output>
+ </form></details>`;
+}
+
+export async function rollCombatSave(form) {
+ const fields = new FormData(form);
+ const mode = fields.get('mode');
+ const physical = fields.get('physical').trim();
+ const dice = physical
+  ? physical.split(/\s+/).map(Number)
+  : Array.from({length: mode === 'normal' ? 1 : 2}, () => 1 + Math.floor(Math.random() * 20));
+ const output = form.querySelector('output');
+ try {
+  const result = resolveRoll({name: fields.get('ability'),mode,dice});
+  const bless = fields.has('bless') ? 1 + Math.floor(Math.random() * 4) : 0;
+  const aura = fields.has('aura') ? 4 : 0;
+  result.bonus += bless + aura;
+  result.total += bless + aura;
+  output.textContent = 'Total ' + result.total
+   + (bless ? ' · Bénédiction +' + bless : '')
+   + (aura ? ' · Aura +4' : '');
+  await window.CompanionSocialDice.show(result);
+ } catch (error) {
+  output.textContent = error.message;
+ }
+}
