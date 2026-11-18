@@ -30,7 +30,7 @@ if(['combat','kharvek'].includes(state.preferences.tab)){
  const bar=combatView==='kharvek'
    ? sectionButtons({offense:'← Retour au cockpit',kharvek:'Khar-Vek'},combatView,'combat-view')
    : '';
- return bar+combatSavePanel()+(combatView==='kharvek'?kharvekPanel(state):supportCockpit(state,comboHeal));
+ return bar+(combatView==='kharvek'?combatSavePanel()+kharvekPanel(state):supportCockpit(state,comboHeal,combatSavePanel()));
 }
 if(state.preferences.tab==='spells')return spellbookPanel(state);
 if(state.preferences.tab==='social')return sectionButtons({profile:'Profil',inventory:'Inventaire'},socialView,'social-view')+(socialView==='inventory'?'<div id="inventory-slot"></div>':`${rollPanel(state)}<section class="panel"><h2>Social · notes privées</h2><p class="muted">Carnet conservé localement. Les décisions et résultats restent annoncés à la table.</p>${socialPanel(state)}<label for="notes">Notes de Kobe</label><textarea id="notes" maxlength="20000">${escapeHTML(state.notes)}</textarea><small id="notes-status">Sauvegarde automatique</small></section>`);

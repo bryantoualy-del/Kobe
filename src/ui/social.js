@@ -90,7 +90,7 @@ export function combatSavePanel() {
  const options = groups.Sauvegardes.map(([name,bonus], index) =>
   `<option value="${name}">${abilities[index]} ${bonus >= 0 ? '+' : ''}${bonus}</option>`
  ).join('');
- return `<details><summary>${combatSaveLabel()}</summary><form data-combat-save-form>
+ return `<details class="combat-save-menu"><summary>${combatSaveLabel()}</summary><form data-combat-save-form>
   <label>Sauvegarde <select name="ability" data-combat-save-ability>${options}</select></label>
   <label>Mode <select name="mode"><option value="normal">Normal</option><option value="adv">Avantage</option><option value="dis">Désavantage</option></select></label>
   <label>Dé physique <input name="physical" placeholder="d20 ou deux d20 séparés par un espace"></label>
