@@ -59,8 +59,38 @@ export function combatFollowups(state, section){
    (effects?`<details class="turn-effects"><summary>Effets actifs · ${state.effects.filter(effect=>effect.kind!=='condition').length}</summary>${effects}</details>`:'');
 }
 export function socialPanel(s){return `<h3 class="power-heading">${powerGlyph('performance')}Représentation captivante</h3><p>1 minute vue et entendue · jusqu’à 5 humanoïdes à 18 m · SAG DD17 · charme 1 h. Fin si la cible est blessée, attaquée par Kobe ou voit Kobe attaquer/blesser un allié. Réussite discrète ; décisions au MJ.</p>${btn('performance','Représentation captivante · '+s.combat.performance+'/1')}`;}
-export function openCombatForm(action,s,dispatch){
+export function openCombatForm(action,s,dispatch,table){
  if(action==='move')return dispatch('move',{meters:s.economy.movementRemaining});
+ if(action==='inspiration'&&table?.connected&&table.room&&!table.stale){
+  const allies=table.group.filter(actor=>['rufus','kentaro'].includes(actor.companionId)&&actor.health?.current>0&&!actor.inspired);
+  if(allies.length){
+   const picker=document.createElement('dialog');
+   picker.className='combat-dialog';
+   const title=document.createElement('h2');
+   title.textContent='Inspiration bardique · allié qui entend Kobe à 18 m';
+   picker.append(title);
+   for(const target of allies){
+    const action=document.createElement('button');
+    action.textContent=target.name;
+    action.onclick=async()=>{
+     action.disabled=true;
+     const result=await dispatch('inspiration',{table:true,sharedTarget:target.companionId,room:table.room,
+      expiresAt:Date.now()+600000,usedInspiration:target.usedInspiration});
+     if(result?.ok)picker.close();
+     else action.disabled=false;
+    };
+    picker.append(action);
+   }
+   const cancel=document.createElement('button');
+   cancel.textContent='Annuler';
+   cancel.onclick=()=>picker.close();
+   picker.append(cancel);
+   document.body.append(picker);
+   picker.onclose=()=>picker.remove();
+   picker.showModal();
+   return;
+  }
+ }
  if(['inspiration','mantle','majesty','majesty-command','cry','performance'].includes(action))return dispatch(action,{table:true});
 
  const dialog=document.createElement('dialog');dialog.className='combat-dialog';let mode=action,extra={},fields='',description='';const b=s.combat;

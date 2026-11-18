@@ -1,3 +1,4 @@
+import {rollAttackBlessing} from './social.js';
 import {glyph,spellGlyph,utilityGlyph} from './icons.js';
 import {kharvekActions} from './kharvek-ui.js';
 import {quickActions} from './combat-ui.js';
@@ -282,7 +283,7 @@ export async function quickAttack(dispatch,target,mode,physical){
  let attackRolls;
  try{attackRolls=readRolls(physical,mode==='normal'?1:2,20);}
  catch(e){await RPGDialogs.alert(e.message);return;}
- const result=await dispatch('spell-cast',{spellId:'fire-bolt',level:0,targetIds:[target],eligible:true,components:true,attackMode:mode,attackRolls,rolls:dice(2,10)});
+ const result=await dispatch('spell-cast',{spellId:'fire-bolt',level:0,targetIds:[target],eligible:true,components:true,attackMode:mode,attackRolls,blessRoll:rollAttackBlessing(),rolls:dice(2,10)});
  if(!result?.ok)return;
  const pending=result.state.pendingResolutions.find(r=>r.sourceId===result.events[0].id&&r.kind==='spell');
  if(pending){
@@ -292,7 +293,7 @@ export async function quickAttack(dispatch,target,mode,physical){
 function hitDialog(r,state,dispatch){
  const dialog=document.createElement('dialog');
  dialog.className='combat-dialog hit-box';
- dialog.innerHTML=`<div class="eyebrow">Jet d’attaque · Trait de feu</div><div class="hit-roll">${r.attackTotal}</div><p>D20 ${r.natural} + 9</p><h2>Est-ce que l’attaque touche ?</h2><div class="hit-actions"><button class="hit-no" ${r.natural===20?'disabled':''}>Raté</button><button class="hit-yes" ${r.natural===1?'disabled':''}>${r.natural===20?'Critique':'Touché'}</button></div><button class="hit-options">Défenses et autres résultats</button>`;
+ dialog.innerHTML=`<div class="eyebrow">Jet d’attaque · Trait de feu</div><div class="hit-roll">${r.attackTotal}</div><p>D20 ${r.natural} + 9${r.blessRoll ? " + "+r.blessRoll+" (Bénédiction)" : ""}</p><h2>Est-ce que l’attaque touche ?</h2><div class="hit-actions"><button class="hit-no" ${r.natural===20?'disabled':''}>Raté</button><button class="hit-yes" ${r.natural===1?'disabled':''}>${r.natural===20?'Critique':'Touché'}</button></div><button class="hit-options">Défenses et autres résultats</button>`;
  document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();
  const apply=async outcome=>{dialog.close();const result=await dispatch('spell-resolve',{id:r.id,result:outcome,defense:'normal',rolls:outcome==='critical'?dice(4,10):[]});if(!result?.ok)hitDialog(r,state,dispatch);};
  dialog.querySelector('.hit-no').onclick=()=>apply('miss');

@@ -292,6 +292,8 @@ export function spellCommand(s, c) {
             ),
             "Mode d’attaque invalide.",
           );
+        const blessRoll = p.blessRoll ?? 0;
+        integer(blessRoll, 0, spell.attack ? 4 : 0);
         const natural = spell.attack
           ? p.attackMode === "advantage"
             ? Math.max(...p.attackRolls)
@@ -309,7 +311,8 @@ export function spellCommand(s, c) {
             level,
             amount,
             dc: 17,
-            attackTotal: natural === null ? null : natural + 9,
+            attackTotal: natural === null ? null : natural + 9 + blessRoll,
+            ...(blessRoll ? {blessRoll} : {}),
             natural,
             ...(spell.concentration ? { concentrationId: c.id } : {}),
             expires: spell.duration

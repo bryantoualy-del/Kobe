@@ -9,9 +9,11 @@ export function parseInvite(text) {
   if(url.username||url.password||url.hash||url.search||!(url.protocol==='wss:'||(url.protocol==='ws:'&&['localhost','127.0.0.1','[::1]'].includes(url.hostname))))throw Error('Serveur wss:// requis.');
   return {endpoint:url.href,room,token};
 }
-export function tacticalState(s,epoch) {
+export function tacticalState(s,epoch,room) {
   return {characterId:'kobe',characterName:s.profile.name,portrait:'',stateEpoch:epoch,stateRevision:s.revision,
     hp:{current:s.hp.current,max:s.hp.max,temp:s.hp.temp},ac:s.profile.ac,statuses:[...s.combat.conditions],
+    ...(room?{inspirations:s.effects.filter(effect=>effect.kind==='inspiration'&&effect.room===room&&effect.sharedTarget)
+      .slice(-20).map(effect=>({id:effect.id,target:effect.sharedTarget,room,expiresAt:effect.expiresAt}))}:{}),
     concentration:!!s.concentration,turn:{action:s.economy.actionAvailable,bonus:s.economy.bonusAvailable,reaction:s.economy.reactionAvailable}};
 }
 export function publicGroup(rows) {
@@ -21,6 +23,10 @@ export function publicGroup(rows) {
     if(r.companionId==='kobe'){
       const blessing=r.conditions?.find?.(c=>c.origin==='rpg-table-blessing'&&typeof c.effectId==='string');
       if(blessing)row.blessing=blessing.effectId.slice(0,200);
+    }
+    if(['rufus','kentaro'].includes(r.companionId)){
+      if(typeof r.usedInspiration==='string')row.usedInspiration=r.usedInspiration;
+      row.inspired=(Array.isArray(r.conditions)?r.conditions:[]).some(c=>c.origin==='rpg-table-inspiration');
     }
     if(typeof r.companionId==='string')row.companionId=r.companionId.slice(0,80);
     if(Number.isFinite(r.initiative))row.initiative=r.initiative;
@@ -58,7 +64,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     const signalled=Boolean(key&&(sent.has('end-'+key)||Object.hasOwn(state.receipts,'end-'+key)));
     const canSignal=Boolean(shared&&view.connected&&view.gmOnline&&!view.sessionStale&&key&&
       state.combat.phase==='active'&&!signalled);
-    return {...view,shared,canSignal,signalled,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]};
+    return {...view,room:invite?.room,shared,canSignal,signalled,pending:[...pending.values()].map(x=>({event:x.event,revision:x.revision})),sent:[...sent.values()]};
   }
   const publish=()=>onChange(status());
   const note=text=>{view.status=String(text).slice(0,300);publish();};
@@ -70,7 +76,7 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
     const state=store.getState();
     if(state.revision<lastRevision)epoch=uuid();
     lastRevision=state.revision;
-    const value=tacticalState(state,epoch);
+    const value=tacticalState(state,epoch,invite?.room);
     // A private roll or a tab change advances the store without changing the public table.
     const {stateRevision,...publicFields}=value;
     const fingerprint=canonical(publicFields);

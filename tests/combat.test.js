@@ -74,3 +74,27 @@ test('An action, bonus action or reaction can be restored with one audited click
  assert.equal(s.resources.inspiration,2);assert.equal(s.resources.charges,3);
  assert.match(s.journal.at(-1).label,/Restauration manuelle/);
 });
+
+test('Shared Inspiration costs one resource, rejects duplicates and replaces the consumed die',()=>{
+ const p={table:true,room:'TABLE2',sharedTarget:'rufus',expiresAt:600000};
+ let s=run(initialState(),'inspiration',p);
+ const usedInspiration=s.effects[0].id;
+ assert.equal(s.resources.inspiration,4);
+ s=next(s);
+ assert.equal(transition(s,command(s,'inspiration',p)).ok,false);
+ s=run(s,'inspiration',{...p,usedInspiration});
+ assert.equal(s.effects.filter(e=>e.sharedTarget==='rufus').length,1);
+ assert.equal(s.resources.inspiration,3);
+ assert.notEqual(s.effects[0].id,usedInspiration);
+ s=next(s);
+ s=run(s,'inspiration',{...p,sharedTarget:'kentaro'});
+ assert.equal(s.effects.length,2);
+});
+
+test('Blessing adds one d4 to Fire Bolt while leaving the natural roll unchanged',()=>{
+ const s=run(initialState(),'spell-cast',{spellId:'fire-bolt',level:0,targetIds:['Cible annoncée'],
+  eligible:true,components:true,attackMode:'normal',attackRolls:[12],blessRoll:4,rolls:[4,5]});
+ assert.equal(s.pendingResolutions[0].natural,12);
+ assert.equal(s.pendingResolutions[0].attackTotal,25);
+ assert.equal(decode(JSON.stringify(envelope(s))).state.pendingResolutions[0].blessRoll,4);
+});

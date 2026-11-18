@@ -65,6 +65,9 @@ export function updateSharedBlessing(view) {
   form.closest('details').querySelector('summary').textContent = combatSaveLabel();
  }
 }
+export function rollAttackBlessing() {
+ return activeBlessing(manualCombatEffects()) ? 1+Math.floor(Math.random()*4) : 0;
+}
 function combatSaveLabel() {
  const effects = manualCombatEffects();
  return ['JDS', activeBlessing(effects) && 'Bénédiction', effects.aura && 'Aura'].filter(Boolean).join(' · ');
