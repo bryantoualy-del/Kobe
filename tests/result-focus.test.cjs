@@ -197,7 +197,7 @@ test('fire bolt attack is shown as structured d20 before the hit decision',()=>{
  const app=fs.readFileSync(path.join(root,'src/ui/app.js'),'utf8');
  const spell=fs.readFileSync(path.join(root,'src/ui/spell-ui.js'),'utf8');
  assert.match(app,/title:'Trait de feu · Jet d’attaque'/);
- assert.match(app,/attack:\{dice:\[pending\.natural\],bonus:9,total:pending\.attackTotal\}/);
+ assert.match(app,/attack:\{dice:\[pending\.natural\],bonus:9\+\(pending\.blessRoll\?\?0\),total:pending\.attackTotal\}/);
  assert.match(spell,/dialog\.close\(\);const result=await dispatch\('spell-resolve'/);
  assert.match(app,/damages:\[\{amount:Number\(effective\[1\]\),type:'fire'\}\]/);
 });

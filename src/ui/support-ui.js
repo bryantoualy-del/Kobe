@@ -97,7 +97,7 @@ function combo(state, addHeal) {
   </section>`;
 }
 
-export function supportCockpit(state, addHeal = false) {
+export function supportCockpit(state, addHeal = false, savePanel = '') {
   const favorites = state.preferences.favorites.map(spellById).filter(Boolean);
   const actionFavorites = favorites.filter(spell => spell.economy === 'actionAvailable');
   const bonusFavorites = favorites.filter(spell => spell.economy === 'bonusAvailable');
@@ -122,7 +122,7 @@ export function supportCockpit(state, addHeal = false) {
         <button type="button" data-intent="Contrôle & Défense">${spellGlyph('circle-of-power')} Contrôler</button>
         <button type="button" data-combat-view="kharvek">${powerGlyph('rally')} Khar-Vek ${state.resources.charges}/6</button>
         <button type="button" data-tab="spells" aria-label="Gérer les favoris dans Sorts & pouvoirs">${utilityGlyph('star')} Favoris</button>
-        <span class="inspiration-count">${powerGlyph('inspiration')}${state.resources.inspiration}/5</span>
+        ${savePanel}<span class="inspiration-count">${powerGlyph('inspiration')}${state.resources.inspiration}/5</span>
       </div>
     </div>
     <aside class="turn-sidebar">

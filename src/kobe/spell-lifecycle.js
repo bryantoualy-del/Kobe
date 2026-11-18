@@ -59,6 +59,6 @@ export function validateSpellState(s, spellById) {
         r.dc === 17,
     );
     if (sp.attack)
-      need(integer(r.natural, 1, 20) && r.attackTotal === r.natural + 9);
+      need(integer(r.natural, 1, 20) && integer(r.blessRoll ?? 0, 0, 4) && r.attackTotal === r.natural + 9 + (r.blessRoll ?? 0));
   }
 }

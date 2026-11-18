@@ -53,14 +53,44 @@ export function combatFollowups(state, section){
    const resolve=spell
      ? `<button type="button" data-spell-resolve="${esc(result.id)}">Saisir le résultat MJ</button>`
      : btn('resolve:'+result.id,'Saisir le résultat MJ');
-   return `<div class="turn-followup"><strong>${esc(label)}</strong><small>${esc(roll)}</small>${resolve}</div>`;
+   return `<div class="turn-followup"><strong>${esc(label)}</strong><small>${esc(roll)}</small>${result.kind==='concentration'&&state.preferences.tab==='combat'? `<button type="button" data-concentration-jds="${Number(result.dc)}">JDS CON</button>`:''}${resolve}</div>`;
  }).join(''):'';
  return (pending?`<details class="turn-effects turn-pending"><summary>Résolutions en attente · ${state.pendingResolutions.length}</summary>${pending}</details>`:'')+
    (effects?`<details class="turn-effects"><summary>Effets actifs · ${state.effects.filter(effect=>effect.kind!=='condition').length}</summary>${effects}</details>`:'');
 }
 export function socialPanel(s){return `<h3 class="power-heading">${powerGlyph('performance')}Représentation captivante</h3><p>1 minute vue et entendue · jusqu’à 5 humanoïdes à 18 m · SAG DD17 · charme 1 h. Fin si la cible est blessée, attaquée par Kobe ou voit Kobe attaquer/blesser un allié. Réussite discrète ; décisions au MJ.</p>${btn('performance','Représentation captivante · '+s.combat.performance+'/1')}`;}
-export function openCombatForm(action,s,dispatch){
+export function openCombatForm(action,s,dispatch,table){
  if(action==='move')return dispatch('move',{meters:s.economy.movementRemaining});
+ if(action==='inspiration'&&table?.connected&&table.room&&!table.stale){
+  const allies=table.group.filter(actor=>['rufus','kentaro'].includes(actor.companionId)&&actor.health?.current>0&&!actor.inspired);
+  if(allies.length){
+   const picker=document.createElement('dialog');
+   picker.className='combat-dialog';
+   const title=document.createElement('h2');
+   title.textContent='Inspiration bardique · allié qui entend Kobe à 18 m';
+   picker.append(title);
+   for(const target of allies){
+    const action=document.createElement('button');
+    action.textContent=target.name;
+    action.onclick=async()=>{
+     action.disabled=true;
+     const result=await dispatch('inspiration',{table:true,sharedTarget:target.companionId,room:table.room,
+      expiresAt:Date.now()+600000,usedInspiration:target.usedInspiration});
+     if(result?.ok)picker.close();
+     else action.disabled=false;
+    };
+    picker.append(action);
+   }
+   const cancel=document.createElement('button');
+   cancel.textContent='Annuler';
+   cancel.onclick=()=>picker.close();
+   picker.append(cancel);
+   document.body.append(picker);
+   picker.onclose=()=>picker.remove();
+   picker.showModal();
+   return;
+  }
+ }
  if(['inspiration','mantle','majesty','majesty-command','cry','performance'].includes(action))return dispatch(action,{table:true});
 
  const dialog=document.createElement('dialog');dialog.className='combat-dialog';let mode=action,extra={},fields='',description='';const b=s.combat;
@@ -68,7 +98,7 @@ export function openCombatForm(action,s,dispatch){
  if(action.startsWith('end:'))return dispatch('effect-end',{id:action.slice(4)});
  if(action==='concentration-end')return dispatch(action,{});
  if(action.startsWith('use:')){mode='inspiration-use';extra.effectId=action.slice(4);fields=input('roll','Résultat du d10','number',1)+select('check','Jet bonifié',[['check','Caractéristique'],['attack','Attaque'],['save','Sauvegarde']]);description='Après le d20, avant annonce du succès ou de l’échec. Le dé attribué est consommé, sans deuxième dépense de Kobe.';}
- if(action.startsWith('resolve:')){mode='resolve';extra.id=action.slice(8);const r=s.pendingResolutions.find(r=>r.id===extra.id);extra.kind=r.kind;description=r.automaticFailure?'Cible déjà charmée par Kobe : échec automatique. Le MJ peut refuser si les conditions ne sont pas réunies.':'Saisissez uniquement le résultat annoncé à la table.';fields=r.kind==='concentration'?select('result','Sauvegarde CON DD '+r.dc,[['success','Réussie'],['failure','Échouée']]):select('result','Résultat',r.kind==='fire'?[['miss','Raté'],['hit','Touché'],['critical','Critique'],['refused','Refus MJ']]:[['failure','Échec de la sauvegarde'],['success','Sauvegarde réussie'],['refused','Refus MJ']]);if(r.kind==='fire')fields+=input('damage','Dégâts bruts des dés (si touché)','number',2);}
+ if(action.startsWith('resolve:')){mode='resolve';extra.id=action.slice(8);const r=s.pendingResolutions.find(r=>r.id===extra.id);extra.kind=r.kind;description=r.automaticFailure?'Cible déjà charmée par Kobe : échec automatique. Le MJ peut refuser si les conditions ne sont pas réunies.':'Saisissez uniquement le résultat annoncé à la table.';fields=r.kind==='concentration'?select('result','Sauvegarde CON DD '+r.dc,[['','Choisir le résultat'],['success','Réussie'],['failure','Échouée'],['ignored','Ignorer le test']]):select('result','Résultat',r.kind==='fire'?[['miss','Raté'],['hit','Touché'],['critical','Critique'],['refused','Refus MJ']]:[['failure','Échec de la sauvegarde'],['success','Sauvegarde réussie'],['refused','Refus MJ']]);if(r.kind==='fire')fields+=input('damage','Dégâts bruts des dés (si touché)','number',2);}
  if(mode==='target-save'){const t=extra.target;fields=input('name','Nom','text',t?.name??'')+select('side','Type',[['ally','Allié'],['enemy','Ennemi']])+input('temp','PV temporaires connus (−1 = inconnu)','number',t?.temp??-1)+select('reaction','Réaction déclarée',[['unknown','Inconnue'],['yes','Disponible'],['no','Consommée']]);}
  if(mode==='move')fields=input('meters','Distance parcourue (m)','number',3);
  if(mode==='time'){fields=input('seconds','Secondes écoulées dans la fiction','number',60)+check('confirmed','Temps confirmé à la table');description='Ne dépend pas de l’horloge réelle. Un round = 6 secondes ; le prochain début de tour fait avancer un round.';}
@@ -83,7 +113,7 @@ export function openCombatForm(action,s,dispatch){
  for(const k of ['roll','meters','seconds','damage','song','value','duration'])if(k in p)p[k]=Number(p[k]);
  if(mode==='target-save'){p.id=extra.target?.id??'target-'+crypto.randomUUID();p.temp=Number(p.temp)===-1?null:Number(p.temp);p.reaction=p.reaction==='unknown'?null:p.reaction==='yes';}
  if(mode==='inspiration-use')p.effectId=extra.effectId;
- if(mode==='resolve'){p.id=extra.id;if(extra.kind==='concentration')p.success=p.result==='success';}
+ if(mode==='resolve'){p.id=extra.id;if(extra.kind==='concentration'&&['success','failure'].includes(p.result))p.success=p.result==='success';}
  if(mode==='rest'){p.dice=p.dice.trim()==='0'?[]:p.dice.trim().split(/\s+/).map(Number);if(!p.song)delete p.song;}
  let type=mode;if(mode==='combat-correct'){if(['actionAvailable','bonusAvailable','reactionAvailable'].includes(p.field))p.value=p.value===1;else if(['inspiration','cry','majesty','temp'].includes(p.field))type='correct';}
  const submit=dialog.querySelector('[type=submit]');if(submit.disabled)return;submit.disabled=true;const r=await dispatch(type,p);if(r?.ok)dialog.close();else{dialog.querySelector('.form-error').textContent=r?.message??'Commande non validée.';submit.disabled=false;}

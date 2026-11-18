@@ -45,3 +45,80 @@ export async function roll(name,dispatch){
   if((await dispatch('private-roll',{name,mode,dice}))?.ok)window.CompanionSocialDice.show(result);
  }catch(error){await RPGDialogs.alert(error.message)}
 }
+
+const combatEffectsKey = 'kobe:manual-save-effects';
+function manualCombatEffects() {
+ try { return JSON.parse(localStorage.getItem(combatEffectsKey) || '{}') || {}; }
+ catch { return {}; }
+}
+let sharedBlessing;
+function activeBlessing(effects) {
+ return Boolean(effects.bless || sharedBlessing && effects.disabledBlessing !== sharedBlessing);
+}
+export function updateSharedBlessing(view) {
+ const blessing = view?.connected && !view.stale ? view.group?.find(actor=>actor.companionId==='kobe')?.blessing : null;
+ if (blessing === sharedBlessing) return;
+ sharedBlessing = blessing;
+ const form = document.querySelector('[data-combat-save-form]');
+ if (form) {
+  form.elements.bless.checked = activeBlessing(manualCombatEffects());
+  form.closest('details').querySelector('summary').textContent = combatSaveLabel();
+ }
+}
+export function rollAttackBlessing() {
+ return activeBlessing(manualCombatEffects()) ? 1+Math.floor(Math.random()*4) : 0;
+}
+function combatSaveLabel() {
+ const effects = manualCombatEffects();
+ return ['JDS', activeBlessing(effects) && 'Bénédiction', effects.aura && 'Aura'].filter(Boolean).join(' · ');
+}
+export function setManualCombatEffect(field) {
+ try {
+  const effects = manualCombatEffects();
+  if(field.name==='bless' && sharedBlessing) {
+   effects.bless=false;
+   effects.disabledBlessing=field.checked ? null : sharedBlessing;
+  } else effects[field.name] = field.checked;
+  localStorage.setItem(combatEffectsKey, JSON.stringify(effects));
+ } catch {}
+ field.closest('details').querySelector('summary').textContent = combatSaveLabel();
+}
+
+export function combatSavePanel() {
+ const effects = manualCombatEffects();
+ const abilities = ['FOR','DEX','CON','INT','SAG','CHA'];
+ const options = groups.Sauvegardes.map(([name,bonus], index) =>
+  `<option value="${name}">${abilities[index]} ${bonus >= 0 ? '+' : ''}${bonus}</option>`
+ ).join('');
+ return `<details class="combat-save-menu"><summary>${combatSaveLabel()}</summary><form data-combat-save-form>
+  <label>Sauvegarde <select name="ability" data-combat-save-ability>${options}</select></label>
+  <label>Mode <select name="mode"><option value="normal">Normal</option><option value="adv">Avantage</option><option value="dis">Désavantage</option></select></label>
+  <label>Dé physique <input name="physical" placeholder="d20 ou deux d20 séparés par un espace"></label>
+  <label><input type="checkbox" name="aura" data-manual-effect ${effects.aura ? 'checked' : ''}> Aura de Zéphyr (+4 à 3 m)</label>
+  <label><input type="checkbox" name="bless" data-manual-effect ${activeBlessing(effects) ? 'checked' : ''}> Bénédiction (+1d4)</label>
+  <button type="submit">Lancer</button><output role="status"></output>
+ </form></details>`;
+}
+
+export async function rollCombatSave(form) {
+ const fields = new FormData(form);
+ const mode = fields.get('mode');
+ const physical = fields.get('physical').trim();
+ const dice = physical
+  ? physical.split(/\s+/).map(Number)
+  : Array.from({length: mode === 'normal' ? 1 : 2}, () => 1 + Math.floor(Math.random() * 20));
+ const output = form.querySelector('output');
+ try {
+  const result = resolveRoll({name: fields.get('ability'),mode,dice});
+  const bless = fields.has('bless') ? 1 + Math.floor(Math.random() * 4) : 0;
+  const aura = fields.has('aura') ? 4 : 0;
+  result.bonus += bless + aura;
+  result.total += bless + aura;
+  output.textContent = 'Total ' + result.total + (form.dataset.concentrationDc ? ' · DD ' + form.dataset.concentrationDc : '')
+   + (bless ? ' · Bénédiction +' + bless : '')
+   + (aura ? ' · Aura +4' : '');
+  await window.CompanionSocialDice.show(result);
+ } catch (error) {
+  output.textContent = error.message;
+ }
+}
