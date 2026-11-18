@@ -53,7 +53,7 @@ export function combatFollowups(state, section){
    const resolve=spell
      ? `<button type="button" data-spell-resolve="${esc(result.id)}">Saisir le résultat MJ</button>`
      : btn('resolve:'+result.id,'Saisir le résultat MJ');
-   return `<div class="turn-followup"><strong>${esc(label)}</strong><small>${esc(roll)}</small>${resolve}</div>`;
+   return `<div class="turn-followup"><strong>${esc(label)}</strong><small>${esc(roll)}</small>${result.kind==='concentration'&&state.preferences.tab==='combat'? `<button type="button" data-concentration-jds="${Number(result.dc)}">JDS CON</button>`:''}${resolve}</div>`;
  }).join(''):'';
  return (pending?`<details class="turn-effects turn-pending"><summary>Résolutions en attente · ${state.pendingResolutions.length}</summary>${pending}</details>`:'')+
    (effects?`<details class="turn-effects"><summary>Effets actifs · ${state.effects.filter(effect=>effect.kind!=='condition').length}</summary>${effects}</details>`:'');

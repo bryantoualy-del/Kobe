@@ -46,17 +46,36 @@ export async function roll(name,dispatch){
  }catch(error){await RPGDialogs.alert(error.message)}
 }
 
+const combatEffectsKey = 'kobe:manual-save-effects';
+function manualCombatEffects() {
+ try { return JSON.parse(localStorage.getItem(combatEffectsKey) || '{}') || {}; }
+ catch { return {}; }
+}
+function combatSaveLabel() {
+ const effects = manualCombatEffects();
+ return ['JDS', effects.bless && 'Bénédiction', effects.aura && 'Aura'].filter(Boolean).join(' · ');
+}
+export function setManualCombatEffect(field) {
+ try {
+  const effects = manualCombatEffects();
+  effects[field.name] = field.checked;
+  localStorage.setItem(combatEffectsKey, JSON.stringify(effects));
+ } catch {}
+ field.closest('details').querySelector('summary').textContent = combatSaveLabel();
+}
+
 export function combatSavePanel() {
+ const effects = manualCombatEffects();
  const abilities = ['FOR','DEX','CON','INT','SAG','CHA'];
  const options = groups.Sauvegardes.map(([name,bonus], index) =>
   `<option value="${name}">${abilities[index]} ${bonus >= 0 ? '+' : ''}${bonus}</option>`
  ).join('');
- return `<details><summary>JDS</summary><form data-combat-save-form>
-  <label>Sauvegarde <select name="ability">${options}</select></label>
+ return `<details><summary>${combatSaveLabel()}</summary><form data-combat-save-form>
+  <label>Sauvegarde <select name="ability" data-combat-save-ability>${options}</select></label>
   <label>Mode <select name="mode"><option value="normal">Normal</option><option value="adv">Avantage</option><option value="dis">Désavantage</option></select></label>
   <label>Dé physique <input name="physical" placeholder="d20 ou deux d20 séparés par un espace"></label>
-  <label><input type="checkbox" name="aura"> Aura de Zéphyr (+4 à 3 m)</label>
-  <label><input type="checkbox" name="bless"> Bénédiction (+1d4)</label>
+  <label><input type="checkbox" name="aura" data-manual-effect ${effects.aura ? 'checked' : ''}> Aura de Zéphyr (+4 à 3 m)</label>
+  <label><input type="checkbox" name="bless" data-manual-effect ${effects.bless ? 'checked' : ''}> Bénédiction (+1d4)</label>
   <button type="submit">Lancer</button><output role="status"></output>
  </form></details>`;
 }
@@ -75,7 +94,7 @@ export async function rollCombatSave(form) {
   const aura = fields.has('aura') ? 4 : 0;
   result.bonus += bless + aura;
   result.total += bless + aura;
-  output.textContent = 'Total ' + result.total
+  output.textContent = 'Total ' + result.total + (form.dataset.concentrationDc ? ' · DD ' + form.dataset.concentrationDc : '')
    + (bless ? ' · Bénédiction +' + bless : '')
    + (aura ? ' · Aura +4' : '');
   await window.CompanionSocialDice.show(result);

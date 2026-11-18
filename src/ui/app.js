@@ -6,7 +6,7 @@ import {supportCockpit,comboAvailability,ardentStage} from './support-ui.js';
 import {initJournal} from '../companion/journal.js';
 import {initSession} from '../companion/session.js';
 import {initInventory} from '../companion/inventory.js';
-import {rollPanel,roll,selectRollControl,combatSavePanel,rollCombatSave} from './social.js';
+import {rollPanel,roll,selectRollControl,combatSavePanel,rollCombatSave,setManualCombatEffect} from './social.js';
 import {mountConnect} from './connect-ui.js';
 import {kharvekPanel,openKharvekForm} from "./kharvek-ui.js";
 import {quickAttack,spellbookPanel,filterSpells,handleBookClick,handleBookControl,openSpellCast,openSpellDetail,openSpellResolve,openSpellControl} from './spell-ui.js';
@@ -320,4 +320,23 @@ document.addEventListener('submit', event => {
  if (!form) return;
  event.preventDefault();
  void rollCombatSave(form);
+});
+
+document.addEventListener('change', event => {
+ if (event.target.matches('[data-manual-effect]')) setManualCombatEffect(event.target);
+ if (event.target.matches('[data-combat-save-ability]')) {
+  const form = event.target.form;
+  delete form.dataset.concentrationDc;
+  form.querySelector('output').textContent = '';
+ }
+});
+document.addEventListener('click', event => {
+ const control = event.target.closest('[data-concentration-jds]');
+ const form = document.querySelector('[data-combat-save-form]');
+ if (!control || !form) return;
+ form.closest('details').open = true;
+ form.elements.ability.value = 'Sauvegarde Constitution';
+ form.dataset.concentrationDc = control.dataset.concentrationJds;
+ form.querySelector('output').textContent = 'Concentration · DD ' + form.dataset.concentrationDc;
+ form.elements.mode.focus();
 });
