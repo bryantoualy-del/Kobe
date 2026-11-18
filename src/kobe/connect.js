@@ -143,6 +143,13 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
           sessionRevision=sr;view.sessionStale=false;
           view.session={activeName,activeCharacterId,activeParticipantId,round,phase};
           turnKey=null;
+          if(phase==='fight'){
+            for(const [id,item] of pending){
+              if(!['initiative:request','initiative:retry'].includes(item.event.type))continue;
+              pending.delete(id);
+              ack(id,'initiative-closed-by-gm');
+            }
+          }
           if(phase==='fight'&&activeCharacterId==='kobe'&&!markerOnly&&typeof combatId==='string'&&combatId&&
              typeof activeParticipantId==='string'&&activeParticipantId&&Number.isSafeInteger(turnStartRevision)&&turnStartRevision>=0){
             const key=await operationId(scope(),{id:canonical([combatId,activeParticipantId,turnStartRevision])});
@@ -165,6 +172,9 @@ export function createConnect({store,WebSocketImpl=globalThis.WebSocket,onChange
       ack(e.id,'received-no-local-mutation');return;
     }
     if(['hp:set','tempHp:set','conditions:set','initiative:request','initiative:retry'].includes(e.type)){
+      if(view.session?.phase==='fight'&&['initiative:request','initiative:retry'].includes(e.type)){
+        ack(e.id,'initiative-closed-by-gm');return;
+      }
       const id=await operationId(scope(),e);if(g!==generation)return;
       const old=store.getState().receipts[id];
       if(old){
