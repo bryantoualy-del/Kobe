@@ -51,14 +51,31 @@ function manualCombatEffects() {
  try { return JSON.parse(localStorage.getItem(combatEffectsKey) || '{}') || {}; }
  catch { return {}; }
 }
+let sharedBlessing;
+function activeBlessing(effects) {
+ return Boolean(effects.bless || sharedBlessing && effects.disabledBlessing !== sharedBlessing);
+}
+export function updateSharedBlessing(view) {
+ const blessing = view?.connected && !view.stale ? view.group?.find(actor=>actor.companionId==='kobe')?.blessing : null;
+ if (blessing === sharedBlessing) return;
+ sharedBlessing = blessing;
+ const form = document.querySelector('[data-combat-save-form]');
+ if (form) {
+  form.elements.bless.checked = activeBlessing(manualCombatEffects());
+  form.closest('details').querySelector('summary').textContent = combatSaveLabel();
+ }
+}
 function combatSaveLabel() {
  const effects = manualCombatEffects();
- return ['JDS', effects.bless && 'Bénédiction', effects.aura && 'Aura'].filter(Boolean).join(' · ');
+ return ['JDS', activeBlessing(effects) && 'Bénédiction', effects.aura && 'Aura'].filter(Boolean).join(' · ');
 }
 export function setManualCombatEffect(field) {
  try {
   const effects = manualCombatEffects();
-  effects[field.name] = field.checked;
+  if(field.name==='bless' && sharedBlessing) {
+   effects.bless=false;
+   effects.disabledBlessing=field.checked ? null : sharedBlessing;
+  } else effects[field.name] = field.checked;
   localStorage.setItem(combatEffectsKey, JSON.stringify(effects));
  } catch {}
  field.closest('details').querySelector('summary').textContent = combatSaveLabel();
@@ -75,7 +92,7 @@ export function combatSavePanel() {
   <label>Mode <select name="mode"><option value="normal">Normal</option><option value="adv">Avantage</option><option value="dis">Désavantage</option></select></label>
   <label>Dé physique <input name="physical" placeholder="d20 ou deux d20 séparés par un espace"></label>
   <label><input type="checkbox" name="aura" data-manual-effect ${effects.aura ? 'checked' : ''}> Aura de Zéphyr (+4 à 3 m)</label>
-  <label><input type="checkbox" name="bless" data-manual-effect ${effects.bless ? 'checked' : ''}> Bénédiction (+1d4)</label>
+  <label><input type="checkbox" name="bless" data-manual-effect ${activeBlessing(effects) ? 'checked' : ''}> Bénédiction (+1d4)</label>
   <button type="submit">Lancer</button><output role="status"></output>
  </form></details>`;
 }

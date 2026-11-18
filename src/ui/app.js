@@ -6,7 +6,7 @@ import {supportCockpit,comboAvailability,ardentStage} from './support-ui.js';
 import {initJournal} from '../companion/journal.js';
 import {initSession} from '../companion/session.js';
 import {initInventory} from '../companion/inventory.js';
-import {rollPanel,roll,selectRollControl,combatSavePanel,rollCombatSave,setManualCombatEffect} from './social.js';
+import {rollPanel,roll,selectRollControl,combatSavePanel,rollCombatSave,setManualCombatEffect,updateSharedBlessing} from './social.js';
 import {mountConnect} from './connect-ui.js';
 import {kharvekPanel,openKharvekForm} from "./kharvek-ui.js";
 import {quickAttack,spellbookPanel,filterSpells,handleBookClick,handleBookControl,openSpellCast,openSpellDetail,openSpellResolve,openSpellControl} from './spell-ui.js';
@@ -58,6 +58,7 @@ function header(){
 }
 
 function renderTableControls(v=table?.status()){
+ updateSharedBlessing(v);
  const shared=v?.shared===true, playing=v?.session?.phase==='fight';
  const ready=shared&&v.connected&&v.gmOnline&&!v.sessionStale;
  const mine=ready&&playing&&v.session.activeCharacterId==='kobe';

@@ -18,6 +18,10 @@ export function publicGroup(rows) {
   return (Array.isArray(rows)?rows:[]).slice(0,100).map(r=>{
     const row={id:String(r.id??''),name:String(r.name??'').slice(0,100),kind:r.kind,activeTurn:r.activeTurn===true,
       conditions:(Array.isArray(r.conditions)?r.conditions:[]).map(c=>String(c?.name??c).slice(0,80))};
+    if(r.companionId==='kobe'){
+      const blessing=r.conditions?.find?.(c=>c.origin==='rpg-table-blessing'&&typeof c.effectId==='string');
+      if(blessing)row.blessing=blessing.effectId.slice(0,200);
+    }
     if(typeof r.companionId==='string')row.companionId=r.companionId.slice(0,80);
     if(Number.isFinite(r.initiative))row.initiative=r.initiative;
     if(['player','ally'].includes(r.kind)){
