@@ -293,12 +293,12 @@ export async function quickAttack(dispatch,target,mode,physical){
 function hitDialog(r,state,dispatch){
  const dialog=document.createElement('dialog');
  dialog.className='combat-dialog hit-box';
- dialog.innerHTML=`<div class="eyebrow">Jet d’attaque · Trait de feu</div><div class="hit-roll">${r.attackTotal}</div><p>D20 ${r.natural} + 9${r.blessRoll ? " + "+r.blessRoll+" (Bénédiction)" : ""}</p><h2>Est-ce que l’attaque touche ?</h2><div class="hit-actions"><button class="hit-no" ${r.natural===20?'disabled':''}>Raté</button><button class="hit-yes" ${r.natural===1?'disabled':''}>${r.natural===20?'Critique':'Touché'}</button></div><button class="hit-options">Défenses et autres résultats</button>`;
+ dialog.innerHTML=`<div class="eyebrow">Jet d’attaque · Trait de feu</div><div class="hit-roll">${r.attackTotal}</div><p>D20 ${r.natural} + 9${r.blessRoll ? " + "+r.blessRoll+" (Bénédiction)" : ""}</p><h2>Est-ce que l’attaque touche ?</h2><div class="hit-actions"><button class="hit-no" ${r.natural===20?'disabled':''}>Raté</button><button class="hit-yes" ${r.natural===1?'disabled':''}>${r.natural===20?'Critique':'Touché'}</button></div>`;
  document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();
  const apply=async outcome=>{dialog.close();const result=await dispatch('spell-resolve',{id:r.id,result:outcome,defense:'normal',rolls:outcome==='critical'?dice(4,10):[]});if(!result?.ok)hitDialog(r,state,dispatch);};
  dialog.querySelector('.hit-no').onclick=()=>apply('miss');
  dialog.querySelector('.hit-yes').onclick=()=>apply(r.natural===20?'critical':'hit');
- dialog.querySelector('.hit-options').onclick=()=>{dialog.close();openSpellResolve(r.id,state,dispatch);};
+
 }
 export async function openSpellCast(id,s,dispatch,selectedLevel){
  const spell=spellById(id);
