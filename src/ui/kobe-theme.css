@@ -288,3 +288,202 @@ body {
   width: 27px;
   height: 27px;
 }
+
+/* Le Tambour Ardent — copper tooling, embroidered silk and inset hide. */
+body {
+  --premium-hide: url("./premium/leather.webp");
+  --premium-frieze: url("./premium/taiko-frieze.webp");
+  --premium-silk: url("./premium/embroidered-silk.webp");
+  --premium-drum: url("./premium/taiko-drum.webp");
+  --premium-lining: linear-gradient(135deg,#151419da,#151419a8 48%,#24171be8), var(--premium-hide);
+  --premium-inlay: inset 0 0 0 2px #130d0e, inset 0 0 0 3px #71442e, inset 0 0 20px #0905079c, 0 4px 12px #0805099c;
+  background: radial-gradient(ellipse at 45% 0,#331b1ac9,#151419f2 68%),var(--premium-hide),#151419;
+}
+
+.app :is(.turn-header,.compact-header,.turn-lane,.ardent-combo,.panel,.grimoire-list,.grimoire-detail,
+         #rpgGroupView > .card,#sessionDesk,#inventoryDesk),
+:is(dialog,[role=dialog],#ribbon,.companion-result-card) {
+  border-color:#a56846;
+  background:var(--premium-lining);
+  box-shadow:var(--premium-inlay);
+}
+
+.app .turn-header {
+  background:
+    linear-gradient(90deg,#16101769 5%,#19101880 26%,#151419 58%),
+    var(--premium-frieze) left top/65% auto no-repeat,#151419;
+}
+
+.turn-identity img {
+  border:1px solid #e0a46a;
+  box-shadow:0 0 0 3px #352018,0 0 18px #b8663770;
+}
+
+.identity-title {
+  display:block;
+  color:#ffd89a;
+  font:700 10px/1.35 var(--kobe-serif);
+  letter-spacing:.17em;
+  margin-top:3px;
+  text-transform:uppercase;
+}
+
+.app .turn-vitals { font-variant-numeric:tabular-nums }
+.app .turn-vitals :is(.turn-value,.turn-metric) { background:#171116ed }
+
+.app #cc-turnbar-standard,.app nav.turn-dock {
+  background:linear-gradient(180deg,#49262391,#171217e8 43%),var(--premium-hide);
+  box-shadow:var(--premium-inlay);
+}
+
+.app[data-majesty=true] :is(.turn-header,.compact-header) {
+  border-color:#ffdc92;
+  box-shadow:inset 0 0 28px #e5b96360,0 0 12px #e5b96350;
+}
+
+.combat-resources {
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) repeat(2,minmax(0,1fr));
+  gap:5px;
+  padding:5px 7px;
+  margin-bottom:8px;
+  border:1px solid #a06542;
+  border-radius:10px;
+  background:linear-gradient(110deg,#21161af5,#3d2324e8 56%,#181217f2),var(--premium-hide);
+  box-shadow:var(--premium-inlay);
+}
+
+.combat-resources :is(.bardic-resource > span,.cry-resource,button) {
+  display:flex;
+  gap:5px;
+  align-items:center;
+  justify-content:center;
+  color:#f0e5ce;
+  font-size:clamp(11px,1.04vw,14px);
+  text-align:center;
+}
+
+.combat-resources button {
+  min-height:44px;
+  border-color:#a36844;
+  background:linear-gradient(170deg,#573123,#20141a);
+  padding:4px;
+}
+
+.combat-resources .cry-resource {
+  border:1px solid #80483e;
+  border-radius:8px;
+  background:#351b21;
+}
+
+.combat-resources b {color:#ffdc98;white-space:nowrap;font-variant-numeric:tabular-nums}
+.combat-resources .catalog-icon {width:20px;height:20px;flex:none}
+.bardic-seals {display:flex;justify-content:center;gap:5px;margin:3px 0 1px}
+.bardic-seal {
+  display:grid;
+  place-items:center;
+  width:clamp(22px,2.35vw,30px);
+  aspect-ratio:1;
+  border:1px solid #ffce81;
+  border-radius:50%;
+  background:#54251c url("./premium/music-seals.webp") calc(var(--seal-index, 0) * 25%) center/500% 100% no-repeat;
+  box-shadow:inset 0 0 0 2px #723420,0 0 7px #f491426e;
+}
+.bardic-seal[data-lit=false] {
+  border-color:#866d60;
+  box-shadow:inset 0 0 0 2px #33232a;
+  filter:grayscale(.85) brightness(.48);
+}
+
+.app .turn-lane {
+  background:linear-gradient(145deg,#161016df,#201217d9),var(--premium-hide);
+}
+.app [data-turn-lane=bonusAvailable] {
+  background:linear-gradient(#24131bd9 25%,#23131bf7 62%),var(--premium-silk) top center/100% auto no-repeat,#25171d;
+}
+.turn-lane header {border-bottom:1px solid #88573d;padding:0 3px 5px}
+.app .turn-command {
+  border-radius:8px;
+  background:linear-gradient(120deg,#312121,#191319);
+}
+.app .turn-command.tone-music:not(:disabled) {
+  background:linear-gradient(120deg,#50232a,#2d1b20 73%);
+}
+.app .turn-command:disabled {opacity:.78}
+.app .ardent-combo {
+  background:linear-gradient(#2d1621ed 42%,#2b141ac9 73%,#1b1319ed),
+    var(--premium-drum) center bottom/100% auto no-repeat,#25151a;
+}
+.app .ardent-combo h2 {color:#ffda97}
+.app .combo-next:not(:disabled) {background:linear-gradient(#84452e,#5f2821)}
+.app .grimoire > h2 {
+  font-size:clamp(26px,3.2vw,42px);
+  padding-left:12px;
+  background:linear-gradient(90deg,#19131ad9 15%,#21141baa 59%,#151419ed),
+    var(--premium-silk) right 31%/min(65%,780px) auto no-repeat;
+  border-bottom:1px solid #a56846;
+}
+.app .grimoire-detail {
+  background:linear-gradient(110deg,#21161aea,#23171bea),var(--premium-hide);
+}
+.app .grimoire-list {border-right:3px double #996145}
+.app .grimoire-row.selected {background:linear-gradient(110deg,#643129,#321923)}
+#kharvek {
+  background:linear-gradient(115deg,#2d1719d9,#161216f0),var(--premium-hide);
+}
+#kharvek .kharvek-art {
+  padding:22px 10px 15px;
+  border:1px solid #ad714a;
+  border-radius:12px;
+  box-shadow:var(--premium-inlay);
+  background:linear-gradient(180deg,#1c1016af,#2c1318b9 53%,#180d14f0),
+    url("./premium/dragon-copper.webp") center top/cover no-repeat,#2f171a;
+}
+#kharvek .charge-marks {justify-content:center;flex-wrap:wrap}
+#kharvek .charge-mark {min-width:44px;min-height:44px}
+#kharvek .drum-pad {background:radial-gradient(ellipse,#54201980,transparent 72%)}
+#kharvek .power-list button {background:linear-gradient(110deg,#4a2428dd,#21141c),var(--premium-hide)}
+.app :is(.panel,#sessionDesk,#inventoryDesk,#rpgGroupView) :is(h2,h3) {color:#f0d3a5}
+.app :is(.panel,#sessionDesk,#inventoryDesk,#rpgGroupView) .card {
+  border-color:#80533e;
+  background:linear-gradient(135deg,#2c1d20e0,#181318e8),var(--premium-hide);
+}
+
+@media (min-width:960px) and (orientation:landscape) {
+  .app .turn-command {grid-template-columns:clamp(42px,4vw,56px) minmax(0,1fr) auto}
+  .app .turn-command small {font-size:12px}
+  .app .combo-steps {grid-template-columns:1fr 1fr;grid-auto-rows:auto;flex:0}
+  .app .combo-steps li {flex-wrap:wrap;gap:5px}
+  .app .ardent-combo {justify-content:space-between}
+  .app .turn-shortcuts {margin-top:7px}
+}
+@media (max-width:520px) {
+  .combat-resources {grid-template-columns:1fr 1fr}
+  .bardic-resource {grid-column:1/-1}
+  .combat-resources :is(.bardic-resource > span,.cry-resource,button) {font-size:12px}
+}
+
+.bardic-seal:nth-child(2) {--seal-index:1}
+.bardic-seal:nth-child(3) {--seal-index:2}
+.bardic-seal:nth-child(4) {--seal-index:3}
+.bardic-seal:nth-child(5) {--seal-index:4}
+#companion-result-focus,.crf-figure {border-color:#a56846}
+
+.ardent-drum-inlay {display:none}
+@media (min-width:960px) and (min-height:740px) and (orientation:landscape) {
+  .app .ardent-combo {justify-content:flex-start}
+  .ardent-drum-inlay {
+    display:block;
+    flex:1 1 90px;
+    min-height:48px;
+    background:var(--premium-drum) center 70%/min(100%,280px) auto no-repeat;
+    mask-image:radial-gradient(ellipse,#000 35%,transparent 73%);
+    opacity:.92;
+    pointer-events:none;
+  }
+}
+
+@media (min-width:960px) and (orientation:landscape) {
+  #companion-result-focus {pointer-events:none}
+  #companion-result-focus :is(button,a),#companion-result-focus:focus-within {pointer-events:auto}
+}

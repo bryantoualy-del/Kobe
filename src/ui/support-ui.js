@@ -1,3 +1,4 @@
+import {LIMITS} from '../kobe/model.js';
 import {powerGlyph, spellGlyph, utilityGlyph} from './icons.js';
 import {assertCanAct, bardicAvailability} from '../kobe/combat.js';
 import {kharvekAvailability} from '../kobe/kharvek.js';
@@ -92,8 +93,22 @@ function combo(state, addHeal) {
   return `<section class="ardent-combo" aria-labelledby="ardent-title">
     <h2 id="ardent-title">${powerGlyph('inspiration')}Le Battement Ardent</h2>
     <ol class="combo-steps">${steps}</ol>
+    <div class="ardent-drum-inlay" aria-hidden="true"></div>
     ${stage==='mantle'?toggle:stage==='fireball'?levelPicker:''}${button}
     <details class="combo-rules"><summary>Effets à appliquer à la table</summary><p>Jusqu’à 5 alliés visibles à 18 m reçoivent 11 PV temporaires. Ils peuvent dépenser leur réaction pour se déplacer sans attaque d’opportunité. Avec le soin, un bénéficiaire récupère 1d10 + 5 PV.</p></details>
+  </section>`;
+}
+
+function combatResources({inspiration, charges, cry}) {
+  const seals = Array.from({length: LIMITS.inspiration}, (_, index) =>
+    `<span class="bardic-seal" data-lit="${index < inspiration}"></span>`).join('');
+  return `<section class="combat-resources" aria-label="Ressources de combat">
+    <div class="bardic-resource">
+      <span>${powerGlyph('inspiration')} Inspiration bardique <b>${inspiration}/${LIMITS.inspiration} · d10</b></span>
+      <div class="bardic-seals" aria-hidden="true">${seals}</div>
+    </div>
+    <button type="button" data-combat-view="kharvek">${powerGlyph('rally')} Khar-Vek <b>${charges}/${LIMITS.charges}</b></button>
+    <span class="cry-resource">${powerGlyph('cry')} Cri draconique <b>${cry}/${LIMITS.cry}</b></span>
   </section>`;
 }
 
@@ -112,6 +127,7 @@ export function supportCockpit(state, addHeal = false, savePanel = '') {
   ];
   return `<section class="support-cockpit" aria-label="Cockpit du tour">
     <div class="turn-board">
+      ${combatResources(state.resources)}
       <div class="turn-lanes">
         ${lane(state, 'Action', 'actionAvailable', actionFavorites, actionDefaults)}
         ${lane(state, 'Action bonus', 'bonusAvailable', bonusFavorites, bonusDefaults)}
@@ -120,9 +136,8 @@ export function supportCockpit(state, addHeal = false, savePanel = '') {
         <button type="button" data-intent="Soins">${spellGlyph('healing-word')} Soigner</button>
         <button type="button" data-intent="Offensif">${spellGlyph('fire-bolt')} Attaquer</button>
         <button type="button" data-intent="Contrôle & Défense">${spellGlyph('circle-of-power')} Contrôler</button>
-        <button type="button" data-combat-view="kharvek">${powerGlyph('rally')} Khar-Vek ${state.resources.charges}/6</button>
         <button type="button" data-tab="spells" aria-label="Gérer les favoris dans Sorts & pouvoirs">${utilityGlyph('star')} Favoris</button>
-        ${savePanel}<span class="inspiration-count">${powerGlyph('inspiration')}${state.resources.inspiration}/5</span>
+        ${savePanel}
       </div>
     </div>
     <aside class="turn-sidebar">
