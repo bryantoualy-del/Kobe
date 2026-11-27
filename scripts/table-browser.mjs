@@ -82,6 +82,12 @@ try{
    assert.equal(await bar.evaluate(el=>el.style.getPropertyValue('--hp-color')),'hsl(4 62% 62%)');
    await page.locator('.rpg-health-changes summary').click();
    assert.equal(await page.locator('.rpg-health-changes li').count(),2);
+   start=await count();
+   command('initiative-1','initiative:request',{requestId:'fight-1'});
+   await page.locator('[data-init-manual]').fill('12');await page.locator('[data-init-roll]').click();
+   const ev=await until(()=>rx.find(m=>m.type==='event'&&m.event.type==='initiative:rolled'),'initiative');
+   assert.equal(ev.event.payload.total,16);send({type:'event-ack',id:ev.event.id});
+   touchCounts.initiative=(await count())-start;
    const turn=(revision,id,round,turnStartRevision)=>command('turn-'+revision,'state:sync',{
     syncEpoch:'A',session:{sessionRevision:revision,phase:'fight',combatId:'fight-1',round,
       activeCharacterId:id,activeParticipantId:'cc-'+id,activeName:id==='kobe'?'Kobe Kozzo':'Kentaro',turnStartRevision},
@@ -113,11 +119,9 @@ try{
    const hp=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.hp.current);
    assert.equal(await hp(),60);
    correct();await until(()=>rx.some(m=>m.id==='correction-1'&&m.result==='already-reviewed'),'duplicate acknowledgment');
-   command('initiative-1','initiative:request',{requestId:'fight-1'});
-   await page.locator('[data-init-manual]').fill('12');await page.locator('[data-init-roll]').click();
-   const ev=await until(()=>rx.find(m=>m.type==='event'&&m.event.type==='initiative:rolled'),'initiative');
-   assert.equal(ev.event.payload.total,16);send({type:'event-ack',id:ev.event.id});
-   touchCounts.initiative=(await count())-start;
+   command('initiative-fight','initiative:request',{requestId:'fight-1'});
+   await until(()=>rx.some(m=>m.type==='command-ack'&&m.id==='initiative-fight'&&m.result==='initiative-closed-by-gm'),'initiative request received during combat');
+   assert.equal(await page.locator('[data-init-manual]').isVisible(),false,'initiative entry closes once the GM starts combat');
    const old=rooms.get(room).players.get('kobe');
    old.terminate();await until(()=>rooms.get(room).players.get('kobe')!==old&&rooms.get(room).players.get('kobe'),'reconnected');
    assert.equal(await hp(),60);

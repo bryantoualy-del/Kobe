@@ -44,7 +44,7 @@ const secondaryView=()=>groupOpen||!['combat','kharvek'].includes(state.preferen
 function header(){
  const compact=secondaryView()? `<header class="compact-header"><strong>Kobe Kozzo</strong><span>${state.hp.current}/${state.hp.max} PV · CA ${state.profile.ac}</span>${conditionButton(state)}</header>`:'';
  return `${compact}<header class="top turn-header">
-   <div class="turn-identity"><img src="./src/ui/emblem.webp" alt="Emblème de Kobe"><div><h1>Kobe Kozzo</h1><p>Barde 10 · Collège du Glamour</p></div></div>
+   <div class="turn-identity"><img src="./src/ui/emblem.webp" alt="Emblème de Kobe"><div><h1>Kobe Kozzo</h1><p>Barde 10 · Collège du Glamour</p><span class="identity-title">Le Tambour Ardent</span></div></div>
    <div class="turn-vitals">
      <div class="turn-hp">
        <label class="turn-value"><input id="hp" type="number" min="0" max="${state.hp.max}" aria-label="PV actuels de Kobe" value="${state.hp.current}"> / ${state.hp.max} PV</label>
@@ -117,7 +117,8 @@ function render(){
  if(networkPanel&&mount.contains(networkPanel))document.body.append(networkPanel);
  if(mount.contains(resultRibbon))document.body.append(resultRibbon);
  const secondary=secondaryView();
- mount.innerHTML=`<main class="shell app" data-view="${state.preferences.tab}" data-secondary="${secondary}">
+ const majesty=state.effects.some(effect=>effect.kind==='majesty'&&effect.concentrationId===state.concentration?.id);
+ mount.innerHTML=`<main class="shell app" data-view="${state.preferences.tab}" data-secondary="${secondary}" data-majesty="${majesty}">
    ${header()}${turnbar()}
    ${state.hp.current===0&&!state.combat.death.dead
      ? `<div class="turn-dying">${state.combat.death.stable?'':'<button type="button" data-combat="death-save">Jet de mort</button>'}<label><input id="critical" type="checkbox"> Dégâts critiques à 0 PV</label></div>` : ''}
@@ -125,7 +126,7 @@ function render(){
    ${problem?`<div role="alert" class="warning">${escapeHTML(problem)}</div>`:''}
    <div aria-live="polite" class="status">${loaded?'Sauvegardé':'Initialisation…'} · <span data-cache-status>${escapeHTML(cacheMessage)}</span></div>
    ${body()}
-   <footer class="footer">Kobe Companion V1.4 · Compagnie Créole</footer>
+   <footer class="footer">Le Tambour Ardent · V2 Premium · Compagnie Créole</footer>
    <nav class="tabs turn-dock" aria-label="Sections principales">
      ${nav.map(([id,title])=>`<button type="button" role="tab" class="tab ${!groupOpen&&state.preferences.tab===id?'active':''}" aria-selected="${!groupOpen&&state.preferences.tab===id}" data-tab="${id}">${title}</button>`).join('')}
      <button type="button" role="tab" class="tab ${groupOpen?'active':''}" aria-selected="${groupOpen}" aria-label="Groupe" data-network-link>Groupe</button>
@@ -197,6 +198,10 @@ async function dispatch(type,payload){
   const resolution=['spell-resolve','resolve'].includes(type)
     ? state.pendingResolutions.find(item=>item.id===payload?.id)
     : null;
+  const previousInspiration=state.resources.inspiration;
+  const tracksArdent=type==='mantle'||(type==='spell-cast'&&payload?.spellId==='fireball');
+  const previousArdentStage=tracksArdent?ardentStage(state):null;
+  const accents=[];
   busy=true;mount.inert=true;
   try{
     const r=await store.dispatch(make(type,payload));
@@ -233,13 +238,38 @@ async function dispatch(type,payload){
     else{
       problem='';
       if(!r.replay){
+        if(state.resources.inspiration<previousInspiration&&type!=='correct'&&type!=='undo'){
+          accents.push(...Array.from({length:previousInspiration-state.resources.inspiration},(_,index)=>[
+            `.bardic-seal:nth-child(${state.resources.inspiration+index+1})`, '#e5b963'
+          ]));
+        }
+        if(type==='kharvek-power'||(type==='mantle'&&payload?.survivors===true)){
+          accents.push(['.kharvek-art, .combat-resources [data-combat-view=kharvek]','#b86637']);
+        }
+        const stage=tracksArdent?ardentStage(state):null;
+        if((type==='mantle'&&stage==='fireball'&&previousArdentStage==='mantle')||
+           (type==='spell-cast'&&stage==='complete'&&previousArdentStage==='fireball')){
+          accents.push(['.ardent-combo','#e5b963']);
+        }
         const effect=vfxForCommand(type,resolution?{...payload,spellId:resolution.spellId,kind:resolution.kind}:payload);
         if(type==='spell-cast' && ['dissonant-whispers','mirror-image','circle-of-power'].includes(String(payload.spellId||'').toLowerCase())) playSpellFx(String(payload.spellId).toLowerCase());
         else if(effect)playKobeVfx(effect);
       }
     }
     return r;
-  }finally{busy=false;mount.inert=false;render();}
+  }finally{
+    busy=false;
+    mount.inert=false;
+    render();
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      for(const [selector,color] of accents){
+        mount.querySelector(selector)?.animate(
+          [{filter:`brightness(1.6) drop-shadow(0 0 7px ${color})`},{filter:'none'}],
+          {duration:480,easing:'ease-out'}
+        );
+      }
+    }
+  }
 }
 function quickRest(kind){
  const long=kind==='long';
