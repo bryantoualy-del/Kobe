@@ -16,6 +16,10 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  const shot=async name=>{await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:`screenshots/v12/${engine.name()}-${width}-${name}.png`,fullPage:true});};
  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('.support-cockpit').waitFor();
  assert.equal(await page.locator('.turn-lane').count(),2);
+ assert.equal(await page.locator('.bardic-seal[data-lit=true]').count(),5);
+ assert.match(await page.locator('.bardic-resource').innerText(),/5\/5 · d10/);
+ assert.match(await page.locator('.combat-resources [data-combat-view=kharvek]').innerText(),/6\/6/);
+ assert.match(await page.locator('.cry-resource').innerText(),/4\/4/);
  assert.equal(await page.locator('.combo-steps [data-done=true]').count(),0);
  assert.equal(await page.locator('.combo-steps [aria-current=step]').getAttribute('data-step'),'1');
  const icons=await page.locator('.turn-commands img').evaluateAll(images=>images.map(image=>image.complete&&image.naturalWidth>0));
@@ -55,6 +59,10 @@ try{for(const engine of [chromium,webkit]){const browser=await engine.launch();t
  await page.locator('[data-combo=mantle]').click();
  await wait(()=>JSON.parse(localStorage.getItem('kobe-companion:v1')).state.resources.inspiration===3);
  assert.equal((await state()).resources.charges,4);
+ assert.equal(await page.locator('.bardic-seal[data-lit=true]').count(),3);
+ assert.equal(await page.locator('.bardic-seal[data-lit=false]').count(),2);
+ assert.match(await page.locator('.combat-resources [data-combat-view=kharvek]').innerText(),/4\/6/);
+ assert.equal(await page.locator('.app').getAttribute('data-majesty'),'false');
  assert.equal(await page.locator('[data-step="1"]').getAttribute('data-done'),'true');
  assert.equal(await page.locator('[data-step="2"]').getAttribute('aria-current'),'step');
  await page.reload();await page.locator('[data-combo=fireball]').waitFor();
